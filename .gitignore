@@ -1,0 +1,31 @@
+# 패키지 디렉터리
+node_modules/
+npm-debug.log*
+
+# 환경 설정
+.env
+.env.local
+
+# 빌드 결과물
+dist/
+build/
+
+# macOS 시스템 파일
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows 시스템 파일
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux 시스템 파일
+*~
+
+# 편집기 임시 파일
+*.swp
+*.swo
+*~
+.vscode/
+.idea/
