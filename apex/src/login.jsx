@@ -1,7 +1,17 @@
 import React from 'react';
-import './style/login.css';
+import './style/Login.css';
+import { useNavigate } from 'react-router-dom';
 import Logo from './img/logo.svg';
-function login() {
+
+function Login({ setIsLoggedIn }) {
+    const navigate = useNavigate();
+
+    const handleLogin = () => {
+        // 실제 아이디/비밀번호 확인 로직
+        setIsLoggedIn(true);
+        navigate('/');
+    };
+
   return (
     <div className="login-wrap">
         <div className="login-logo">
@@ -21,7 +31,10 @@ function login() {
             <label htmlFor="login-check"><span>Stay Logged In</span></label>
         </div>
 
-        <div className="login-btn"><p>LOGIN</p></div>
+        <button className="login-btn" onClick={handleLogin}>
+            LOGIN
+        </button>
+        
         <div className="other-wrap">
             <div className="left-line"></div><p>Other</p><div className="right-line"></div>
         </div>
@@ -30,4 +43,4 @@ function login() {
   );
 }
 
-export default login;
+export default Login;
