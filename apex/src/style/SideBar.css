@@ -1,9 +1,9 @@
 /* insert-font */
 @import url('https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css');
-
+* {font-family: 'NanumSquareRound', sans-serif; font-size: 16px;}
 .SideBar-wrap {
     position: fixed;
-    top: 6rem;
+    top: 5.5rem;
     left: 0;
     width: 21rem;
     height: 100%;
