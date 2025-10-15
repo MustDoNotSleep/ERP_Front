@@ -1,0 +1,11 @@
+/* insert-font */
+@import url('https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css');
+
+.SideBar-wrap {
+    position: fixed;
+    top: 6rem;
+    left: 0;
+    width: 21rem;
+    height: 100%;
+    background-color: #E3E3E1;
+}

@@ -6,7 +6,7 @@ import './style/Header.css';
 import Logo from './img/logo.svg';
 import User from './img/user.png';
 
-// App.js로부터 로그아웃 함수를 props로 받아와야 합니다.
+// App.jsx로부터 로그아웃 함수를 props로 받아와야 합니다.
 function Header({ onLogout }) {
     const navigate = useNavigate();
 

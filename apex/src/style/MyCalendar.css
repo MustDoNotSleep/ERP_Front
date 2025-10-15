@@ -1,0 +1,96 @@
+.react-calendar {
+    width: 100%;
+    /* --- ❗❗❗ 핵심 수정 사항 ❗❗❗ --- */
+    height: 100%; /* 부모(.calendar 위젯)의 높이를 꽉 채웁니다. */
+    border-radius: 5px;
+    background-color: #E3E3E1;
+    padding : 1rem;
+    box-shadow: none;
+    border: none;
+    font-family: 'NanumSquareRound', sans-serif;
+    display: flex;
+    flex-direction: column;
+}
+
+
+/* ✅ 월(Month) 표시를 보장하는 최종 코드 */
+.react-calendar__navigation {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  margin-bottom: 1rem;
+  height: auto;
+}
+
+/* ❗ 1. 월(Month) 버튼은 보이도록 명시적으로 스타일을 지정합니다. */
+.react-calendar__navigation__label {
+  display: inline-flex;
+  font-size: 1.2rem;
+  font-weight: 700;
+  color: #333;
+  pointer-events: none; /* 클릭 안 되게 처리 */
+  /* 이 버튼에 적용된 다른 display:none을 덮어쓰기 위해 !important를 사용할 수도 있습니다. */
+  /* display: inline-flex !important; */
+}
+
+/* ❗ 2. 좌우 화살표 버튼'만' 숨깁니다. */
+.react-calendar__navigation__prev2-button,
+.react-calendar__navigation__prev-button,
+.react-calendar__navigation__next-button,
+.react-calendar__navigation__next2-button {
+  display: none;
+}
+
+/* 요일('SUN', 'MON'...) */
+.react-calendar__month-view__weekdays {
+  text-align: center;
+  margin-bottom: 0.5rem;
+}
+.react-calendar__month-view__weekdays__weekday abbr {
+  text-decoration: none;
+  font-size: 0.9rem;
+  font-weight: 500;
+  color: #888;
+}
+
+/* 날짜 타일 하나하나 */
+.react-calendar__tile {
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  align-items: center;
+  height: 2.8rem;
+  border: none;
+  background: none;
+  color: #333;
+  font-size: 0.9rem;
+  padding: 0.2rem 0;
+}
+
+/* 다른 달의 날짜들 */
+.react-calendar__month-view__days__day--neighboringMonth {
+  color: #ccc;
+}
+
+/* 클릭/포커스 효과 제거 */
+.react-calendar__tile--active,
+.react-calendar__tile:enabled:hover,
+.react-calendar__tile:enabled:focus {
+  background: none;
+}
+
+/* ✅ 오늘 날짜에 밑줄을 추가하는 코드 */
+.react-calendar__tile--now {
+  background: none;
+  border-bottom: 2px solid #333;
+  font-weight: 900;
+}
+
+/* 이벤트 점 스타일 */
+.event-dot {
+  height: 6px;
+  width: 6px;
+  background-color: #c7a36a;
+  border-radius: 50%;
+  margin-top: 4px;
+}
