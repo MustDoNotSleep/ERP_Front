@@ -1,12 +1,12 @@
 // App.jsx
+import "./App.css";
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
-import './App.css';
-import React, { useState } from 'react';
-import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import MainPage from './pages/main/MainPage.jsx';
-import Login from './pages/login/login.jsx';
-import Header from './components/layout/Header.jsx';
-import SideBar from './components/layout/SideBar.jsx';
+import MainPage from "./pages/main/MainPage.jsx";
+import Login from "./pages/login/login.jsx";
+import Header from "./components/layout/Header.jsx";
+import SideBar from "./components/layout/SideBar.jsx";
 import CareerManagementPage from './pages/HR/career&education/careerManage/CareerManagementPage.jsx';
 
 function App() {
@@ -20,7 +20,7 @@ function App() {
     <BrowserRouter>
       {/* 1. 로그인 상태일 때만 Header를 보여줍니다. */}
       {isLoggedIn && <Header />}
-      {isLoggedIn && <SideBar />}
+      {isLoggedIn && <SideBar role="관리자"/>}
       {isLoggedIn && <Header onLogout={handleLogout} />}
 
       {/* 2. Routes(페이지 내용)를 main 태그로 감싸서 관리합니다. */}
