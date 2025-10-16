@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from "./CareerManagementPage.module.css"
-import CareerSearchFilter from '../../../../components/HR/career&edu/CarrerSearch/CareerSearchFilter'; 
+import CareerSearchFilter from '../../../../components/HR/career&edu/careerManage/CareerSearchFilter.jsx';
 // import Pagination from '../components/common/Pagination'; 
 import DataTable from '../../../../components/common/DataTable';
 import tableStyles from '../../../../components/common/DataTable.module.css'; 

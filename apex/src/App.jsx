@@ -6,8 +6,9 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
-import CareerManagementPage from "./pages/HR/career&education/careerManage/CareerManagementPage.jsx";
+import CareerManagementPage from "./pages/HR/career&training/careerManage/CareerManagementPage.jsx";
 import ComingSoon from './components/layout/Preparing.jsx'
+import TrainingCreate from './pages/HR/career&training/trainingCreate/TrainingCreate.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -24,19 +25,37 @@ function App() {
 
       {/* 메인 콘텐츠 영역: 사이드바와 헤더가 차지하는 공간 제외 */}
       <main className="main-content">
-          <Routes>
-              <Route path="/" element={<MainPage />} /> 
-              <Route path="/hr/career" element={<CareerManagementPage />} />
-              
-              {/* 와일드카드 경로 (ComingSoon 컴포넌트로 처리) */}
-              <Route path="/hr/*" element={<ComingSoon title="인사 페이지 준비중" />} />
-              <Route path="/attendance/*" element={<ComingSoon title="근태 페이지 준비중" />} />
-              <Route path="/payroll/*" element={<ComingSoon title="급여 페이지 준비중" />} />
-              <Route path="/me/*" element={<ComingSoon title="내 정보 페이지 준비중" />} />
+        <Routes>
+          <Route path="/" element={<MainPage />} /> 
 
-              <Route path="*" element={<Navigate to="/" replace />} />
-          </Routes>
-        </main>
+          {/* 인사부분 */}  
+          <Route path="/hr">
+            <Route path="career" element={<CareerManagementPage />} />
+            <Route path="training/create" element={<TrainingCreate />} />
+          </Route>
+
+          {/* 근태부분 */}  
+          <Route path="/attendance">
+            {/* <Route path="career" element={<CareerManagementPage />} />
+            <Route path="education/regist" element={<CareerManagementPage />} /> */}
+          </Route>
+
+          {/* 급여부분 */}  
+          <Route path="/payroll">
+            {/* <Route path="career" element={<CareerManagementPage />} />
+            <Route path="education/regist" element={<CareerManagementPage />} /> */}
+          </Route>
+
+
+          {/* 와일드카드 경로 (ComingSoon 컴포넌트로 처리) */}
+          <Route path="/hr/*" element={<ComingSoon title="인사 페이지 준비중" />} />
+          <Route path="/attendance/*" element={<ComingSoon title="근태 페이지 준비중" />} />
+          <Route path="/payroll/*" element={<ComingSoon title="급여 페이지 준비중" />} />
+          <Route path="/me/*" element={<ComingSoon title="내 정보 페이지 준비중" />} />
+
+          <Route path="*" element={<Navigate to="/" replace />} />
+        </Routes>
+      </main>
     </div>
     );
 
