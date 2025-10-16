@@ -5,24 +5,29 @@ import CareerSearchFilter from '../../../../components/HR/career&edu/CarrerSearc
 import DataTable from '../../../../components/common/DataTable';
 import tableStyles from '../../../../components/common/DataTable.module.css'; 
 import { FaSearch } from "react-icons/fa";
+import { EMPLOYEE_LIST_MOCK_DATA } from '../../../../models/Employee.js';
 
 // 1. 테이블 헤더 정의 (DataTable에 전달할 값)
 const EMPLOYEE_TABLE_HEADERS = [
     '사번', '이름', '직급', '직급근속', '인사발령이력', '자격증', '어학성적', <FaSearch/>
 ];
 
-const CareerManagementPage = () => {
-    
-    // (A) 상태 정의 (이전과 동일)
-    const [searchParams, setSearchParams] = useState({ /* ... */ });
-    const [employees] = useState([
-        { 사번: 12345, 이름: '김선수', 직급: '수석', 직급근속: '4년 8개월', 인사발령이력: '승진', 자격증: '정보보안기사', 어학성적: 'TOEIC 900점' },
-        { 사번: 12346, 이름: '최사원', 직급: '사원', 직급근속: '1년 3개월', 인사발령이력: '신규입사', 자격증: '-', 어학성적: '-' },
-        { 사번: 12347, 이름: '윤대리', 직급: '대리', 직급근속: '2년 1개월', 인사발령이력: '승진', 자격증: 'ADsP', 어학성적: 'HSK 4급' },
-        { 사번: 12348, 이름: '홍선임', 직급: '선임', 직급근속: '3년 1개월', 인사발령이력: '직무변경', 자격증: 'CPA', 어학성적: 'OPic IM3' },
-    ]);
+// 💡 임시 함수: Full Data에서 테이블에 필요한 경력 상세 정보를 추출/변환합니다.
+// 실제 애플리케이션에서는 백엔드의 JOIN 쿼리나 별도 API 호출로 대체됩니다.
+const getCareerDataForTable = (employeeId) => {
+    switch (employeeId) {
+        case 12345: return { position: '수석', years: '4년 8개월', appt: '승진', cert: '정보보안기사', lang: 'TOEIC 900점' };
+        case 12346: return { position: '사원', years: '1년 3개월', appt: '신규입사', cert: '-', lang: '-' };
+        case 12347: return { position: '대리', years: '2년 1개월', appt: '승진', cert: 'ADsP', lang: 'HSK 4급' };
+        case 12348: return { position: '선임', years: '3년 1개월', appt: '직무변경', cert: 'CPA', lang: 'OPic IM3' };
+        default: return { position: '미정', years: '-', appt: '-', cert: '-', lang: '-' };
+    }
+};
 
-    // (B) 핸들러 함수 정의 (이전과 동일)
+const CareerManagementPage = () => {
+    const [searchParams, setSearchParams] = useState({ /* ... */ });
+    const [employees] = useState(EMPLOYEE_LIST_MOCK_DATA); 
+
     const handleSearchChange = (name, value) => { /* ... */ };
     const handleSearch = () => { console.log('🐥 검색 시작!', searchParams); };
     const handleViewDetail = (employeeId) => {
@@ -30,21 +35,22 @@ const CareerManagementPage = () => {
         // TODO: 상세 모달/페이지 이동 로직
     };
     
-    // (C) 경력 데이터에 특화된 행 렌더링 함수 정의
     const renderEmployeeRow = (employee) => { 
+        const career = getCareerDataForTable(employee.employeeId);
         return (
             <>
-                <td className={tableStyles.tableData}>{employee.사번}</td>
-                <td className={tableStyles.tableData}>{employee.이름}</td>
-                <td className={tableStyles.tableData}>{employee.직급}</td>
-                <td className={tableStyles.tableData}>{employee.직급근속}</td>
-                <td className={tableStyles.tableData}>{employee.인사발령이력}</td>
-                <td className={tableStyles.tableData}>{employee.자격증}</td>
-                <td className={tableStyles.tableData}>{employee.어학성적}</td>
+                <td className={tableStyles.tableData}>{employee.employeeId}</td>
+                <td className={tableStyles.tableData}>{employee.name}</td>
+                <td className={tableStyles.tableData}>{career.position}</td>
+                <td className={tableStyles.tableData}>{career.years}</td>
+                <td className={tableStyles.tableData}>{career.appt}</td>
+                <td className={tableStyles.tableData}>{career.cert}</td>
+                <td className={tableStyles.tableData}>{career.lang}</td>
+                
                 <td className={tableStyles.tableAction}>
                     <button 
                         className={tableStyles.viewButton}
-                        onClick={() => handleViewDetail(employee.사번)}
+                        onClick={() => handleViewDetail(employee.employeeId)} // 🔥 카멜 케이스
                     >
                         <FaSearch />
                     </button>
