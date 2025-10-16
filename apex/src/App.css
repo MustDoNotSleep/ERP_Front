@@ -68,9 +68,7 @@ html, body, #root {
     overflow-x: hidden; /* 가로 스크롤은 필요 없다면 숨김 */
     
     /* 기본 여백을 설정하여 페이지 내용이 테두리에 붙지 않도록 합니다. */
-    /* CareerManagementPage.module.css의 패딩과 겹치지 않게 조절 필요 */
-    padding: 0; /* 페이지 컴포넌트 내부에서 패딩을 설정하므로 여기서는 0으로 설정 */
-    
+    padding: 2rem; 
     background-color: #ffffff; /* 필요시 배경색 지정 */
 }
 
