@@ -1,17 +1,4 @@
 // App.jsx
-import "./App.css";
-import React, { useState } from "react";
-import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
-
-<<<<<<< HEAD
-<<<<<<< HEAD
-import MainPage from "./pages/main/MainPage.jsx";
-import Login from "./pages/login/login.jsx";
-import Header from "./components/layout/Header.jsx";
-import SideBar from "./components/layout/SideBar.jsx";
-=======
-=======
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
 import './App.css';
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -19,10 +6,7 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
-<<<<<<< HEAD
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
-=======
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
+
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);

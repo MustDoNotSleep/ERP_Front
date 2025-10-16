@@ -1,5 +1,3 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
 import React, { useState, useEffect, useMemo } from "react";
 import { NavLink, useLocation, matchPath } from "react-router-dom";
 import "./SideBar.css";
@@ -304,23 +302,3 @@ export default function SideBar({ role = "임원" }) {
     </aside>
   );
 }
-=======
-=======
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
-import React from 'react';
-import './SideBar.css';
-
-function SideBar() {
-  return (
-    <div className="SideBar-wrap">
-        {/* 사이드바 내용 */}
-    </div>
-  );
-}
-
-<<<<<<< HEAD
-export default SideBar;
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
-=======
-export default SideBar;
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
