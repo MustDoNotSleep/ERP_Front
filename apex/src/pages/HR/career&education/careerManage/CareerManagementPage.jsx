@@ -3,10 +3,12 @@ import styles from "./CareerManagementPage.module.css"
 import CareerSearchFilter from '../../../../components/HR/career&edu/CarrerSearch/CareerSearchFilter'; 
 // import Pagination from '../components/common/Pagination'; 
 import DataTable from '../../../../components/common/DataTable';
+import tableStyles from '../../../../components/common/DataTable.module.css'; 
+import { FaSearch } from "react-icons/fa";
 
 // 1. 테이블 헤더 정의 (DataTable에 전달할 값)
 const EMPLOYEE_TABLE_HEADERS = [
-    '사번', '이름', '직급', '직급근속', '인사발령이력', '자격증', '어학성적', 'Q'
+    '사번', '이름', '직급', '직급근속', '인사발령이력', '자격증', '어학성적', <FaSearch/>
 ];
 
 const CareerManagementPage = () => {
@@ -32,19 +34,19 @@ const CareerManagementPage = () => {
     const renderEmployeeRow = (employee) => { 
         return (
             <>
-                <td className="tableData">{employee.사번}</td>
-                <td className="tableData">{employee.이름}</td>
-                <td className="tableData">{employee.직급}</td>
-                <td className="tableData">{employee.직급근속}</td>
-                <td className="tableData">{employee.인사발령이력}</td>
-                <td className="tableData">{employee.자격증}</td>
-                <td className="tableData">{employee.어학성적}</td>
-                <td className="tableAction">
+                <td className={tableStyles.tableData}>{employee.사번}</td>
+                <td className={tableStyles.tableData}>{employee.이름}</td>
+                <td className={tableStyles.tableData}>{employee.직급}</td>
+                <td className={tableStyles.tableData}>{employee.직급근속}</td>
+                <td className={tableStyles.tableData}>{employee.인사발령이력}</td>
+                <td className={tableStyles.tableData}>{employee.자격증}</td>
+                <td className={tableStyles.tableData}>{employee.어학성적}</td>
+                <td className={tableStyles.tableAction}>
                     <button 
-                        className="viewButton"
+                        className={tableStyles.viewButton}
                         onClick={() => handleViewDetail(employee.사번)}
                     >
-                        🔍
+                        <FaSearch />
                     </button>
                 </td>
             </>
@@ -54,8 +56,6 @@ const CareerManagementPage = () => {
 
     return (
         <div className={styles.pageContainer}>
-            <h2 className={styles.pageTitle}>경력 관리</h2>
-            
             {/* 1. 검색 필터 컴포넌트 */}
             <CareerSearchFilter 
                 searchParams={searchParams}

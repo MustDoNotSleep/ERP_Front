@@ -1,5 +1,4 @@
-<<<<<<< HEAD
-<<<<<<< HEAD
+
 .SideBar-wrap {
   position: fixed;
   top: 5.5rem;
@@ -141,10 +140,8 @@
   border-radius: 3px;
 }
 .SideBar-scroll::-webkit-scrollbar-thumb:hover {
-  background: rgba(50, 59, 42, 0.5);
-=======
-=======
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
+  background: rgba(50, 59, 42, 0.5);}
+
 /* insert-font */
 @import url('https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css');
 * {font-family: 'NanumSquareRound', sans-serif; font-size: 16px;}
@@ -155,8 +152,4 @@
     width: 21rem;
     height: 100%;
     background-color: #E3E3E1;
-<<<<<<< HEAD
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
-=======
->>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
 }

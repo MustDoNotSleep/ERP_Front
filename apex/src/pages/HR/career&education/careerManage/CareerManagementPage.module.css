@@ -1,28 +1,11 @@
 /* CareerManagementPage.module.css */
 
 .pageContainer {
-    /* 전체 콘텐츠 영역의 좌우/상하 여백을 설정합니다. */
-    /* 사이드바와 헤더를 제외한 실제 작업 공간의 패딩입니다. */
+    /* 기존 스타일 유지 */
     padding: 30px 40px; 
 }
 
-.pageTitle {
-    /* 페이지 제목 ("경력 관리")의 스타일 */
-    font-size: 24px;
-    font-weight: bold;
-    color: #333;
-    /* 필터 영역과의 간격을 확보 */
-    margin-bottom: 25px; 
-    border-bottom: 1px solid #eee; /* 제목 아래 얇은 구분선 */
-    padding-bottom: 10px;
-}
 
-/* * 참고: 하위 컴포넌트들 (필터, 테이블, 페이지네이션) 사이의 간격 조정
- * 필요하다면 여기에 추가할 수 있습니다. 예를 들어:
- */
-/*
-.pageContainer > :nth-child(3) {
-    // 검색 필터와 테이블 사이의 간격 조정 (검색 필터 자체가 margin-bottom을 가지고 있다면 생략 가능)
-    margin-top: 0;
+.pageContainer > :nth-child(1) {
+    margin-bottom: 1rem;
 }
-*/

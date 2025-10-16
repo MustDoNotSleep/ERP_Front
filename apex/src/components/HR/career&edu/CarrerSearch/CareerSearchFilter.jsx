@@ -19,63 +19,70 @@ const CareerSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) =>
 
     return (
         <div className={styles.filterContainer}>
-            <div className={styles.inputGroup}>
-                <label className={styles.label}>이름</label>
-                <input 
-                    type="text" 
-                    name="name" 
-                    value={searchParams.name} 
-                    onChange={handleInputChange} 
-                    className={styles.input}
-                    placeholder="00000"
-                />
-            </div>
-            
-            <div className={styles.inputGroup}>
-                <label className={styles.label}>사원번호</label>
-                <select 
-                    name="employeeId" 
-                    value={searchParams.employeeId} 
-                    onChange={handleSelectChange}
-                    className={`${styles.input} ${styles.select}`}
-                >
-                    {dummyOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                </select>
-            </div>
-            
-            <div className={styles.inputGroup}>
-                <label className={styles.label}>부서</label>
-                <select 
-                    name="department" 
-                    value={searchParams.department} 
-                    onChange={handleSelectChange}
-                    className={`${styles.input} ${styles.select}`}
-                >
-                    {dummyOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                </select>
-            </div>
+            <h2 className={styles.title}>경력 관리</h2>
+            <div className={styles.formLayout}> 
+                <div className={styles.filterContent}> 
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>이름</label>
+                        <input 
+                            type="text" 
+                            name="name" 
+                            value={searchParams.name} 
+                            onChange={handleInputChange} 
+                            className={styles.input}
+                            placeholder="00000"
+                        />
+                    </div>
+                    
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>사원번호</label>
+                        <select 
+                            name="employeeId" 
+                            value={searchParams.employeeId} 
+                            onChange={handleSelectChange}
+                            className={`${styles.input} ${styles.select}`}
+                        >
+                            {dummyOptions.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                    
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>부서</label>
+                        <select 
+                            name="department" 
+                            value={searchParams.department} 
+                            onChange={handleSelectChange}
+                            className={`${styles.input} ${styles.select}`}
+                        >
+                            {dummyOptions.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </select>
+                    </div>
 
-            <div className={styles.inputGroup}>
-                <label className={styles.label}>팀</label>
-                <select 
-                    name="team" 
-                    value={searchParams.team} 
-                    onChange={handleSelectChange}
-                    className={`${styles.input} ${styles.select}`}
-                >
-                    {dummyOptions.map(option => (
-                        <option key={option.value} value={option.value}>{option.label}</option>
-                    ))}
-                </select>
-            </div>
+                    <div className={styles.inputGroup}>
+                        <label className={styles.label}>팀</label>
+                        <select 
+                            name="team" 
+                            value={searchParams.team} 
+                            onChange={handleSelectChange}
+                            className={`${styles.input} ${styles.select}`}
+                        >
+                            {dummyOptions.map(option => (
+                                <option key={option.value} value={option.value}>{option.label}</option>
+                            ))}
+                        </select>
+                    </div>
+                </div>
 
-            <button onClick={onSearchSubmit} className={styles.searchButton}>
-                조회
-            </button>
+                <div className={styles.buttonGroup}>
+                    <button onClick={onSearchSubmit} className={styles.searchButton}>
+                        조회
+                    </button>
+                </div>
+            </div>
         </div>
     );
 };

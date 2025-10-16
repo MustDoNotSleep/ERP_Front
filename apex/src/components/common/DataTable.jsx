@@ -1,7 +1,7 @@
 // src/components/common/DataTable.jsx (재사용 가능한 이름으로 변경)
 
 import React from 'react';
-import styles from './DataTable.css'; // 범용적인 스타일 파일 사용
+import styles from './DataTable.module.css'; // 범용적인 스타일 파일 사용
 
 const DataTable = ({ headers, data, onRowClick, renderRow }) => {
     return (
