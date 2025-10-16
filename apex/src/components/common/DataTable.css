@@ -1,0 +1,65 @@
+/* DataTable.module.css */
+
+.tableContainer {
+    /* 테이블을 담는 컨테이너. 가로 스크롤링이 필요할 경우를 대비 */
+    overflow-x: auto;
+}
+
+.genericTable {
+    width: 100%;
+    border-collapse: collapse; /* 셀 경계를 합쳐서 깔끔하게 */
+    margin-top: 15px;
+    font-size: 14px;
+}
+
+/* 테이블 헤더 스타일 */
+.tableHeader {
+    background-color: #7c7066; /* APEX 디자인을 따른 어두운 배경색 */
+    color: white;
+    padding: 10px 8px;
+    text-align: left;
+    font-weight: bold;
+    border: 1px solid #6b5e54;
+    white-space: nowrap; /* 헤더 텍스트 줄바꿈 방지 */
+    cursor: default; /* 정렬 기능이 없다면 커서 변경 */
+}
+
+/* 테이블 데이터 셀 스타일 */
+.tableData {
+    padding: 10px 8px;
+    text-align: left;
+    border: 1px solid #ddd;
+    white-space: nowrap; /* 셀 내용 줄바꿈 방지 */
+}
+
+/* 홀수/짝수 행 배경색을 다르게 하여 가독성 높임 (Striping) */
+.rowEven {
+    background-color: #f9f9f9;
+}
+
+.rowOdd {
+    background-color: white;
+}
+
+/* 행에 마우스를 올렸을 때 스타일 (선택 사항) */
+.genericTable tbody tr:hover {
+    background-color: #e6e6e6; 
+    cursor: pointer;
+}
+
+/* 액션 버튼이나 아이콘이 들어가는 셀 (Q 열) 스타일 */
+.tableAction {
+    /* composes: tableData;  */
+    text-align: center;
+    width: 50px; /* 고정 너비 지정 */
+}
+
+/* 상세 보기 버튼 스타일 (돋보기 아이콘) */
+.viewButton {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+    padding: 0;
+    line-height: 1; /* 아이콘 정렬을 위해 */
+}

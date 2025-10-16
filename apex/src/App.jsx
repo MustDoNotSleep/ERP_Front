@@ -7,6 +7,7 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
+import CareerManagementPage from './pages/HR/career&education/careerManage/CareerManagementPage.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,6 +35,10 @@ function App() {
             // 3. PrivateRoute 컴포넌트 대신 직접 조건을 확인합니다.
             //    로그인 상태이면 MainPage를, 아니면 /login으로 보냅니다.
             element={isLoggedIn ? <MainPage /> : <Navigate to="/login" />}
+          />
+          <Route 
+            path="/career" 
+            element={<CareerManagementPage/>}
           />
         </Routes>
       </main>
