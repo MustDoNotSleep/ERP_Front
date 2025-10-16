@@ -2,9 +2,9 @@
 
 import React from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import './style/Header.css';
-import Logo from './img/logo.svg';
-import User from './img/user.png';
+import './Header.css';
+import Logo from '../../img/logo.svg';
+import User from '../../img/user.png';
 
 // App.jsx로부터 로그아웃 함수를 props로 받아와야 합니다.
 function Header({ onLogout }) {
