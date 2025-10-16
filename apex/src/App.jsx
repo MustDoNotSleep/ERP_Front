@@ -3,10 +3,10 @@
 import './style/App.css';
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import MainPage from './MainPage.jsx';
-import Login from './Login.jsx';
-import Header from './Header.jsx';
-import SideBar from './SideBar.jsx';
+import MainPage from './pages/MainPage.jsx';
+import Login from './pages/login.jsx';
+import Header from './components/Header.jsx';
+import SideBar from './components/SideBar.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
