@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import Calendar from 'react-calendar';
 import 'react-calendar/dist/Calendar.css';
-import './style/MyCalendar.css';
+import './MyCalendar.css';
 
 const eventDates = [
   new Date(2025, 9, 3), // JS에서 10월은 '9'입니다.

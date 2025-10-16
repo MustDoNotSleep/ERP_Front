@@ -1,12 +1,12 @@
 // App.jsx
 
-import './style/App.css';
+import './App.css';
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
-import MainPage from './pages/MainPage.jsx';
-import Login from './pages/login.jsx';
-import Header from './components/Header.jsx';
-import SideBar from './components/SideBar.jsx';
+import MainPage from './pages/main/MainPage.jsx';
+import Login from './pages/login/login.jsx';
+import Header from './components/layout/Header.jsx';
+import SideBar from './components/layout/SideBar.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
