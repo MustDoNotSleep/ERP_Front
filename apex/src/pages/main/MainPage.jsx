@@ -1,7 +1,15 @@
 import React, { useState, useEffect } from 'react';
 import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
+<<<<<<< HEAD
+<<<<<<< HEAD
+import MyCalendar from '../../components/myCalendar/MyCalendar';
+=======
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
+>>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
+=======
+import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
+>>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
 import './MainPage.css';
 //import { Link } from 'react-router-dom';
 

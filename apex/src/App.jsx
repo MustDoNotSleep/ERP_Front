@@ -1,5 +1,17 @@
 // App.jsx
+import "./App.css";
+import React, { useState } from "react";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
+<<<<<<< HEAD
+<<<<<<< HEAD
+import MainPage from "./pages/main/MainPage.jsx";
+import Login from "./pages/login/login.jsx";
+import Header from "./components/layout/Header.jsx";
+import SideBar from "./components/layout/SideBar.jsx";
+=======
+=======
+>>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
 import './App.css';
 import React, { useState } from 'react';
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
@@ -7,6 +19,10 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
+<<<<<<< HEAD
+>>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
+=======
+>>>>>>> 5057b9c6306748dbd25c02474014fd9a3ba5f762
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -19,7 +35,7 @@ function App() {
     <BrowserRouter>
       {/* 1. 로그인 상태일 때만 Header를 보여줍니다. */}
       {isLoggedIn && <Header />}
-      {isLoggedIn && <SideBar />}
+      {isLoggedIn && <SideBar role="관리자"/>}
       {isLoggedIn && <Header onLogout={handleLogout} />}
 
       {/* 2. Routes(페이지 내용)를 main 태그로 감싸서 관리합니다. */}
