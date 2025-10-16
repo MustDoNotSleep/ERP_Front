@@ -1,0 +1,50 @@
+/* 전역(이미 있으면 생략) */
+html, body { margin: 0; }
+
+/* 카드 높이 계산 수정 */
+.wip-card {
+    position: fixed;
+    width: calc(100% - 21rem);
+    height: calc(100% - 5.5rem);/* 고정 헤더 높이만큼 제외 */
+    box-sizing: border-box;             /* padding을 높이에 포함 */
+    background: #e3e3e1;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 2rem;
+    top: 5.5rem;
+    left: 21rem;
+}
+
+.logo-group {
+    display: flex;
+    align-items: center;
+    gap: 0.75rem;
+    text-decoration: none;
+}
+
+.logo-image {
+    height: 5rem;
+    width: 5rem;
+}
+
+.logo-text {
+    font-size: 2rem;
+    font-weight: 800;
+    color: #323B2A;
+    text-align: center;
+    padding-bottom: 0.4rem;
+}
+
+/* 중앙 컨텐츠 */
+.wip-center {
+  text-align: center;
+  color: #323b2a;       /* 공통 텍스트 컬러 */
+}
+
+.wip-title {
+  margin-top: 1.75rem;
+  font-size: 2rem;
+  font-weight: 800;
+  color: #6a4b3a;
+}

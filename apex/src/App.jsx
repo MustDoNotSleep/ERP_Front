@@ -6,8 +6,7 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
-
-
+import ComingSoon from './components/layout/Preparing.jsx'
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
   const handleLogout = () => {
@@ -35,6 +34,11 @@ function App() {
             //    로그인 상태이면 MainPage를, 아니면 /login으로 보냅니다.
             element={isLoggedIn ? <MainPage /> : <Navigate to="/login" />}
           />
+          <Route path="/hr/*" element={<ComingSoon title="인사 페이지 준비중" />} />
+        <Route path="/attendance/*" element={<ComingSoon title="근태 페이지 준비중" />} />
+        <Route path="/payroll/*" element={<ComingSoon title="급여 페이지 준비중" />} />
+        <Route path="/me/*" element={<ComingSoon title="내 정보 페이지 준비중" />} />
+        <Route path="*" element={<ComingSoon />} />
         </Routes>
       </main>
     </BrowserRouter>
