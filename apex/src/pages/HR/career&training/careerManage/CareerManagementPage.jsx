@@ -5,7 +5,7 @@ import CareerSearchFilter from '../../../../components/HR/career&edu/careerManag
 import DataTable from '../../../../components/common/DataTable';
 import tableStyles from '../../../../components/common/DataTable.module.css'; 
 import { FaSearch } from "react-icons/fa";
-import { EMPLOYEE_LIST_MOCK_DATA } from '../../../../models/Employee.js';
+import { EMPLOYEE_LIST_MOCK_DATA } from '../../../../models/data/EmployeeMOCK.js';
 
 // 1. 테이블 헤더 정의 (DataTable에 전달할 값)
 const EMPLOYEE_TABLE_HEADERS = [

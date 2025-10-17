@@ -9,6 +9,7 @@ import SideBar from './components/layout/SideBar.jsx';
 import CareerManagementPage from "./pages/HR/career&training/careerManage/CareerManagementPage.jsx";
 import ComingSoon from './components/layout/Preparing.jsx'
 import TrainingCreate from './pages/HR/career&training/trainingCreate/TrainingCreate.jsx';
+import TrainingApprovalPage from './pages/HR/career&training/trainingApprovals/TrainingApprovalPage.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -32,6 +33,7 @@ function App() {
           <Route path="/hr">
             <Route path="career" element={<CareerManagementPage />} />
             <Route path="training/create" element={<TrainingCreate />} />
+            <Route path="training/approvals" element={<TrainingApprovalPage/>}/>
           </Route>
 
           {/* 근태부분 */}  

@@ -59,3 +59,31 @@
     padding: 0;
     color: #666;   
 }
+
+/* 액션 버튼 그룹 */
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end; /* 오른쪽 정렬을 기본으로 */
+    gap: 1rem;
+    margin-top: 1.5rem;
+}
+
+.submitButton, .cancelButton {
+    padding: 0.75rem 1.5rem;
+    font-size: 1rem;
+    font-weight: bold;
+    border-radius: 0.25rem;
+    cursor: pointer;
+    border: 0.0625rem solid transparent;
+}
+
+.submitButton {
+    background-color: #875c4e; /* 승인 버튼 색상 */
+    color: white;
+}
+
+.cancelButton {
+    background-color: #f9f9f9; 
+    color: #555;
+    border-color: #ccc;
+}
