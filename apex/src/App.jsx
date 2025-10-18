@@ -10,6 +10,7 @@ import CareerManagementPage from "./pages/HR/career&training/careerManage/Career
 import ComingSoon from './components/layout/Preparing.jsx'
 import TrainingCreate from './pages/HR/career&training/trainingCreate/TrainingCreate.jsx';
 import TrainingApprovalPage from './pages/HR/career&training/trainingApprovals/TrainingApprovalPage.jsx';
+import CertificateIssuePage from './pages/HR/certificates/CertificateIssuePage.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -34,6 +35,7 @@ function App() {
             <Route path="career" element={<CareerManagementPage />} />
             <Route path="training/create" element={<TrainingCreate />} />
             <Route path="training/approvals" element={<TrainingApprovalPage/>}/>
+            <Route path="certificates" element={<CertificateIssuePage/>}/>
           </Route>
 
           {/* 근태부분 */}  

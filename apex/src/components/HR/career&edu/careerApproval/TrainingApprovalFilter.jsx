@@ -59,9 +59,11 @@ const TrainingApprovalFilter = ({ searchParams, onSearchChange, onSearchSubmit }
                 </div>
 
                 {/* 6. 조회 버튼 */}
-                <button onClick={onSearchSubmit} className={styles.searchButton} style={{ marginTop: '0.8rem' }}>
-                    조회
-                </button>
+                <div className={styles.inputGroup}>
+                    <button onClick={onSearchSubmit} className={styles.searchButton} style={{ marginTop: '0.8rem' }}>
+                        조회
+                    </button>
+                </div>
             </div>
         </div>
     );
