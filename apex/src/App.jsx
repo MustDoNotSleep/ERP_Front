@@ -38,6 +38,7 @@ function App() {
             <Route path="training/approvals" element={<TrainingApprovalPage/>}/>
             <Route path="certificates" element={<CertificateIssuePage/>}/>
             <Route path="performance/manage" element={<PerformanceManagementPage/>}/>
+            
           </Route>
 
           {/* 근태부분 */}  
