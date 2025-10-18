@@ -2,9 +2,9 @@ import React from 'react';
 import styles from './TrainingApprovalFilter.module.css'
 
 // ✨ 목 데이터 임포트
-import { APPROVAL_STATUS_OPTIONS } from '../../../../models/data/TrainingMOCK';
-import { DEPARTMENT_MOCK } from '../../../../models/data/DepartmentMOCK';
-import { POSITIONS_MOCK } from '../../../../models/data/PositionsMOCK';
+import { APPROVAL_STATUS_OPTIONS } from '../../../models/data/TrainingMOCK';
+import { DEPARTMENT_MOCK } from '../../../models/data/DepartmentMOCK';
+import { POSITIONS_MOCK } from '../../../models/data/PositionsMOCK';
 
 const TrainingApprovalFilter = ({ searchParams, onSearchChange, onSearchSubmit }) => {
     

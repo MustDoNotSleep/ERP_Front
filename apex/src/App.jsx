@@ -6,11 +6,12 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
-import CareerManagementPage from "./pages/HR/career&training/careerManage/CareerManagementPage.jsx";
+import CareerManagementPage from "./pages/HR/career&training/CareerManagementPage.jsx";
 import ComingSoon from './components/layout/Preparing.jsx'
-import TrainingCreate from './pages/HR/career&training/trainingCreate/TrainingCreate.jsx';
-import TrainingApprovalPage from './pages/HR/career&training/trainingApprovals/TrainingApprovalPage.jsx';
+import TrainingCreate from './pages/HR/career&training/TrainingCreate.jsx';
+import TrainingApprovalPage from './pages/HR/career&training/TrainingApprovalPage.jsx';
 import CertificateIssuePage from './pages/HR/certificates/CertificateIssuePage.jsx';
+import PerformanceManagementPage from './pages/HR/performance/PerformanceManagementPage.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -36,6 +37,7 @@ function App() {
             <Route path="training/create" element={<TrainingCreate />} />
             <Route path="training/approvals" element={<TrainingApprovalPage/>}/>
             <Route path="certificates" element={<CertificateIssuePage/>}/>
+            <Route path="performance/manage" element={<PerformanceManagementPage/>}/>
           </Route>
 
           {/* 근태부분 */}  

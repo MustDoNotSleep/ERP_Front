@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './TrainingCreate.module.css';
-import TrainingCourseInputGrid from '../../../../components/HR/career&edu/trainingCreate/TrainingInputGrid';
+import TrainingCourseInputGrid from '../../../components/HR/career&edu/TrainingInputGrid';
 
 const TrainingCreate = () => {
     // 폼 데이터 상태 정의

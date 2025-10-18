@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import styles from "./TrainingApprovalPage.module.css"
-import tableStyles from "../../../../components/common/DataTable.module.css";
-import DataTable from '../../../../components/common/DataTable';
-import { TRAINING_APPROVAL_LIST_MOCK } from '../../../../models/data/TrainingMOCK';
-import TrainingApprovalFilter from '../../../../components/HR/career&edu/careerApproval/TrainingApprovalFilter';
+import tableStyles from "../../../components/common/DataTable.module.css";
+import DataTable from '../../../components/common/DataTable';
+import { TRAINING_APPROVAL_LIST_MOCK } from '../../../models/data/TrainingMOCK';
+import TrainingApprovalFilter from '../../../components/HR/career&edu/TrainingApprovalFilter';
 
 const TABLE_HEADERS = [
     '선택', '신청일자', '사번', '이름', '부서', '직급', '교육명', '상태'

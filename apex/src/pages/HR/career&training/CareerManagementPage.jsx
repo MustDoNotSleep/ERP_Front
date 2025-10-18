@@ -1,11 +1,11 @@
 import React, { useState } from 'react';
 import styles from "./CareerManagementPage.module.css"
-import CareerSearchFilter from '../../../../components/HR/career&edu/careerManage/CareerSearchFilter.jsx';
+import CareerSearchFilter from '../../../components/HR/career&edu/CareerSearchFilter.jsx';
 // import Pagination from '../components/common/Pagination'; 
-import DataTable from '../../../../components/common/DataTable';
-import tableStyles from '../../../../components/common/DataTable.module.css'; 
+import DataTable from '../../../components/common/DataTable.jsx';
+import tableStyles from '../../../components/common/DataTable.module.css'; 
 import { FaSearch } from "react-icons/fa";
-import { EMPLOYEE_LIST_MOCK_DATA } from '../../../../models/data/EmployeeMOCK.js';
+import { EMPLOYEE_LIST_MOCK_DATA } from '../../../models/data/EmployeeMOCK.js';
 
 // 1. 테이블 헤더 정의 (DataTable에 전달할 값)
 const EMPLOYEE_TABLE_HEADERS = [
