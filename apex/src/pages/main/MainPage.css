@@ -260,7 +260,7 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
 }
 
 .notice-list {list-style-type: disc; padding-left: 1.1rem; margin: 0.8rem 0;}
-.notice-list li {font-size: 1rem; margin-bottom: 0.8rem; color: #000; margin-top: 1rem; font-weight: 600;}
+.notice-list li {font-size: 1rem; margin-bottom: 0.8rem; color: #000; margin-top: 1rem; font-weight: 600; cursor: pointer;}
 .notice-list li:last-child {margin-bottom: 0;}
 .new-badge {color: #E41E1E; font-weight: 700; margin-left: 0.5rem; font-size: 1rem;}
 .divider {width: 100%; border: none; border-top: 1px solid #323B2A; margin: 1rem 0;}
