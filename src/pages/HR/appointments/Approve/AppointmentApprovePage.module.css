@@ -1,0 +1,79 @@
+/* AppointmentApprovePage.module.css */
+.pageContainer {
+    padding: 24px;
+    background-color: #f9f9f9;
+    height: 100%;
+}
+
+.pageTitle {
+    font-size: 24px;
+    font-weight: 600;
+    margin-bottom: 20px;
+}
+
+.filterSection {
+    margin-bottom: 24px;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 10px;
+    margin-top: 20px;
+}
+
+/* 버튼 기본 스타일 (TrainingApprovalPage와 유사하게) */
+.approveButton, .rejectButton {
+    padding: 10px 20px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+}
+
+/* 이미지의 버튼 스타일 반영 */
+.approveButton {
+    background-color: #363636; /* 어두운 색 */
+    color: white;
+}
+
+.rejectButton {
+    background-color: #f0f0f0; /* 밝은 회색 */
+    color: #333;
+    border: 1px solid #ccc;
+}
+
+/* 페이지네이션 (이미지 참고) */
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 15px;
+    margin-top: 24px;
+}
+
+.pagination button {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 16px;
+}
+
+.pagination span {
+    font-weight: 600;
+}
+
+
+/* 상태별 텍스트 색상 (이미지 참고) */
+.반려 {
+    color: red;
+    font-weight: 600;
+}
+.대기 {
+    color: blue;
+    font-weight: 600;
+}
+.최종승인 {
+    color: green;
+    font-weight: 600;
+}

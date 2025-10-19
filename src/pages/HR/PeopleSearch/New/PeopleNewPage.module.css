@@ -1,0 +1,267 @@
+/* PeopleNewPage.module.css */
+
+.pageContainer {
+    display: flex;
+    flex-direction: column;
+    height: 100%; 
+    background-color: #f9f9f9;
+    overflow: hidden; 
+}
+
+.titleBar {
+    flex-shrink: 0; 
+    padding: 1.5rem;
+    border-bottom: 1px solid #ddd;
+    background-color: #fff;
+}
+.titleBar h1 {
+    margin: 0;
+    font-size: 1.5rem;
+    font-weight: 600;
+}
+
+.formContentArea {
+    flex-grow: 1; 
+    overflow-y: auto; 
+    padding: 1.5rem;
+}
+
+.formSection {
+    background-color: #E3E3E1; 
+    padding: 1.5rem;
+    border-radius: 8px;
+    margin-bottom: 1.5rem;
+}
+
+.sectionHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1rem;
+}
+
+.sectionTitle {
+    font-size: 1.1rem;
+    font-weight: 600;
+    margin: 0 0 1rem 0;
+}
+
+.gridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1.25rem;
+}
+
+.listGridContainer {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 1rem;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    margin-bottom: 1rem;
+}
+
+/* '삭제' 버튼을 오른쪽 끝으로 정렬 (SASS 오류 수정된 버전) */
+.listGridContainer .removeButton {
+    grid-column: 3 / 4;
+    justify-self: end;
+    align-self: center;
+    margin-top: 0.5rem; 
+}
+
+@media (max-width: 1200px) {
+    .gridContainer { grid-template-columns: repeat(2, 1fr); }
+    .listGridContainer { grid-template-columns: repeat(2, 1fr); }
+    
+    .listGridContainer .removeButton { 
+        grid-column: 2 / 3; 
+    }
+}
+@media (max-width: 768px) {
+    .gridContainer, .listGridContainer { grid-template-columns: 1fr; }
+    
+    .listGridContainer .removeButton { 
+        grid-column: 1 / 2; 
+        width: 100%; 
+        justify-self: auto;
+    }
+}
+
+/* 폼 입력필드 공통 */
+.inputGroup {
+    display: flex;
+    flex-direction: column;
+}
+.inputGroup label {
+    font-size: 0.875rem;
+    font-weight: 500;
+    margin-bottom: 0.5rem;
+    color: #333;
+}
+.inputGroup input[type="text"],
+.inputGroup input[type="email"],
+.inputGroup input[type="tel"],
+.inputGroup input[type="date"],
+.inputGroup input[type="password"],
+.inputGroup select {
+    width: 100%;
+    padding: 0.6rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box; 
+    background-color: #fff; /* 입력창 배경은 흰색 유지 */
+}
+.inputGroup input:disabled {
+    background-color: #eee;
+}
+
+/* 파일 업로드 */
+.fileInputBox { display: flex; }
+.fileInputBox input[type="text"] {
+    border-radius: 4px 0 0 4px;
+    border-right: none;
+    background-color: #f4f4f4;
+}
+.fileUploadButton {
+    padding: 0 1rem;
+    border: 1px solid #ccc;
+    background-color: #e9e9e9;
+    border-radius: 0 4px 4px 0;
+    cursor: pointer;
+    font-size: 0.9rem;
+    white-space: nowrap;
+    display: flex;
+    align-items: center;
+}
+
+/* 3열 확장 */
+.spanThree {
+    grid-column: 1 / -1;
+}
+
+/* 비밀번호 UI */
+.passwordOptionsContainer {
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+    margin-top: 0.5rem;
+}
+.radioGroupCustom {
+    display: flex; 
+    gap: 1.5rem; 
+    align-items: center; 
+}
+.radioGroupCustom label { 
+    margin: 0; 
+    display: flex; 
+    align-items: center; 
+    gap: 0.5rem; 
+    font-weight: 400; 
+    cursor: pointer;
+}
+.adminPasswordWrapper {
+    padding-left: calc(100px + 1.5rem);
+}
+@media (max-width: 768px) {
+    .adminPasswordWrapper { padding-left: 0; }
+}
+.passwordInputWrapper {
+    position: relative;
+    width: 100%;
+    max-width: 300px;
+}
+.passwordInputWrapper input {
+    width: 100%;
+    padding: 0.6rem 2.5rem 0.6rem 0.75rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.9rem;
+    box-sizing: border-box;
+    background-color: #fff; 
+}
+.passwordToggleButton {
+    position: absolute;
+    right: 0px;
+    top: 0;
+    bottom: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0 0.75rem;
+    background: transparent;
+    border: none;
+    cursor: pointer;
+    color: #555;
+    font-size: 1.1rem;
+}
+.passwordDescription {
+    font-size: 0.8rem;
+    color: #666;
+    margin: 0.5rem 0 0 0;
+    padding-top: 0.25rem;
+}
+
+/* 하단 액션바 */
+.actionBar {
+    flex-shrink: 0; 
+    display: flex;
+    justify-content: flex-end;
+    gap: 0.75rem;
+    padding: 1.25rem 1.5rem;
+    border-top: 1px solid #ddd;
+    background-color: #fff;
+}
+
+/* 버튼 스타일 (요청한 색상) */
+.addButton, .removeButton, .saveButton, .cancelButton {
+    padding: 0.6rem 1.2rem;
+    border: 1px solid #663D2B; 
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+}
+
+/* '추가' 버튼 (Solid) */
+.addButton { 
+    background-color: #663D2B; 
+    color: white; 
+}
+.addButton:hover {
+    background-color: #503021; 
+    border-color: #503021;
+}
+
+/* '저장' (등록) 버튼 (Solid) */
+.saveButton { 
+    background-color: #663D2B; 
+    color: white; 
+}
+.saveButton:hover {
+    background-color: #503021;
+    border-color: #503021;
+}
+
+/* '삭제' 버튼 (Outline) */
+.removeButton { 
+    background-color: #ffffff; 
+    color: #663D2B; 
+    border: 1px solid #663D2B;
+    padding: 0.5rem 1rem; 
+}
+.removeButton:hover {
+    background-color: #fcf8f7; 
+}
+
+/* '취소' 버튼 (Outline) */
+.cancelButton { 
+    background-color: #ffffff; 
+    color: #663D2B; 
+    border: 1px solid #663D2B;
+}
+.cancelButton:hover {
+    background-color: #fcf8f7; 
+}
