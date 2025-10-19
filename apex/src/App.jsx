@@ -10,6 +10,9 @@ import CareerManagementPage from "./pages/HR/career&training/careerManage/Career
 import ComingSoon from './components/layout/Preparing.jsx'
 import TrainingCreate from './pages/HR/career&training/trainingCreate/TrainingCreate.jsx';
 import TrainingApprovalPage from './pages/HR/career&training/trainingApprovals/TrainingApprovalPage.jsx';
+import MyInfoPage from './components/myinfo/MyInfoPage.jsx';
+import Profile from './components/myinfo/Profile.jsx';
+import HrCard from './components/myinfo/HrCard.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -46,6 +49,12 @@ function App() {
           <Route path="/payroll">
             {/* <Route path="career" element={<CareerManagementPage />} />
             <Route path="education/regist" element={<CareerManagementPage />} /> */}
+          </Route>
+
+          {/* myinfo 폴더의 파일 사용 */}
+          <Route path = "/myinfo" element={<MyInfoPage />}>
+              <Route index element = {<Profile />} />
+              <Route path ="hrcard" element= {<HrCard />} />
           </Route>
 
 
