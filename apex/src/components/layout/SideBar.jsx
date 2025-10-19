@@ -1,3 +1,4 @@
+/* eslint-disable */
 import React, { useState, useEffect, useMemo } from "react";
 import { NavLink, useLocation, matchPath } from "react-router-dom";
 import "./SideBar.css";

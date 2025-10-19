@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
+import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
 import './MainPage.css';
-import MyCalendar from '../../components/myCalendar/MyCalendar';
 //import { Link } from 'react-router-dom';
 
 const fetchRecommendedEmployees = () => {
