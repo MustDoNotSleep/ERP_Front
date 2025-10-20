@@ -15,6 +15,10 @@ import PerformanceManagementPage from './pages/HR/performance/PerformanceManagem
 import MyInfoPage from './components/myinfo/MyInfoPage.jsx';
 import Profile from './components/myinfo/Profile.jsx';
 import HrCard from './components/myinfo/HrCard.jsx';
+import PeopleSearchPage from './pages/HR/PeopleSearch/Search/PeopleSearchPage.jsx';
+import PeopleNewPage from './pages/HR/PeopleSearch/New/PeopleNewPage.jsx';
+import AppointmentApplyPage from './pages/HR/appointments/Apply/AppointmentApplyPage.jsx';
+import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentApprovePage.jsx';
 
 function App() {
   const [isLoggedIn, setIsLoggedIn] = useState(false);
@@ -41,6 +45,10 @@ function App() {
             <Route path="training/approvals" element={<TrainingApprovalPage/>}/>
             <Route path="certificates" element={<CertificateIssuePage/>}/>
             <Route path="performance/manage" element={<PerformanceManagementPage/>}/>
+            <Route path="people/search" element={<PeopleSearchPage />} />
+            <Route path="people/new" element={<PeopleNewPage />} />
+            <Route path="appointments/apply" element={<AppointmentApplyPage />} />
+            <Route path="appointments/approve" element={<AppointmentApprovePage />} />
             
           </Route>
 
