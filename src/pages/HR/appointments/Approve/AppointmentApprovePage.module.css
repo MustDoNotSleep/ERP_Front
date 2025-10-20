@@ -1,79 +1,67 @@
-/* AppointmentApprovePage.module.css */
 .pageContainer {
     padding: 24px;
-    background-color: #f9f9f9;
+    background-color: #ffffff;
     height: 100%;
 }
 
-.pageTitle {
-    font-size: 24px;
-    font-weight: 600;
-    margin-bottom: 20px;
-}
-
 .filterSection {
-    margin-bottom: 24px;
+    margin-bottom: 20px;
 }
 
 .buttonGroup {
     display: flex;
     justify-content: flex-end;
-    gap: 10px;
     margin-top: 20px;
+    gap: 10px; 
 }
 
-/* 버튼 기본 스타일 (TrainingApprovalPage와 유사하게) */
-.approveButton, .rejectButton {
-    padding: 10px 20px;
+/* 반려 버튼 */
+.rejectButton {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #555;
+    background-color: #ffffff;
+    border: 1px solid #663D2B; 
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.2s, color 0.2s;
+}
+
+.rejectButton:hover {
+    background-color: #503021; 
+    color: #ffffff;
+}
+
+/* 최종승인 버튼 */
+.approveButton {
+    padding: 10px 24px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #663D2B; 
     border: none;
     border-radius: 4px;
     cursor: pointer;
+    transition: background-color 0.2s;
+}
+
+.approveButton:hover {
+    background-color: #503021; 
+}
+
+/* 테이블 상태 관련 스타일 */
+.statusApproved {
+    color: #333; 
     font-weight: 600;
 }
 
-/* 이미지의 버튼 스타일 반영 */
-.approveButton {
-    background-color: #363636; /* 어두운 색 */
-    color: white;
-}
-
-.rejectButton {
-    background-color: #f0f0f0; /* 밝은 회색 */
-    color: #333;
-    border: 1px solid #ccc;
-}
-
-/* 페이지네이션 (이미지 참고) */
-.pagination {
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    gap: 15px;
-    margin-top: 24px;
-}
-
-.pagination button {
-    background: none;
-    border: none;
-    cursor: pointer;
-    font-size: 16px;
-}
-
-.pagination span {
+.statusPending {
+    color: #333; /* ◀◀ 파란색에서 검은색으로 변경 */
     font-weight: 600;
 }
 
-
-/* 상태별 텍스트 색상 (이미지 참고) */
-.반려 {
-    color: red;
-    font-weight: 600;
-}
-.대기 {
-    color: blue;
-    font-weight: 600;
-}
-.최종승인 {
-    color: green;
+.statusRejected {
+    color: #dc3545; 
     font-weight: 600;
 }

@@ -14,7 +14,7 @@ const TrainingApprovalPage = () => {
     const [approvals, setApprovals] = useState(TRAINING_APPROVAL_LIST_MOCK);
     const [selectedRows, setSelectedRows] = useState([]);
     
-    // 검색 필터 상태 (DB 필드명에 맞춰 camelCase로 정의)
+    // 검색 필터 상태
     const [searchParams, setSearchParams] = useState({
         departmentId: '', positionId: '', courseName: '', applicationDate: '', approvalStatus: '',
     });
@@ -30,12 +30,24 @@ const TrainingApprovalPage = () => {
         // TODO: API 호출 로직
     };
     
-    const handleRowSelect = (id) => { /* ... 로직 유지 ... */ };
-    const handleAction = (action) => { /* ... 로직 유지 ... */ };
+    // (내용 채움)
+    const handleRowSelect = (id) => {
+        setSelectedRows(prev => 
+            prev.includes(id) 
+                ? prev.filter(rowId => rowId !== id) 
+                : [...prev, id]
+        );
+    };
 
-    // 3. 테이블 행 렌더링 로직 (유지)
+    // (내용 채움)
+    const handleAction = (action) => {
+        console.log(`🚀 ${action} 처리:`, selectedRows);
+        // TODO: API 호출 로직
+        setSelectedRows([]); // 처리 후 선택 해제
+    };
+
+    // 3. 테이블 행 렌더링 로직
     const renderApprovalRow = (item) => { 
-        // ... (렌더링 로직 유지) ...
         return (
             <>
                 <td className={tableStyles.tableData}>
@@ -58,13 +70,13 @@ const TrainingApprovalPage = () => {
 
 
     return (
-        <div className={styles.pageContainer}>            
+        <div className={styles.pageContainer}>
             {/* --- A. 검색 필터 영역 --- */}
-            <div className={styles.filterSection}> {/* 간격 확보용 div 유지 */}
+            <div className={styles.filterSection}>
                 <TrainingApprovalFilter
                     searchParams={searchParams}
-                    onSearchChange={handleSearchChange} // 이벤트 핸들러 전달
-                    onSearchSubmit={handleSearch}     // 검색 버튼 핸들러 전달
+                    onSearchChange={handleSearchChange}
+                    onSearchSubmit={handleSearch}
                 />
             </div>
 
@@ -83,6 +95,7 @@ const TrainingApprovalPage = () => {
                 >
                     반려
                 </button>
+                {/* (잘린 부분 복구) */}
                 <button 
                     onClick={() => handleAction('승인')} 
                     className={styles.approveButton} 
@@ -94,4 +107,5 @@ const TrainingApprovalPage = () => {
     );
 };
 
+// ⬇️ 이게 없어서 발생한 오류입니다!
 export default TrainingApprovalPage;

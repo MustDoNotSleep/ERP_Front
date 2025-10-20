@@ -1,26 +1,26 @@
 import React, { useState } from 'react';
-import styles from "./AppointmentApprovePage.module.css"; // (3)번 파일
+import styles from "./AppointmentApprovePage.module.css";
 import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
-// eslint-disable-next-line no-unused-vars
-import { APPOINTMENT_APPROVAL_LIST_MOCK } from '../../../../models/data/AppointmentApproveMOCK'; // (5)번 파일
-import AppointmentApprovalFilter from '../../../../components/HR/AppointmentApprove/AppointmentApproveFilter'; // (2)번 파일
+import AppointmentApproveFilter from '../../../../components/HR/AppointmentApprove/AppointmentApproveFilter';
+// ⬇️ Mock 데이터를 import 합니다. (경로는 실제 파일 위치에 맞게 수정하세요)
+import { APPOINTMENT_APPROVE_LIST_MOCK } from '../../../../models/data/AppointmentApproveMOCK'; 
 
-// 1. 이미지에 맞게 테이블 헤더 변경
+// 테이블 헤더는 페이지 컴포넌트 내에 유지
 const TABLE_HEADERS = [
     '선택', '요청일', '사번', '이름', '발령 구분', '요청자', '상태', '승인자'
 ];
 
 const AppointmentApprovePage = () => {
     
-   const [approvals] = useState([]);
+    // ⬇️ import한 Mock 데이터로 useState 초기화
+    const [approvals, setApprovals] = useState(APPOINTMENT_APPROVE_LIST_MOCK);
     const [selectedRows, setSelectedRows] = useState([]);
     
-    // 2. 이미지의 필터에 맞게 searchParams 상태 변경
     const [searchParams, setSearchParams] = useState({
         employeeName: '',
         employeeId: '',
-        applicationDate: '',
+        requestDate: '',
         departmentId: '',
     });
 
@@ -35,7 +35,6 @@ const AppointmentApprovePage = () => {
         // TODO: API 호출 로직
     };
     
-    // 체크박스 선택 핸들러 (로직 유지)
     const handleRowSelect = (id) => {
         setSelectedRows(prev => 
             prev.includes(id) 
@@ -44,14 +43,24 @@ const AppointmentApprovePage = () => {
         );
     };
 
-    // 3. 버튼 액션 핸들러 (버튼명 변경)
     const handleAction = (action) => {
         console.log(`🚀 ${action} 처리:`, selectedRows);
-        // TODO: 선택된 row들(selectedRows)에 대해 '반려' 또는 '최종승인' API 호출
+        // TODO: 선택된 항목(selectedRows)에 대해 '반려' 또는 '최종승인' API 호출
+        setSelectedRows([]);
     };
 
-    // 4. 테이블 행 렌더링 로직 (데이터 필드명 변경)
-    const renderApprovalRow = (item) => { 
+    // 테이블 행 렌더링 로직 (수정 없음)
+    const renderApproveRow = (item) => {
+        
+        let statusStyle = '';
+        if (item.status === '반려') {
+            statusStyle = styles.statusRejected;
+        } else if (item.status === '대기') {
+            statusStyle = styles.statusPending;
+        } else if (item.status === '최종승인') {
+            statusStyle = styles.statusApproved;
+        }
+
         return (
             <>
                 <td className={tableStyles.tableData}>
@@ -61,13 +70,12 @@ const AppointmentApprovePage = () => {
                         onChange={() => handleRowSelect(item.requestId)}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{item.applicationDate}</td>
+                <td className={tableStyles.tableData}>{item.requestDate}</td>
                 <td className={tableStyles.tableData}>{item.employeeId}</td>
                 <td className={tableStyles.tableData}>{item.employeeName}</td>
                 <td className={tableStyles.tableData}>{item.appointmentType}</td>
                 <td className={tableStyles.tableData}>{item.requesterName}</td>
-                {/* 상태에 따라 다른 스타일 적용 */}
-                <td className={`${tableStyles.tableData} ${styles[item.status.toLowerCase()]}`}>
+                <td className={`${tableStyles.tableData} ${statusStyle}`}>
                     {item.status}
                 </td>
                 <td className={tableStyles.tableData}>{item.approverName}</td>
@@ -77,15 +85,13 @@ const AppointmentApprovePage = () => {
 
     return (
         <div className={styles.pageContainer}>
-            {/* --- 페이지 타이틀 --- */}
-            <h2 className={styles.pageTitle}>인사 발령 관리</h2>
             
             {/* --- A. 검색 필터 영역 --- */}
             <div className={styles.filterSection}>
-                <AppointmentApprovalFilter
+                <AppointmentApproveFilter
                     searchParams={searchParams}
-                    onSearchChange={handleSearchChange} // 이벤트 핸들러 전달
-                    onSearchSubmit={handleSearch}     // 검색 버튼 핸들러 전달
+                    onSearchChange={handleSearchChange}
+                    onSearchSubmit={handleSearch}
                 />
             </div>
 
@@ -93,17 +99,10 @@ const AppointmentApprovePage = () => {
             <DataTable
                 headers={TABLE_HEADERS}
                 data={approvals}
-                renderRow={renderApprovalRow}
+                renderRow={renderApproveRow}
             />
 
-            {/* --- D. 페이지네이션 (이미지 참고) --- */}
-            <div className={styles.pagination}>
-                <button>&lt;</button>
-                <span>1</span>
-                <button>&gt;</button>
-            </div>
-
-            {/* --- C. 액션 버튼 영역 (이미지 참고) --- */}
+            {/* --- C. 액션 버튼 영역 --- */}
             <div className={styles.buttonGroup}>
                 <button 
                     onClick={() => handleAction('반려')} 

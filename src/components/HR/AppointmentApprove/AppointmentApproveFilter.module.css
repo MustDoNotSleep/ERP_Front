@@ -1,51 +1,61 @@
-/* AppointmentApprovalFilter.module.css */
 .filterContainer {
-    background-color: #f4f4f4; /* 이미지의 연한 회색 배경 */
-    padding: 20px;
+    display: flex;
+    flex-wrap: wrap; 
+    align-items: center;
+    gap: 24px; 
+    padding: 28px 28px 40px 28px; 
+    background-color: #E3E3E1; 
+    border: 1px solid #eaeaea;
     border-radius: 8px;
-    border: 1px solid #e0e0e0;
-    display: flex;
-    justify-content: space-between; /* 버튼을 오른쪽으로 */
-    align-items: center;
-    gap: 20px;
 }
 
-.filterRow {
-    display: flex;
-    gap: 20px;
-    margin-bottom: 15px;
-}
-
-.filterRow:last-of-type {
-    margin-bottom: 0;
-}
-
-.filterItem {
-    display: flex;
-    align-items: center;
-    gap: 10px;
-}
-
-.filterItem label {
+.title {
+    width: 100%; 
+    font-size: 1.25rem; 
     font-weight: 600;
+    color: #333;
+    margin: 0 0 24px 0; 
+}
+
+.filterGroup {
+    display: flex;
+    align-items: center;
+}
+
+.filterLabel {
     font-size: 14px;
-    white-space: nowrap; /* 라벨 줄바꿈 방지 */
+    font-weight: 600;
+    color: #333;
+    margin-right: 12px;
+    white-space: nowrap; 
 }
 
-/* input, select 공통 스타일 */
-.filterItem input[type="text"],
-.filterItem input[type="date"],
-.filterItem select {
-    padding: 8px;
-    border: 1px solid #ccc;
+.filterInput,
+.filterSelect {
+    padding: 8px 12px;
+    font-size: 14px;
+    border: none; /* ◀◀ 1px solid #ccc 에서 'none'으로 수정 */
     border-radius: 4px;
-    min-width: 150px; /* 최소 너비 */
+    min-width: 180px;
 }
 
-/* 검색 버튼 (TrainingApprovalFilter의 onSearchSubmit 버튼과 동일한 스타일 사용) */
+.filterInput[type="date"]:invalid {
+    color: #757575;
+}
+
 .searchButton {
-    /* commonStyles.button을 사용하므로 별도 스타일 최소화 */
-    padding: 10px 30px;
-    height: 100%; /* 필터 높이에 맞춤 */
-    align-self: center; /* 수직 중앙 정렬 (필터가 여러 줄일 경우) */
+    padding: 8px 24px;
+    font-size: 14px;
+    font-weight: bold;
+    color: #ffffff;
+    background-color: #663D2B; 
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    margin-left: auto; 
+    transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+    background-color: #503021; 
 }
