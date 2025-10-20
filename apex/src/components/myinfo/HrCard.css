@@ -1,0 +1,189 @@
+/* --- 공통 섹션 스타일 --- */
+.hr-section {
+  width: 100%;
+  margin-bottom: 40px;
+}
+
+.hr-section h2 { /* "인사 카드" */
+  font-size: 1.5rem;
+  font-weight: 800;
+  margin: 0;
+  margin-bottom: 1.5rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #000;
+}
+
+.hr-section h3 { /* "학력", "경력" 등 */
+  font-size: 1.2rem;
+  font-weight: 800;
+  margin: 0;
+  color: #000;
+  margin-bottom: 1rem;
+}
+
+/* --- 1. 기본 정보 섹션 --- */
+.hr-basic-info-content {
+  display: flex;
+  gap: 1.5rem;
+  background-color: #E3E3E1;
+  padding: 1.5rem;
+  border-radius: 5px;
+}
+
+/* 1-1. 왼쪽 사진 영역 */
+.hr-photo-area {
+  flex-shrink: 0;
+  width: 140px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+}
+
+.hr-photo-placeholder {
+  width: 9rem;
+  height: 11rem;
+  border: 0.5px solid #663D2B;
+  border-radius: 8px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.hr-photo-placeholder img {width: 5rem; height: 5rem;}
+
+.hr-photo-placeholder .material-icons-outlined {
+  font-size: 80px;
+  color: #888;
+}
+
+/* 1-2. 오른쪽 정보 영역 */
+.hr-info-right-area {
+  flex-grow: 1;
+  display: flex;
+  flex-direction: row;
+  gap: 2rem;
+}
+
+.hr-info-grid {
+  display: grid;
+  /* 2열 5행 */
+  grid-template-columns: auto 1fr auto 1fr;
+  gap: 1.2rem 1.8rem;
+  width: 100%;
+}
+
+.hr-field {
+  display: contents;
+  border: 0.5px solid #663D2B;
+}
+
+.hr-info-grid label {
+  font-size: 1.1rem;
+  font-weight: 600;
+  color: #000;
+  text-align: right;
+  align-self: center; /* 세로 중앙 */
+}
+
+.hr-info-grid input[type="text"] {
+  width: 100%;
+  padding: 0.5rem;
+  font-size: 1rem;
+  border: 0.5px solid #663D2B;
+  border-radius: 5px;
+  background-color: #ffffff;
+  box-sizing: border-box;
+}
+
+/* 프린트 버튼 */
+.hr-print-area {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  justify-content: flex-end; /* 오른쪽 정렬 */
+  gap: 1rem;
+  margin-top: 1.2rem;
+}
+
+.hr-btn {
+  border: none;
+  padding: 0.5rem 2rem;
+  font-size: 1rem;
+  font-weight: 600;
+  border-radius: 5px;
+  width: 12rem;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  border: 0.5px solid #663D2B;
+  background-color: #E3E3E1;
+  color: #663D2B;
+  transition: background-color 0.3s ease, color 0.3s ease;
+  box-sizing: border-box;
+}
+.hr-btn:hover {
+  background-color: #663D2B; /* 짙은 갈색 */
+  color: white;
+}
+
+/* --- 2. 테이블 공통 스타일 --- */
+.hr-table {
+  width: 100%;
+  border-collapse: collapse; /* 테두리 한 줄 */
+  font-size: 1rem;
+  text-align: center;
+}
+
+.hr-table th,
+.hr-table td {
+    border: none;
+    border-bottom: 0.1px solid #663D2B;
+    border-top: 0.1px solid #663D2B;
+  border-right: 0.1px solid #663D2B;
+  padding: 10px 12px;
+  text-align: center;
+  vertical-align: middle;
+}
+
+.hr-table th:last-child,
+.hr-table td:last-child {
+  border-right: none;
+}
+
+.hr-table tr:last-child td {
+  border-bottom: none;
+}
+
+.hr-table thead th {
+  background-color: #F5F4EF;
+  font-weight: 600;
+  color: #000;
+}
+
+@media print {
+  /* 인쇄 시 모든 요소를 기본값으로 초기화 */
+  body * {
+    visibility: hidden;
+  }
+
+  /* 인쇄하려는 영역(.hr-card-container)과 그 안의 모든 자식 요소만 보이게 함 */
+  .hr-card-container, .hr-card-container * {
+    visibility: visible;
+  }
+
+  /* 인쇄 영역을 페이지 맨 위, 맨 왼쪽에 배치 */
+  .hr-card-container {
+    position: absolute;
+    left: 0;
+    top: 0;
+    width: 100%;
+    margin: 0;
+    padding: 0;
+    border: none;
+    background-color: white; /* 배경색 강제 */
+  }
+
+  /* 인쇄 시에는 '사진 변경', '프린트' 버튼 숨김 */
+  .change-photo,
+  .hr-print-area {
+    display: none !important;
+  }
+}

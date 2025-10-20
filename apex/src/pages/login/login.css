@@ -1,0 +1,136 @@
+/* insert-font */
+@import url('https://cdn.rawgit.com/innks/NanumSquareRound/master/nanumsquareround.min.css');
+
+/* --- 전체 레이아웃 --- */
+.login-wrap {
+  display: flex;
+  flex-direction: column;
+  justify-content: center; /* 세로 중앙 정렬 */
+  align-items: center;     /* 가로 중앙 정렬 */
+  text-align: center;
+  width: 100%;
+  min-height: 100vh;
+  background-color: #e3e3e1;
+}
+
+/* --- 로고 --- */
+.login-logo {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.5rem; /* 이미지와 텍스트 사이 간격 */
+  margin-bottom: 3.5rem;
+}
+.login-logo img {
+  width: 6rem;
+  height: 6rem;
+}
+.logo-txt {
+  font-size: 3rem;
+  font-weight: 600;
+  color: #323b2a;
+  padding-bottom: 0.5rem; /* 세로 위치 미세 조정 */
+}
+
+
+/* --- 로그인 폼 --- */
+.apex-email, .password {
+  width: 23rem; /* 너비 기준 통일 */
+  height: 2.5rem;
+  margin-bottom: 1.5rem;
+}
+
+.apex-email input, .password input {
+  box-sizing: border-box; /* padding을 너비에 포함시켜 계산 */
+  width: 100%; /* 부모 너비(23rem)를 꽉 채움 */
+  height: 100%;
+  border-radius: 5px;
+  border: 0.5px solid #663D2B; 
+  padding-left: 1rem;
+  font-size: 1rem;
+  font-family: 'NanumSquareRound', sans-serif;
+  color: #663D2B;
+  font-weight: 500;
+}
+
+
+.stay-login {
+  display: flex;
+  align-items: center;
+  width: 23rem; /* 너비 기준 통일 */
+  margin-bottom: 1.5rem;
+  font-family: 'NanumSquareRound', sans-serif;
+  color: #663D2B;
+  font-weight: 300;
+  font-size: 1rem;
+  cursor: pointer;
+  /* margin-right 삭제! */
+}
+.stay-login span {
+  position: relative;
+  top: -2.5px;
+}
+.stay-login input#login-check {
+  display: none;
+}
+.stay-login label::before {
+  content: '';
+  display: inline-block;
+  width: 1rem;
+  height: 1rem;
+  border: 0.5px solid #663D2B;
+  border-radius: 50%;
+  margin-right: 0.5rem;
+}
+.stay-login input#login-check:checked + label::before {
+  background-color: #663D2B;
+}
+
+.login-btn {
+  width: 23rem; /* 너비 기준 통일 */
+  height: 2.5rem;
+  border-radius: 5px;
+  background-color: #663D2B;
+  border: none;
+  color: white;
+  font-size: 1rem;
+  font-weight: 700;
+  cursor: pointer;
+  font-family: 'NanumSquareRound', sans-serif;
+  text-align: center;
+  line-height: 2.5rem;
+}
+.login-btn p {
+    margin: 0;
+}
+
+/* --- 구분선 --- */
+.other-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 23rem; /* 너비 기준 통일 */
+  gap: 1rem;
+  margin-top: 2rem;
+  color: #663D2B;
+  font-family: 'NanumSquareRound', sans-serif;
+  font-weight: 700;
+  font-size: 0.9rem;
+}
+.left-line, .right-line {
+  /* flex-grow: 1; 을 사용해 남는 공간을 선으로 채움 */
+  flex-grow: 1; 
+  border-top: 0.5px solid #663D2B;
+}
+
+/* --- 비밀번호 찾기 --- */
+.find-pw {
+  width: 23rem; /* 너비 기준 통일 */
+  margin-top: 1.5rem;
+  color: #663D2B;
+  font-size: 0.9rem;
+  font-family: 'NanumSquareRound', sans-serif;
+  font-weight: 500;
+  text-align: center;
+  cursor: pointer;
+}

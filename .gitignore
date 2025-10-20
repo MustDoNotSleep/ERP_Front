@@ -1,23 +1,31 @@
-# See https://help.github.com/articles/ignoring-files/ for more about ignoring files.
-
-# dependencies
-/node_modules
-/.pnp
-.pnp.js
-
-# testing
-/coverage
-
-# production
-/build
-
-# misc
-.DS_Store
-.env.local
-.env.development.local
-.env.test.local
-.env.production.local
-
+# 패키지 디렉터리
+node_modules/
 npm-debug.log*
-yarn-debug.log*
-yarn-error.log*
+
+# 환경 설정
+.env
+.env.local
+
+# 빌드 결과물
+dist/
+build/
+
+# macOS 시스템 파일
+.DS_Store
+.AppleDouble
+.LSOverride
+
+# Windows 시스템 파일
+Thumbs.db
+ehthumbs.db
+Desktop.ini
+
+# Linux 시스템 파일
+*~
+
+# 편집기 임시 파일
+*.swp
+*.swo
+*~
+.vscode/
+.idea/

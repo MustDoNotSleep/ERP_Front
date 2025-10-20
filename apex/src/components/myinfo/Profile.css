@@ -1,0 +1,141 @@
+button {border-style: none; background-color: none;}
+.profile-container {display: flex; flex-direction: column; gap: 1.5rem;}
+.basic-info-wrap {background-color: #E3E3E1; border-radius: 5px; padding-top: 0.5rem; padding-left: 2rem; height: 19rem;}
+.basic-info-wrap h1 {font-size: 1.5rem; font-weight: 800;}
+
+/* 사진영역 */
+.info-cont {display: flex; gap: 2rem;}
+.profile-area {
+    flex-shrink: 0;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    width: 9.8rem;
+    margin-left: 1rem;
+}
+.profile-icon {
+    width: 100%;
+    height: 10rem;
+    border-radius: 5px;
+    border: 0.5px solid #663D2B;
+}
+.profile-icon img {
+    position: relative;
+    top: 25%;
+    left: 25%;
+    width: 5rem;
+    height: 5.2rem;
+}
+.change-photo {
+    width: 100%;
+    font-size: 1rem;
+    font-weight: 700;
+    border: 0.5px solid #663D2B;
+    background-color: #E3E3E1;
+    margin-top: 1rem;
+    border-radius: 5px;
+    height: 2.8rem;
+    color: #663D2B;
+}
+
+/* 오른쪽 필드 */
+.form-fields-area {
+    flex-grow: 1;
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap : 16px 12px;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+}
+.form-field {
+    display: flex;
+    gap: 2rem;
+    text-align: center;
+}
+.form-txt {
+    font-size: 1rem;
+    width: 4rem;
+    font-weight: 600;
+    color: #000;
+    padding-right: 0.8rem;
+    text-align: right;
+    padding-top: 0.5rem;
+}
+.form-field input[type="text"] {
+    width: 20rem;
+    padding: 10px;
+    font-size: 1rem;
+    border: 0.5px solid #663D2B;
+    box-sizing: border-box;
+    border-radius: 5px;
+}
+
+.profile-btn {display: flex; gap: 1.2rem; justify-items: center; align-items: center; justify-content: center;}
+.profile-btn button {width: 50%; height: 3rem; background-color: #663D2B; color: #fff; border-radius: 5px; font-weight: 800; font-size: 1rem;}
+
+.ch-pw-wrap {background-color: #E3E3E1; border-radius: 5px; padding: 0.5rem 2rem 2rem 2rem; height: 25rem; font-weight: 800;}
+.ch-pw-wrap h1 {font-size: 1.5rem; font-weight: 800;}
+.ch-pw-cont { display: flex; gap: 3rem; align-items: flex-start; padding-left: 0.5rem; margin-top: 2rem;}
+
+/* left-area */
+.pw-form-area {flex: 1; display: flex; flex-direction: column; gap: 2rem;}
+.pw-field-group {display: flex; flex-direction: column; }
+.pw-field-group label {font-size: 1rem; font-weight: 600; color:#000; margin-bottom: 0.5rem;}
+.pw-field-group input[type="password"] {
+    width: 100%;
+    height: 2.5rem;
+    padding-left: 1rem;
+    font-size: 1rem;
+    border: 0.5px solid #663D2B;
+    border-radius: 5px;
+    background-color: #fff;
+    color: #663D2B;
+    box-sizing: border-box;
+}
+
+/* right-area */
+.pw-action-area {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    padding-top: 0.5rem;
+    align-items: center;
+    justify-content: center;
+    justify-items: center;
+    margin-top: 1rem;
+}
+.pw-action-area p {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #663D2B;
+    margin-bottom: 2.5rem;
+}
+
+.pw-btn {
+    width: 25rem;
+    font-size: 1rem;
+    font-weight: 600;
+    border-radius: 5px;
+    height: 2.5rem;
+    background-color: #E3E3E1;
+    border: 0.5px solid #663D2B;
+    color: #663D2B;
+    transition: background-color 0.3s ease, color 0.3s ease;
+}
+.pw-btn:first-of-type {margin-bottom: 1.5rem;}
+.pw-btn:hover {background-color: #663D2B; color: #fff;}
+
+/* 오류 메시지 */
+.pw-error-message {color: #630000; font-weight: 600; margin-top: 6px;}
+.pw-field-group input error {border-color: #630000; background-color: #fff5f5;}
+.pw-field-group input.error:focus {outline: none; box-shadow: 0 0 0 2px rgba(229,62, 62 0.4);}
+
+/* 성공 메시지 */
+.pw-action-area .pw-success-msg {
+    color: #868B6B;
+    font-weight: 600;
+    margin-top: 1rem;
+    text-align: center;
+    width: 100%;
+}
