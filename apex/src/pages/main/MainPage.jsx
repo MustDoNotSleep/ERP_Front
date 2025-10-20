@@ -3,11 +3,7 @@ import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
 import './MainPage.css';
-<<<<<<< HEAD
-//import { Link } from 'react-router-dom';
-=======
 import { Link } from 'react-router-dom';
->>>>>>> 71aaba29599aa3b6a704ae730fab6b90b4d98264
 
 const fetchRecommendedEmployees = () => {
   return new Promise((resolve) => {
