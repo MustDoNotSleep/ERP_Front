@@ -28,9 +28,16 @@ function Login({ setIsLoggedIn }) {
         return;
       }
 
+      const userToStore = {
+          name: user.name,
+          employmentType: '사원', // 임시 설정
+          teamName: user.teamName,
+          //... 기타 필요한 정보
+      };
+
       // ✅ 토큰 및 유저 정보 저장
       localStorage.setItem('token', token);
-      localStorage.setItem('user', JSON.stringify(user));
+      localStorage.setItem('user', JSON.stringify(userToStore));
 
       // ✅ 로그인 상태 true로 변경
       setIsLoggedIn(true);
