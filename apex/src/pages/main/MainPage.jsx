@@ -3,7 +3,7 @@ import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
 import './MainPage.css';
-//import { Link } from 'react-router-dom';
+import { Link } from 'react-router-dom';
 
 const fetchRecommendedEmployees = () => {
   return new Promise((resolve) => {
@@ -68,7 +68,7 @@ function MainPage() {
               </div>
             </div>
             <div className='myinfo-btn'>
-              <button>MY INFO</button>
+              <Link to="/myinfo"><p>MY INFO</p></Link>
             </div>
           </div>
           <div className="widget calendar">
