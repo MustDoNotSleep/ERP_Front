@@ -9,7 +9,14 @@ const api = axios.create({
   },
 });
 
-// ✅ Interceptor를 사용하면 토큰 자동 추가 등의 작업을 할 수 있지만, 
-// 지금은 로그인 기능만 먼저 만들어 볼게요! 🐥
+api.interceptors.request.use(config => {
+  const token = localStorage.getItem('token');
+  if (token) {
+    config.headers.Authorization = `Bearer ${token}`;
+  }
+  return config;
+}, error => {
+  return Promise.reject(error);
+});
 
 export default api;

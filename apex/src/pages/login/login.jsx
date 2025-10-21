@@ -29,10 +29,11 @@ function Login({ setIsLoggedIn }) {
       }
 
       const userToStore = {
-          name: user.name,
-          employmentType: '사원', // 임시 설정
-          teamName: user.teamName,
-          //... 기타 필요한 정보
+        employeeId: user.employeeId,
+        name: user.name,
+        employmentType: '사원', // 임시 설정
+        teamName: user.teamName,
+        //... 기타 필요한 정보
       };
 
       // ✅ 토큰 및 유저 정보 저장
