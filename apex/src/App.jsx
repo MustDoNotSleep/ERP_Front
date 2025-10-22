@@ -1,7 +1,9 @@
 // App.jsx
 import './App.css';
 import React, { useState } from 'react';
+
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
+import 'react-toastify/dist/ReactToastify.css';
 import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
@@ -82,7 +84,6 @@ function App() {
       </main>
     </div>
     );
-
 
   return (
     <BrowserRouter>

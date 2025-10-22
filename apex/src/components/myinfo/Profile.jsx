@@ -194,13 +194,13 @@ function Profile() {
                         </div>
                         {/* [수정] 이미지를 상태(imagePreview)에서 불러옴 */}
                         {/* <img src={imagePreview} alt="user" />  <- 나중에 이걸로 바꾸기*/}
-                        <button className='change-photo' onClick={handlePhotoClick}>사진 변경</button>
+                        {/* <button className='change-photo' onClick={handlePhotoClick}>사진 변경</button>
                         <input type="file"
                         ref={fileInputRef}
                         onChange={handleFileChange}
                         accept='image/*'
                         style={{display:'none'}}
-                         />
+                         /> */}
                     </div>
                     <div className='form-fields-area'>
                         <div className='form-field'>
@@ -209,7 +209,7 @@ function Profile() {
                         </div>
                         <div className='form-field'>
                             <label htmlFor="birthDate" className='form-txt'>생년월일</label>
-                            <input type="text" id='birthDate' value={userInfo.birthDate} readOnly />
+                            <input type="text" id='birthDate' value={userInfo.birthDate ? userInfo.birthDate.split('T')[0] : ''} readOnly />
                         </div>
                         <div className='form-field'>
                             <label htmlFor="departmentName" className='form-txt'>부서</label>

@@ -29,7 +29,7 @@ function Login({ setIsLoggedIn }) {
       const userToStore = {
         employeeId: user.employeeId,
         name: user.name,
-        employmentType: '사원', // 임시 설정
+        employmentType: user.employmentType, // 임시 설정
         teamName: user.teamName,
         //... 기타 필요한 정보
 
@@ -66,7 +66,7 @@ function Login({ setIsLoggedIn }) {
       <div className="apex-email">
         <input
           type="text"
-          placeholder="ex) username@apex.com"
+          placeholder="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />

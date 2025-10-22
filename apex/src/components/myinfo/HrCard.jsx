@@ -21,25 +21,6 @@ function HrCard() {
   const cardRef = useRef(null); // PDF로 변환할 전체 컴포넌트 영역
 
   /**
-   * 1. '사진 변경' 버튼 클릭 시, 숨겨진 file input을 클릭
-   */
-  const handlePhotoClick = () => {
-      fileInputRef.current.click();
-  };
-
-  /**
-   * 1-1. 파일이 실제로 선택되었을 때 실행
-   */
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-    // 선택된 파일을 URL로 변환하여 미리보기 상태 업데이트
-    setImagePreview(URL.createObjectURL(file));
-    // (실제 기능) 여기서 file 객체를 서버로 업로드하는 로직을 추가
-    }
-  };
-
-  /**
    * 2. '프린트' 버튼 클릭 시
    */
   const handlePrint = () => {
@@ -159,14 +140,8 @@ function HrCard() {
           <div className="hr-photo-area">
             <div className="hr-photo-placeholder">
                 {/* [수정] 이미지를 상태(imagePreview)에서 불러옴 */}
-                {/* <img src={imagePreview} alt="user" />  <- 나중에 이걸로 바꾸기*/}
-                <img src={User} alt="user" />
+                <img src={imagePreview} alt="user" />
             </div>
-            <button className='change-photo' onClick={handlePhotoClick}>사진 변경</button>
-            <input type="file" ref={fileInputRef}
-                onChange={handleFileChange} accept='image/*'
-                style={{display:'none'}}
-            />
           </div>
 
           {/* 1-2. 오른쪽: 정보 그리드 + 프린트 버튼 */}
@@ -180,7 +155,7 @@ function HrCard() {
               </div>
               <div className="hr-field">
                 <label>생년월일</label>
-                <input type="text" value={hrCardData.birthDate} readOnly />
+                <input type="text" value={hrCardData.birthDate ? hrCardData.birthDate.split('T')[0] : ''} readOnly />
               </div>
               {/* --- 2행 --- */}
                 <div className="hr-field">
@@ -234,7 +209,37 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>학력</h3>
-        <DataTable
+        <table className="hr-table">
+          <thead>
+            <tr>
+              <th>학교명</th>
+              <th>학위</th>
+              <th>전공</th>
+              <th>입학일</th>
+              <th>졸업일</th>
+              <th>졸업구분</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>명지전문대</td>
+              <td>학사</td>
+              <td>정보보안</td>
+              <td>2000/03/02</td>
+              <td>2001/02/27</td>
+              <td>졸업</td>
+            </tr>
+            <tr>
+              <td>명지전문대</td>
+              <td>전문학사</td>
+              <td>소프트웨어 개발</td>
+              <td>1997/03/04</td>
+              <td>2000/02/27</td>
+              <td>졸업</td>
+            </tr>
+          </tbody>
+        </table>
+        {/* <DataTable
           headers={['학교명', '학위', '전공', '입학일', '졸업일', '졸업 구분']}
           data={hrCardData.educations}
           emptyMessage="학력 정보가 없습니다."
@@ -248,7 +253,7 @@ function HrCard() {
                   <td>{edu.graduationStatus || '-'}</td>
               </>
           )}
-        />
+        /> */}
       </section>
 
       {/* =================================

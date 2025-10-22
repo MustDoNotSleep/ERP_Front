@@ -6,26 +6,40 @@
     width: 100%;
     border-collapse: collapse;
     margin-top: 0.9375rem;
-    font-size: 0.875rem;
+    font-size: 1rem;
+    text-align: center;
 }
 
 .tableHeader {
-    background-color: #f7f3ed;
-    color: #444;
-    padding: 0.625rem 0.5rem;
+    background-color: #F5F4EF;
+    color: #000;
+    padding: 10px 12px;
     text-align: center;
-    font-weight: 999;
-    border: 0.0625rem solid #c7c1b8;
+    font-weight: 600;
+    vertical-align: middle;
+
+    border: none;
+    border-bottom: 0.1px solid #663D2B;
+    border-top: 0.1px solid #663D2B;
+    border-right: 0.1px solid #663D2B;
+
     white-space: nowrap;
     cursor: default;
 }
 
+th:last-child, td:last-child {border-right: none;}
+.genericTable tbody tr:last-child .tableData,
+.genericTable tbody tr:last-child .tableAction {border-bottom: none;}
+
 /* 테이블 데이터 셀 스타일 */
 .tableData {
     background-color: white; 
-    padding: 0.625rem 0.5rem;
+    padding: 10px 12px;
     text-align: center;
-    border: 0.0625rem solid #ddd;
+    border-bottom: 0.1px solid #663D2B;
+    border-top: 0.1px solid #663D2B;
+    border-right: 0.1px solid #663D2B;
+
     white-space: nowrap; 
 }
 
@@ -47,7 +61,10 @@
 .tableAction {
     text-align: center;
     width: 3.125rem; 
-    border: 0.0625rem solid #ddd; 
+    padding: 10px 12px;
+    border-bottom: 0.1px solid #663D2B;
+    border-top: 0.1px solid #663D2B;
+    border-right: 0.1px solid #663D2B;
 }
 
 /* 상세 보기 버튼 스타일 (돋보기 아이콘) */

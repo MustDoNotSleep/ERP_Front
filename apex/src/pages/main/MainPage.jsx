@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
@@ -24,7 +25,7 @@ const fetchRecommendedEmployees = () => {
 
 function MainPage() {
   // --- 모든 State와 Effect를 MainPage 최상단으로 통합 ---
-  const [userInfo, setUserInfo] = useState({ name: '비회원', title: '정보 없음', team: '정보 없음' });
+  const [userInfo, setUserInfo] = useState({ name: '비회원', employmentType: '정보 없음', team: '정보 없음' });
 
   // 1. 출퇴근 상태 관리 (변수명 컨벤션에 맞게 수정: SetIsOn -> setIsOn)
   const [isOn, setIsOn] = useState(false);
@@ -49,8 +50,7 @@ function MainPage() {
         // 🚨 중요: teamName (API key)을 team (state key)으로 매핑하여 저장
         setUserInfo({
           name: user.name || '알 수 없음',
-          // Login.js에서 설정된 title 값을 사용하거나, 기본값으로 설정
-          title: user.title || '직책정보 없음',
+          employmentType: user.employmentType || '직책정보 없음',
           team: user.teamName || '팀 정보 없음', // 👈 API 응답의 teamName 키 사용
         });
       } catch (e) {
@@ -109,7 +109,7 @@ function MainPage() {
             <div className="profile-info">
               <h3>{userInfo.name} 님</h3>
               <div className='user-info'>
-                <p>{userInfo.employmentType}</p>
+                <p>{userInfo.employmentType} </p>
                 <p className='user-line'>|</p>
                 <p>{userInfo.team}</p>
               </div>
@@ -135,8 +135,22 @@ function MainPage() {
             </div>
             <div className='onoff-btn'>
               {/* ❗ setIsOn으로 수정 */}
-              <button className='on-btn' onClick={() => setIsOn(true)}>ON</button>
-              <button className='off-btn' onClick={() => setIsOn(false)}>OFF</button>
+              <button className='on-btn' onClick={() => {
+                setIsOn(true); toast.success(
+                  <div style={{ textAlign: 'center', width : '100%' }}>
+                    <div>{`[${formatTime(currentTime)}]`}</div>
+                    <div>정상적으로 출근 처리되었습니다.</div>
+                  </div>
+                );
+              }}>ON</button>
+              <button className='off-btn' onClick={() => {
+                setIsOn(false); toast.info(
+                  <div style={{ textAlign: 'center', width : '100%' }}>
+                    <div>{`[${formatTime(currentTime)}]`}</div>
+                    <div>정상적으로 퇴근 처리되었습니다.</div>
+                  </div>
+                );
+              }}>OFF</button>
             </div>
           </div>
         </div>
