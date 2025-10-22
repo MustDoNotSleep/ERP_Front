@@ -69,9 +69,7 @@ const PeopleSearchPage = () => {
 
         // ✨ Mock 데이터를 사용하더라도, 페이지가 처음 로드될 때
         // '조회' 버튼을 누른 것처럼 Mock 데이터를 한 번 불러옵니다.
-        if (USE_MOCK_DATA) {
-            handleSearch();
-        }
+        handleSearch();
         
         // 필터 옵션은 실제 API에서 가져옵니다.
         fetchInitialData();
@@ -89,14 +87,33 @@ const PeopleSearchPage = () => {
         console.log('검색 시작', searchParams);
         setIsLoading(true);
 
+        const cleanedParams = {
+            name: searchParams.name.trim().toLowerCase(),
+            employeeId: searchParams.employeeId.trim(), // 사번은 대소문자 구분이 필요 없을 수 있습니다.
+            positionName: searchParams.positionName,
+            teamName: searchParams.teamName,
+        };
+
         // "마법 스위치"가 켜져 있으면...
         if (USE_MOCK_DATA) {
             console.log("🛠️ MOCK 데이터를 사용합니다.");
             // 실제 API처럼 0.5초의 딜레이를 줍니다.
             await new Promise(resolve => setTimeout(resolve, 500));
             
+            const filteredEmployees = EMPLOYEE_SEARCH_MOCK_DATA.filter(employee => {
+                const nameMatch = !cleanedParams.name || employee.name.toLowerCase().includes(cleanedParams.name);
+                // 사번은 정확한 일치 또는 시작하는 문자열 일치 (includes)
+                const idMatch = !cleanedParams.employeeId || String(employee.employeeId).includes(cleanedParams.employeeId);
+                // 직급은 정확히 일치 (positionName)
+                const positionMatch = !cleanedParams.positionName || employee.position === cleanedParams.positionName;
+                // 소속은 정확히 일치 (teamName)
+                const teamMatch = !cleanedParams.teamName || employee.department === cleanedParams.teamName;
+
+                return nameMatch && idMatch && positionMatch && teamMatch;
+            });
+
             // MOCK 데이터로 상태를 업데이트합니다.
-            setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
+            setEmployees(filteredEmployees);
             setIsLoading(false);
             return; // 여기서 함수를 종료합니다.
         }

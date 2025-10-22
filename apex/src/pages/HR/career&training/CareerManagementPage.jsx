@@ -7,9 +7,25 @@ import { FaSearch } from "react-icons/fa";
 import axios from 'axios'; // 2. axios 추가
 
 // 3. MOCK 데이터 import 삭제
-// import { EMPLOYEE_LIST_MOCK_DATA } from '../../../models/data/EmployeeMOCK.js';
+import { EMPLOYEE_LIST_MOCK_DATA } from '../../../models/data/EmployeeMOCK.js';
 
-// 4. API URL 정의
+const MOCK_DEPARTMENTS = [
+    { value: '101', name: '경영지원본부' },
+    { value: '102', name: '기술연구소' },
+    { value: '103', name: '영업본부' },
+];
+
+const MOCK_TEAMS = [
+    { value: '개발팀', name: '개발팀' },
+    { value: '인사팀', name: '인사팀' },
+    { value: '마케팅팀', name: '마케팅팀' },
+];
+
+// 4. ✨ "마법 스위치"를 만듭니다.
+// true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
+const USE_MOCK_DATA = true;
+
+// 5. API URL 정의
 const API_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/erp-workexperience';
 
 // 테이블 헤더 (변경 없음)
@@ -17,11 +33,56 @@ const EMPLOYEE_TABLE_HEADERS = [
     '사번', '이름', '직급', '직급근속', '인사발령이력', '자격증', '어학성적', <FaSearch/>
 ];
 
-// 5. MOCK 데이터를 만들던 임시 함수 삭제
-// const getCareerDataForTable = (employeeId) => { ... };
+// 6. MOCK 데이터를 만들던 임시 함수 삭제
+const getCombinedMockData = () => {
+    return EMPLOYEE_LIST_MOCK_DATA.map(employee => {
+        // MOCK_CAREER_DATA_MAP은 EmployeeMOCK.js에 사번을 키로 하는 경력 데이터라고 가정합니다.
+        // 사번 끝자리(임시로)나 이름으로 임의의 경력 데이터를 생성
+        const lastDigit = employee.employeeId % 10;
+
+        // 사번이 짝수/홀수 등에 따라 경력 데이터를 임의로 부여
+        const years = lastDigit % 2 === 0 ? '3년' : '1년';
+        const apptCount = lastDigit % 4; // 발령 0~3회
+        const certCount = lastDigit % 3; // 자격증 0~2개
+        const languageScore = lastDigit > 2 ? 'TOEIC 850' : 'N/A';
+        
+        // 현재 MOCK 데이터에 'position' 필드가 없으므로, 임시로 'positionId'를 기반으로 직급을 부여합니다.
+        // 실제 API 데이터에는 'position' 필드가 있을 것으로 예상됩니다.
+        let positionName = '사원';
+        if (employee.positionId === 10) positionName = '부장';
+        else if (employee.positionId === 8) positionName = '대리';
+        else if (employee.positionId === 7) positionName = '선임';
+        return {
+            ...employee, // 사번, 이름 등 기본 정보
+            // 경력 정보 필드 추가 (API 응답 형태를 MOCK 데이터로 재현)
+            position: positionName, // 임시 직급명
+            years: years,           // 임시 직급근속
+            appt: apptCount,        // 임시 인사발령이력 횟수
+            cert: certCount,        // 임시 자격증 횟수
+            lang: languageScore     // 임시 어학성적
+        };
+    });
+};
+// 7. MOCK 데이터를 필터링하는 로직 (검색 기능)
+const filterCombinedMockData = (data, params) => {
+    const nameQuery = params.name?.trim().toLowerCase();
+    const idQuery = params.employeeId?.trim();
+    const deptQuery = params.department?.trim();
+    const teamQuery = params.team?.trim();
+
+    return data.filter(item => {
+        const nameMatch = !nameQuery || item.name.toLowerCase().includes(nameQuery);
+        const idMatch = !idQuery || item.employeeId.includes(idQuery);
+        
+        // 부서/팀 필터링 (MOCK 데이터의 키에 맞게 조정 필요)
+        const departmentMatch = !deptQuery || (item.departmentName || item.department || '').includes(deptQuery); 
+        const teamMatch = !teamQuery || (item.teamName || item.team || '').includes(teamQuery);
+
+        return nameMatch && idMatch && departmentMatch && teamMatch;
+    });
+};
 
 const CareerManagementPage = () => {
-    // 6. 검색 파라미터 state 정의 (필터 컴포넌트에 맞게 초기화)
     const [searchParams, setSearchParams] = useState({
         name: '',
         employeeId: '',
@@ -30,13 +91,46 @@ const CareerManagementPage = () => {
         // (CareerSearchFilter에 있는 다른 필드들)
     });
     
-    // 7. MOCK 데이터 대신 빈 배열[]로 state 초기화
+    // 9. MOCK 데이터 대신 빈 배열[]로 state 초기화
     const [employees, setEmployees] = useState([]);
-    const [isLoading, setIsLoading] = useState(false); // 8. 로딩 상태 추가
+    const [isLoading, setIsLoading] = useState(false); // 10. 로딩 상태 추가
 
-    // 9. (핵심) 데이터 조회 함수
+    const [departments, setDepartments] = useState([]);
+    const [teams, setTeams] = useState([]);
+
+    useEffect(() => {
+        // 필터 옵션 로드
+        if (USE_MOCK_DATA) {
+            // Mock 데이터를 사용하여 옵션 설정
+            setDepartments(MOCK_DEPARTMENTS);
+            setTeams(MOCK_TEAMS);
+        } else {
+            // TODO: 실제 API를 호출하여 부서/팀 목록을 가져오는 로직 (생략)
+            // fetchFilterOptions();
+        }
+        
+        // 페이지 로드 시 전체 목록 조회 (기존 로직 유지)
+        fetchData(); 
+    }, []);
+
+    // 11. (핵심) 데이터 조회 함수
     const fetchData = async (params = {}) => {
         setIsLoading(true);
+        // ✨ MOCK 데이터 사용 시 로직 ✨
+        if (USE_MOCK_DATA) {
+            console.log("🛠️ MOCK 데이터를 사용하여 경력 목록 조회/필터링");
+            await new Promise(resolve => setTimeout(resolve, 500)); // 로딩 딜레이
+            
+            // 전체 MOCK 데이터를 가져와서 필터링
+            const combinedData = getCombinedMockData();
+            const filteredData = filterCombinedMockData(combinedData, params);
+            
+            setEmployees(filteredData);
+            setIsLoading(false);
+            return;
+        }
+
+        // 🚀 실제 API 사용 시 로직
         try {
             // API로 GET 요청 (검색 파라미터 포함)
             const response = await axios.get(API_URL, { params });
@@ -49,18 +143,18 @@ const CareerManagementPage = () => {
         }
     };
 
-    // 10. (핵심) 페이지가 처음 렌더링될 때 전체 목록 조회
+    // 12. (핵심) 페이지가 처음 렌더링될 때 전체 목록 조회
     useEffect(() => {
         fetchData(); // (params 없이) 전체 목록을 불러옵니다.
     }, []); // 빈 배열[]: "페이지 로드 시 딱 한 번만 실행"
 
-    // 11. (핵심) 검색 필터 변경 핸들러 구현
+    // 13. (핵심) 검색 필터 변경 핸들러 구현
     // (CareerSearchFilter가 (name, value)를 직접 전달한다고 가정)
     const handleSearchChange = (name, value) => {
         setSearchParams(prev => ({ ...prev, [name]: value }));
     };
 
-    // 12. (핵심) 검색 버튼 클릭 핸들러 수정
+    // 14. (핵심) 검색 버튼 클릭 핸들러 수정
     const handleSearch = () => {
         console.log('🐥 API 검색 시작!', searchParams);
         fetchData(searchParams); // 검색 조건(searchParams)을 넣어서 조회
@@ -108,6 +202,8 @@ const CareerManagementPage = () => {
                 searchParams={searchParams}
                 onSearchChange={handleSearchChange}
                 onSearchSubmit={handleSearch}
+                departments={departments} // 추가!
+                teams={teams}
             />
             
             {/* 14. 로딩 및 데이터 없음 UI 추가 */}

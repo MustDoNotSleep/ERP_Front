@@ -1,14 +1,15 @@
 import React from 'react';
 import styles from './CareerSearchFilter.module.css';
 
-// 부서, 팀, 사원번호 등에 사용될 드롭다운 옵션 (백엔드에서 가져와야 함)
-const dummyOptions = [
-    { value: '00000', label: '전체' },
-    { value: '100', label: '개발팀' },
-    { value: '200', label: '영업팀' },
-];
 
-const CareerSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) => {
+const CareerSearchFilter = ({ 
+    searchParams, 
+    onSearchChange, 
+    onSearchSubmit,
+    // 1. ✨ 부서와 팀 목록을 props로 받습니다.
+    departments = [], 
+    teams = [] 
+}) => {
     const handleSelectChange = (e) => {
         onSearchChange(e.target.name, e.target.value);
     };
@@ -30,22 +31,20 @@ const CareerSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) =>
                             value={searchParams.name} 
                             onChange={handleInputChange} 
                             className={styles.input}
-                            placeholder="00000"
+                            placeholder="이름"
                         />
                     </div>
                     
                     <div className={styles.inputGroup}>
                         <label className={styles.label}>사원번호</label>
-                        <select 
+                        <input 
                             name="employeeId" 
                             value={searchParams.employeeId} 
-                            onChange={handleSelectChange}
-                            className={`${styles.input} ${styles.select}`}
+                            onChange={handleInputChange}
+                            className={styles.input}
+                            placeholder="00000"
                         >
-                            {dummyOptions.map(option => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
-                            ))}
-                        </select>
+                        </input>
                     </div>
                     
                     <div className={styles.inputGroup}>
@@ -56,8 +55,13 @@ const CareerSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) =>
                             onChange={handleSelectChange}
                             className={`${styles.input} ${styles.select}`}
                         >
-                            {dummyOptions.map(option => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
+                            <option value="">전체</option>
+                            {/* 부서 목록을 props로 받아서 렌더링합니다. */}
+                            {departments.map((dept, index) => (
+                                // value는 ID(또는 name), label은 name을 사용
+                                <option key={dept.id || index} value={dept.value || dept.name}>
+                                    {dept.name}
+                                </option>
                             ))}
                         </select>
                     </div>
@@ -70,8 +74,13 @@ const CareerSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) =>
                             onChange={handleSelectChange}
                             className={`${styles.input} ${styles.select}`}
                         >
-                            {dummyOptions.map(option => (
-                                <option key={option.value} value={option.value}>{option.label}</option>
+                            <option value="">전체</option>
+                            {/* 팀 목록을 props로 받아서 렌더링합니다. */}
+                            {teams.map((team, index) => (
+                                // value는 ID(또는 name), label은 name을 사용
+                                <option key={team.id || index} value={team.value || team.name}>
+                                    {team.name}
+                                </option>
                             ))}
                         </select>
                     </div>

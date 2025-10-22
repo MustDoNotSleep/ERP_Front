@@ -6,16 +6,63 @@ import AppointmentApproveFilter from '../../../../components/HR/AppointmentAppro
 import axios from 'axios'; // 2. axios 추가
 
 // ⬇️ Mock 데이터 import는 삭제
-// import { APPOINTMENT_APPROVE_LIST_MOCK } from '../../../../models/data/AppointmentApproveMOCK'; 
+import { APPOINTMENT_APPROVE_LIST_MOCK } from '../../../../models/data/AppointmentApproveMOCK'; 
+
+// 2. ✨ "마법 스위치"를 만듭니다.
+// true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
+const USE_MOCK_DATA = true;
 
 // 3. 요청하신 API URL
-// ⚠️ 이 URL 하나로 '조회'와 '상태변경'이 모두 된다고 가정한 코드입니다.
 const API_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/erp-appointment';
 
 
 const TABLE_HEADERS = [
     '선택', '요청일', '사번', '이름', '발령 구분', '요청자', '상태', '승인자'
 ];
+
+// --- MOCK 데이터 관련 함수 (내부 함수로 추가) ---
+
+// MOCK 데이터를 필터링하는 로직 (검색 기능)
+const filterMockData = (data, params) => {
+    // 검색어가 없으면 전체 반환
+    if (!params.employeeName && !params.employeeId && !params.requestDate && !params.departmentId) {
+        return data;
+    }
+
+    const nameQuery = params.employeeName?.trim().toLowerCase();
+    const idQuery = params.employeeId?.trim();
+    const dateQuery = params.requestDate?.trim(); // requestDate는 yyyy-mm-dd 형식이라고 가정
+    const deptQuery = params.departmentId?.trim(); // MOCK 데이터에는 department가 없어서 departmentId로 가정하고 employeeId로 대체
+
+    return data.filter(item => {
+        const nameMatch = !nameQuery || item.employeeName.toLowerCase().includes(nameQuery);
+        const idMatch = !idQuery || item.employeeId.includes(idQuery);
+        
+        // MOCK 데이터에는 departmentId가 없으므로 임의로 employeeId로 대체하여 필터링한다고 가정합니다.
+        // 실제 MOCK 데이터에 department 필드가 있다면, 그 필드로 변경해야 합니다.
+        const departmentMatch = !deptQuery || item.employeeId.includes(deptQuery); 
+        
+        // requestDate는 정확히 일치하거나 (만약 item.requestDate가 'YYYY-MM-DD' 형식이라면)
+        const dateMatch = !dateQuery || item.requestDate === dateQuery; 
+
+        return nameMatch && idMatch && departmentMatch && dateMatch;
+    });
+};
+
+// MOCK 데이터의 상태를 변경하는 함수
+const updateMockStatus = (data, requestIds, newStatus) => {
+    // MOCK 데이터는 불변성이 없으므로, map으로 새 배열 생성
+    return data.map(item => {
+        if (requestIds.includes(item.requestId)) {
+            return {
+                ...item,
+                status: newStatus,
+                approverName: newStatus === '최종승인' ? '시스템_승인자' : item.approverName // 임의 승인자 설정
+            };
+        }
+        return item;
+    });
+};
 
 const AppointmentApprovePage = () => {
     
@@ -34,6 +81,20 @@ const AppointmentApprovePage = () => {
     // 6. (핵심) 데이터 조회 함수 (검색 겸용)
     const fetchData = async (params = {}) => {
         setIsLoading(true);
+
+        // ✨ MOCK 데이터 사용 시 로직 ✨
+        if (USE_MOCK_DATA) {
+            console.log("🛠️ MOCK 데이터를 사용하여 인사발령 목록 조회/필터링");
+            await new Promise(resolve => setTimeout(resolve, 500)); // 로딩 딜레이
+            
+            // 필터링 적용
+            const filteredData = filterMockData(APPOINTMENT_APPROVE_LIST_MOCK, params);
+            setApprovals(filteredData);
+            setIsLoading(false);
+            return;
+        }
+
+        // 🚀 실제 API 사용 시 로직
         try {
             // 가정 1: 'GET' 요청을 API_URL로 보내 목록을 가져옴
             const response = await axios.get(API_URL, { params });
@@ -47,7 +108,7 @@ const AppointmentApprovePage = () => {
         }
     };
 
-    // 7. (핵심) 페이지가 처음 렌더링될 때 전체 목록 조회
+    // 6. (핵심) 페이지가 처음 렌더링될 때 전체 목록 조회
     useEffect(() => {
         fetchData(); // 전체 목록 1회 호출
     }, []); // 빈 배열[]: "페이지 로드 시 딱 한 번만 실행"
@@ -58,7 +119,7 @@ const AppointmentApprovePage = () => {
         setSearchParams(prev => ({ ...prev, [name]: value }));
     };
 
-    // 8. (핵심) 검색 버튼 핸들러
+    // 7. (핵심) 검색 버튼 핸들러
     const handleSearch = () => {
         console.log('🐥 인사발령 검색 시작!', searchParams);
         fetchData(searchParams); // 검색 조건을 담아 조회
@@ -72,7 +133,7 @@ const AppointmentApprovePage = () => {
         );
     };
 
-    // 9. (핵심) 승인/반려 버튼 핸들러
+    // 8. (핵심) 승인/반려 버튼 핸들러
     const handleAction = async (action) => { // 'action'은 "반려" 또는 "최종승인"
         if (selectedRows.length === 0) {
             alert(`먼저 ${action}할 항목을 선택해주세요.`);
@@ -82,6 +143,25 @@ const AppointmentApprovePage = () => {
         console.log(`🚀 ${action} 처리:`, selectedRows);
         setIsLoading(true);
 
+        // ✨ MOCK 데이터 사용 시 로직 ✨
+        if (USE_MOCK_DATA) {
+            console.log(`🛠️ MOCK 데이터 ${action} 처리`);
+            await new Promise(resolve => setTimeout(resolve, 500)); // 로딩 딜레이
+            
+            // MOCK 데이터 상태 업데이트
+            const newApprovals = updateMockStatus(approvals, selectedRows, action);
+            setApprovals(newApprovals); // 현재 approvals 상태를 업데이트
+            
+            // ⚠️ 주의: Mocking 시 'APPOINTMENT_APPROVE_LIST_MOCK' 원본 데이터는 변경되지 않으므로,
+            // 페이지를 새로고침하면 원본 상태로 돌아옵니다. 실제 사용 시에는 이 부분을 고려해야 합니다.
+            
+            alert(`선택된 항목이 ${action} 처리되었습니다.`);
+            setSelectedRows([]); // 선택 해제
+            setIsLoading(false);
+            return;
+        }
+
+        // 🚀 실제 API 사용 시 로직
         try {
             // 서버에 보낼 데이터 (예시)
             const payload = {

@@ -602,10 +602,6 @@ const PeopleNewPage = () => {
                         </div>
                     </div>
                 </section>
-                
-            </form>
-
-            {/* 버튼들은 <form> 밖에 있어야 UI가 안 깨지는 경우 */}
             <div className={styles.actionBar}>
                 <button type="button" className={styles.cancelButton} onClick={handleCancel}>
                     취소
@@ -618,6 +614,9 @@ const PeopleNewPage = () => {
                     저장
                 </button>
             </div>
+                
+            </form>
+
 
         </div>
     );
