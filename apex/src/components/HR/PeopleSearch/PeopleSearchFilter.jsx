@@ -1,10 +1,13 @@
 import React from 'react';
 import styles from "./PeopleSearchFilter.module.css"; 
 
-const POSITION_OPTIONS = ['전체', '인턴', '사원', '대리', '책임', '수석', '과장', '부장'];
-const DEPT_OPTIONS = ['전체', '인사팀', '보안관제팀', 'CERT팀', '보안컨설팅팀', '연구기획팀'];
-
-const PeopleSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) => {
+const PeopleSearchFilter = ({ 
+        searchParams,
+        onSearchChange,
+        onSearchSubmit,
+        positions = [], // 기본값 추가
+        teams = []      // 기본값 추가
+    }) => {
     
     const handleChange = (e) => {
         onSearchChange(e);
@@ -42,34 +45,44 @@ const PeopleSearchFilter = ({ searchParams, onSearchChange, onSearchSubmit }) =>
                     />
                 </div>
 
-                {/* 3. 직급 */}
+                {/* 3. 직급 (API 데이터) */}
                 <div className={styles.inputGroup}>
-                    <label htmlFor="position" className={styles.label}>직급</label>
+                    <label htmlFor="positionName" className={styles.label}>직급</label>
                     <select
-                        id="position"
-                        name="position"
+                        id="positionName"
+                        name="positionName"
                         className={styles.select}
-                        value={searchParams.position}
+                        value={searchParams.positionName}
                         onChange={handleChange}
                     >
-                        {POSITION_OPTIONS.map(pos => <option key={pos} value={pos}>{pos}</option>)}
+                        <option value="">전체</option>
+                        {positions.map(pos => (
+                            <option key={pos.positionId} value={pos.positionName}>
+                                {pos.positionName}
+                            </option>
+                        ))}
                     </select>
                 </div>
 
-                {/* 4. 소속 */}
+                {/* 4. 소속 (API 데이터) */}
                 <div className={styles.inputGroup}>
-                    <label htmlFor="department" className={styles.label}>소속</label>
+                    <label htmlFor="teamName" className={styles.label}>소속</label>
                     <select
-                        id="department"
-                        name="department"
+                        id="teamName"
+                        name="teamName"
                         className={styles.select}
-                        value={searchParams.department}
+                        value={searchParams.teamName}
                         onChange={handleChange}
                     >
-                        {DEPT_OPTIONS.map(dept => <option key={dept} value={dept}>{dept}</option>)}
+                        <option value="">전체</option>
+                        {teams.map((team, index) => (
+                            <option key={index} value={team}>
+                                {team}
+                            </option>
+                        ))}
                     </select>
                 </div>
-                
+
                 {/* 5. 조회 버튼 */}
                 <div className={styles.buttonContainer}>
                     <button 
