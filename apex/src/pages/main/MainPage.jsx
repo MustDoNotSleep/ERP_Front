@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { toast } from 'react-toastify';
 import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
@@ -135,8 +136,22 @@ function MainPage() {
             </div>
             <div className='onoff-btn'>
               {/* ❗ setIsOn으로 수정 */}
-              <button className='on-btn' onClick={() => setIsOn(true)}>ON</button>
-              <button className='off-btn' onClick={() => setIsOn(false)}>OFF</button>
+              <button className='on-btn' onClick={() => {
+                setIsOn(true); toast.success(
+                  <div style={{ textAlign: 'center', width : '100%' }}>
+                    <div>{`[${formatTime(currentTime)}]`}</div>
+                    <div>정상적으로 출근 처리되었습니다.</div>
+                  </div>
+                );
+              }}>ON</button>
+              <button className='off-btn' onClick={() => {
+                setIsOn(false); toast.info(
+                  <div style={{ textAlign: 'center', width : '100%' }}>
+                    <div>{`[${formatTime(currentTime)}]`}</div>
+                    <div>정상적으로 퇴근 처리되었습니다.</div>
+                  </div>
+                );
+              }}>OFF</button>
             </div>
           </div>
         </div>
