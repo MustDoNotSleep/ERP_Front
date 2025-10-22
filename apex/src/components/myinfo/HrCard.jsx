@@ -155,7 +155,7 @@ function HrCard() {
               </div>
               <div className="hr-field">
                 <label>생년월일</label>
-                <input type="text" value={hrCardData.birthDate} readOnly />
+                <input type="text" value={hrCardData.birthDate ? hrCardData.birthDate.split('T')[0] : ''} readOnly />
               </div>
               {/* --- 2행 --- */}
                 <div className="hr-field">
@@ -209,7 +209,37 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>학력</h3>
-        <DataTable
+        <table className="hr-table">
+          <thead>
+            <tr>
+              <th>학교명</th>
+              <th>학위</th>
+              <th>전공</th>
+              <th>입학일</th>
+              <th>졸업일</th>
+              <th>졸업구분</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>명지전문대</td>
+              <td>학사</td>
+              <td>정보보안</td>
+              <td>2000/03/02</td>
+              <td>2001/02/27</td>
+              <td>졸업</td>
+            </tr>
+            <tr>
+              <td>명지전문대</td>
+              <td>전문학사</td>
+              <td>소프트웨어 개발</td>
+              <td>1997/03/04</td>
+              <td>2000/02/27</td>
+              <td>졸업</td>
+            </tr>
+          </tbody>
+        </table>
+        {/* <DataTable
           headers={['학교명', '학위', '전공', '입학일', '졸업일', '졸업 구분']}
           data={hrCardData.educations}
           emptyMessage="학력 정보가 없습니다."
@@ -223,7 +253,7 @@ function HrCard() {
                   <td>{edu.graduationStatus || '-'}</td>
               </>
           )}
-        />
+        /> */}
       </section>
 
       {/* =================================

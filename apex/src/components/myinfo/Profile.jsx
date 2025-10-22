@@ -209,7 +209,7 @@ function Profile() {
                         </div>
                         <div className='form-field'>
                             <label htmlFor="birthDate" className='form-txt'>생년월일</label>
-                            <input type="text" id='birthDate' value={userInfo.birthDate} readOnly />
+                            <input type="text" id='birthDate' value={userInfo.birthDate ? userInfo.birthDate.split('T')[0] : ''} readOnly />
                         </div>
                         <div className='form-field'>
                             <label htmlFor="departmentName" className='form-txt'>부서</label>

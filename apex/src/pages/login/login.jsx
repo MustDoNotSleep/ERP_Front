@@ -66,7 +66,7 @@ function Login({ setIsLoggedIn }) {
       <div className="apex-email">
         <input
           type="text"
-          placeholder="ex) username@apex.com"
+          placeholder="email"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
         />
