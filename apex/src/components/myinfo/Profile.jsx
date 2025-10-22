@@ -2,33 +2,82 @@ import React, {useState, useEffect, useRef} from 'react';
 import { useNavigate } from 'react-router-dom';
 import './Profile.css';
 import User from '../../img/user.png'
+import { fetchEmployeeProfile, updateEmployeePassword } from '../../api/employee.js';
 
 function Profile() {
+    const [userInfo, setUserInfo] = useState({
+        name: '로딩 중...',
+        employeeId: '---',
+        positionName: '---', // 직책
+        teamName: '---', // 팀
+        departmentName: '---', // 부서
+        birthDate: 'YYYY.MM.DD',
+        internalNumber: '---', // 내선번호
+        phoneNumber: '---',
+        email: '---',
+    });
+
+    const getEmployeeId = () => {
+        try {
+            const storedUser = localStorage.getItem('user');
+            if (storedUser) {
+                // employeeId 키는 로그인 응답의 user 객체 안에 있다고 가정합니다.
+                return JSON.parse(storedUser).employeeId; 
+            }
+        } catch (e) {
+            console.error("Employee ID 로드 실패:", e);
+        }
+        return null;
+    };
+
+    // 🛠️ API GET 호출 함수
+    const fetchUserProfile = async () => {
+        const employeeId = getEmployeeId();
+        if (!employeeId) {
+            console.error("로그인된 사용자 ID를 찾을 수 없습니다.");
+            setUserInfo(prev => ({ ...prev, name: '로그인 정보 없음' }));
+            return;
+        }
+
+        try {
+            const data = await fetchEmployeeProfile(employeeId); 
+            
+            setUserInfo({
+                name: data.name || '정보 없음',
+                employeeId: data.employeeId || '---',
+                positionName: data.positionName || '사원', 
+                teamName: data.teamName || '팀 정보 없음',
+                departmentName: data.departmentName || '부서 정보 없음',
+                birthDate: data.birthDate || 'YYYY.MM.DD',
+                internalNumber: data.internalNumber || '---',
+                phoneNumber: data.phoneNumber || '---',
+                email: data.email || '---',
+            });
+
+        } catch (error) {
+            console.error("사용자 프로필 로드 실패:", error);
+            setUserInfo(prev => ({ ...prev, name: '데이터 로드 실패' }));
+        }
+    };
  // 1. 사진 변경을 위한 상태 및 참조
     const [imagePreview, setImagePreview] = useState(User); 
     const fileInputRef = useRef(null);
     
-    // ... (cardRef, navigate, password states...)
+    useEffect(() => {
+        fetchUserProfile();
+    }, []);
 
-    /**
-    * 1. '사진 변경' 버튼 클릭 시, 숨겨진 file input을 클릭
-    */
-    const handlePhotoClick = () => {
-        fileInputRef.current.click();
-    };
-
-    // [추가] 1-1. 파일이 실제로 선택되었을 때 실행
+    const handlePhotoClick = () => { fileInputRef.current.click(); };
     const handleFileChange = (e) => {
       const file = e.target.files[0];
       if (file) {
-        // 선택된 파일을 URL로 변환하여 미리보기 상태 업데이트
         setImagePreview(URL.createObjectURL(file));
-        // (실제 기능) 여기서 file 객체를 서버로 업로드하는 로직을 추가
       }
     };
 
     const navigate = useNavigate();
     // 비밀번호 상태 관리
+    const [currentPassword, setCurrentPassword] = useState('');
     const [newPassword, setNewPassword] = useState('');
     const [confirmPassword, setConfirmPassword] = useState('');
     
@@ -38,6 +87,10 @@ function Profile() {
 
     //성공 메시지 상태
     const [successMessage, setSuccessMessage] = useState('');
+
+    const handleCurrentPasswordChange = (e) => {
+        setCurrentPassword(e.target.value);
+    };
 
     //새 비밀번호 유효성검사 함수
     const validateNewPassword = (password) => {
@@ -89,32 +142,40 @@ function Profile() {
     };
 
     //비밀번호 변경 버튼 클릭 핸들러
-    const handleSubmitPasswordChange = () => {
+    const handleSubmitPasswordChange = async () => { 
         // 1. 먼저 유효성 검사를 수동으로 한 번 더 실행
         const isNewValid = validateNewPassword(newPassword);
         const isConfirmValid = validateConfirmPassword(confirmPassword);
 
         // 2. 오류가 있거나, 새 비밀번호가 입력되지 않았으면 중단
-        if (!newPassword || !isNewValid || !isConfirmValid) {
-        // (필요시) '비밀번호를 입력하세요' 같은 추가 오류 처리
+        if (!currentPassword || !newPassword || !isNewValid || !isConfirmValid) {
+            setNewPasswordError('모든 비밀번호 필드를 올바르게 입력해주세요.');
             return; 
         }
-        // 3. (가상) API 통신 성공!
-        console.log("API: 비밀번호 변경 성공");
+        try {
+        // ✅ FIX 3: 완성된 API 함수를 호출하고, 상태 값을 전달
+            await updateEmployeePassword(currentPassword, newPassword);
 
-        // 4. 성공 상태 업데이트
-        setSuccessMessage('비밀번호가 변경되었습니다.');
-        
-        // 5. 기존 오류 및 입력 필드 초기화
-        setNewPassword('');
-        setConfirmPassword('');
-        setNewPasswordError('');
-        setConfirmPasswordError('');
-
+            // 4. 성공 시 처리
+            alert("비밀번호가 변경되었습니다!");
+            
+            // 5. 필드 초기화
+            setCurrentPassword(''); // 현재 비밀번호 필드 초기화
+            setNewPassword('');
+            setConfirmPassword('');
+            setNewPasswordError('');
+            setConfirmPasswordError('');
+            
+        } catch (err) {
+            // 🚨 API에서 오류 응답 (예: 현재 비밀번호가 틀림)이 오면 여기에서 처리합니다.
+            const errorMessage = err.response?.data?.message || '비밀번호 변경에 실패했습니다. (현재 비밀번호 불일치 등)';
+            setNewPasswordError(errorMessage);
+            setSuccessMessage('');
+        }
         // 6. 3초 뒤에 성공 메시지 자동으로 지우기
         setTimeout(() => {
         setSuccessMessage('');
-        }, 3000);
+        }, 5000);
     };
 
     //다음에 변경하기 버튼 클릭 핸들러
@@ -144,35 +205,35 @@ function Profile() {
                     <div className='form-fields-area'>
                         <div className='form-field'>
                             <label htmlFor="name" className='form-txt'>이름</label>
-                            <input type="text" id='name' value='정관리' readOnly />
+                            <input type="text" id='name' value={userInfo.name} readOnly />
                         </div>
                         <div className='form-field'>
-                            <label htmlFor="birthdate" className='form-txt'>생년월일</label>
-                            <input type="text" id='birthdate' value='19xx.xx.xx' readOnly />
+                            <label htmlFor="birthDate" className='form-txt'>생년월일</label>
+                            <input type="text" id='birthDate' value={userInfo.birthDate} readOnly />
                         </div>
                         <div className='form-field'>
-                            <label htmlFor="department" className='form-txt'>부서</label>
-                            <input type="text" id='department' value='침해사고대응본부' readOnly />
+                            <label htmlFor="departmentName" className='form-txt'>부서</label>
+                            <input type="text" id='departmentName' value={userInfo.departmentName} readOnly />
                         </div>
                         <div className='form-field'>
                             <label htmlFor="employeeId" className='form-txt'>사원번호</label>
-                            <input type="text" id='employeeId' value='1234567' readOnly />
+                            <input type="text" id='employeeId' value={userInfo.employeeId} readOnly />
                         </div>
                         <div className='form-field'>
-                            <label htmlFor="team" className='form-txt'>소속</label>
-                            <input type="text" id='team' value='CERT 팀' readOnly />
+                            <label htmlFor="teamName" className='form-txt'>소속</label>
+                            <input type="text" id='teamName' value={userInfo.teamName} readOnly />
                         </div>
                         <div className='form-field'>
-                            <label htmlFor="extension" className='form-txt'>내선번호</label>
-                            <input type="text" id='extention' value='123-4567' readOnly />
+                            <label htmlFor="internalNumber" className='form-txt'>내선번호</label>
+                            <input type="text" id='internalNumber' value={userInfo.internalNumber} readOnly />
                         </div>
                         <div className='form-field'>
                             <label htmlFor="email" className='form-txt'>이메일</label>
-                            <input type="text" id='email' value='rhksfl01@apex.com' readOnly />
+                            <input type="text" id='email' value={userInfo.email} readOnly />
                         </div>
                         <div className='form-field'>
                             <label htmlFor="phone" className='form-txt'>전화번호</label>
-                            <input type="text" id='phone' value='010-1234-1234' readOnly />
+                            <input type="text" id='phone' value={userInfo.phoneNumber} readOnly />
                         </div>
                     </div>
                 </div>
@@ -189,7 +250,7 @@ function Profile() {
                     <div className='pw-form-area'>
                         <div className='pw-field-group'>
                             <label htmlFor="current-pw">현재 비밀번호</label>
-                            <input type="password" id='current-pw' value="********" readOnly/>
+                            <input type="password" id='current-pw' value={currentPassword} onChange={handleCurrentPasswordChange}/>
                         </div>
                         <div className='pw-field-group'>
                             {/* 새 비밀번호 */}
