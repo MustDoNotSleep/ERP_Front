@@ -21,25 +21,6 @@ function HrCard() {
   const cardRef = useRef(null); // PDF로 변환할 전체 컴포넌트 영역
 
   /**
-   * 1. '사진 변경' 버튼 클릭 시, 숨겨진 file input을 클릭
-   */
-  const handlePhotoClick = () => {
-      fileInputRef.current.click();
-  };
-
-  /**
-   * 1-1. 파일이 실제로 선택되었을 때 실행
-   */
-  const handleFileChange = (e) => {
-    const file = e.target.files[0];
-    if (file) {
-    // 선택된 파일을 URL로 변환하여 미리보기 상태 업데이트
-    setImagePreview(URL.createObjectURL(file));
-    // (실제 기능) 여기서 file 객체를 서버로 업로드하는 로직을 추가
-    }
-  };
-
-  /**
    * 2. '프린트' 버튼 클릭 시
    */
   const handlePrint = () => {
@@ -162,11 +143,6 @@ function HrCard() {
                 {/* <img src={imagePreview} alt="user" />  <- 나중에 이걸로 바꾸기*/}
                 <img src={User} alt="user" />
             </div>
-            <button className='change-photo' onClick={handlePhotoClick}>사진 변경</button>
-            <input type="file" ref={fileInputRef}
-                onChange={handleFileChange} accept='image/*'
-                style={{display:'none'}}
-            />
           </div>
 
           {/* 1-2. 오른쪽: 정보 그리드 + 프린트 버튼 */}
