@@ -1,24 +1,22 @@
 import React, { useState } from 'react';
-import './login.css';
 import { useNavigate } from 'react-router-dom';
 import Logo from '../../img/logo.svg';
 import api from '../../api/axios';
+import './login.css';
 
 function Login({ setIsLoggedIn }) {
-    const [email, setEmail] = useState('');
-    const [password, setPassword] = useState('');
-    const [error, setError] = useState('');
+  const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
+  const [error, setError] = useState('');
 
-    const navigate = useNavigate();
+  const navigate = useNavigate();
 
-    const handleLogin = async () => {
+  const handleLogin = async () => {
     try {
       const response = await api.post(
         'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/login',
         { email, password },
-        {
-          headers: { 'Content-Type': 'application/json' },
-        }
+        { headers: { 'Content-Type': 'application/json' } }
       );
 
       const { token, user } = response.data;
@@ -34,6 +32,7 @@ function Login({ setIsLoggedIn }) {
         employmentType: '사원', // 임시 설정
         teamName: user.teamName,
         //... 기타 필요한 정보
+
       };
 
       // ✅ 토큰 및 유저 정보 저장
@@ -50,7 +49,7 @@ function Login({ setIsLoggedIn }) {
       console.error('로그인 오류:', err);
 
       if (err.response) {
-        setError(err.response.data.error || '로그인 실패');
+        setError(err.response.data.message || err.response.data.error || '로그인 실패');
       } else {
         setError('서버와의 통신에 실패했습니다.');
       }
@@ -59,41 +58,49 @@ function Login({ setIsLoggedIn }) {
 
   return (
     <div className="login-wrap">
-        <div className="login-logo">
-            <img src={Logo} alt="logo"/>
-            <div className="logo-txt">
-                APEX
-            </div>
-        </div>
-        <div className="apex-email">
-            <input 
-                type="text" 
-                placeholder="ex) username@apex.com"
-                value={email}
-                onChange={(e) => setEmail(e.target.value)}
-            />
-        </div>
-        <div className="password">
-            <input 
-                type="password" 
-                placeholder="password"
-                value={password}
-                onChange={(e) => setPassword(e.target.value)} 
-            />
-        </div>
-        <div className="stay-login">
-            <input type="checkbox" id="login-check"/>
-            <label htmlFor="login-check"><span>Stay Logged In</span></label>
-        </div>
+      <div className="login-logo">
+        <img src={Logo} alt="logo" />
+        <div className="logo-txt">APEX</div>
+      </div>
 
-        <button className="login-btn" onClick={handleLogin}>
-            LOGIN
-        </button>
-        
-        <div className="other-wrap">
-            <div className="left-line"></div><p>Other</p><div className="right-line"></div>
-        </div>
-        <div className="find-pw">비밀번호 찾기 &gt;</div>
+      <div className="apex-email">
+        <input
+          type="text"
+          placeholder="ex) username@apex.com"
+          value={email}
+          onChange={(e) => setEmail(e.target.value)}
+        />
+      </div>
+
+      <div className="password">
+        <input
+          type="password"
+          placeholder="password"
+          value={password}
+          onChange={(e) => setPassword(e.target.value)}
+        />
+      </div>
+
+      <div className="stay-login">
+        <input type="checkbox" id="login-check" />
+        <label htmlFor="login-check">
+          <span>Stay Logged In</span>
+        </label>
+      </div>
+
+      <button className="login-btn" onClick={handleLogin}>
+        LOGIN
+      </button>
+
+      <div className="other-wrap">
+        <div className="left-line"></div>
+        <p>Other</p>
+        <div className="right-line"></div>
+      </div>
+
+      <div className="find-pw">비밀번호 찾기 &gt;</div>
+
+      {error && <p className="error-text">{error}</p>}
     </div>
   );
 }
