@@ -35,7 +35,7 @@ const AppointmentApproveFilter = ({ searchParams, onSearchChange, onSearchSubmit
                 />
             </div>
 
-            {/* 3. 요청일 */}
+            {/* 3. 요청일 (수정된 부분 ▼▼▼) */}
             <div className={styles.filterGroup}>
                 <label htmlFor="requestDate" className={styles.filterLabel}>요청일</label>
                 <input
@@ -43,12 +43,13 @@ const AppointmentApproveFilter = ({ searchParams, onSearchChange, onSearchSubmit
                     id="requestDate"
                     name="requestDate"
                     value={searchParams.requestDate}
+                    onChange={onSearchChange} // ✅ 추가됨
                     className={styles.filterInput}
                     placeholder="YYYY/MM/DD"
                 />
             </div>
 
-            {/* 4. 부서 (수정된 부분 ▼▼▼) */}
+            {/* 4. 부서 */}
             <div className={styles.filterGroup}>
                 <label htmlFor="departmentId" className={styles.filterLabel}>부서</label>
                 <select
