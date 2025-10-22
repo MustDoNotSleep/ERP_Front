@@ -1,4 +1,4 @@
-export const INITIAL_MILITARY_SERVICE_STATE = {
+export const InitialMilitaryData = () => ({
     militaryInfoId: null, // INT (PK)
     employeeId: null,        // INT (FK)
     militaryStatus: '',        // ENUM ('현역', '보충역', '면제', '미필')
@@ -8,4 +8,4 @@ export const INITIAL_MILITARY_SERVICE_STATE = {
     exemptionReason: '',       // ENUM ('해당없음', '복무단축', '생계곤란', '질병', '기타')
     serviceStartDate: '',           // DATE
     serviceEndDate: '',             // DATE
-};
+});

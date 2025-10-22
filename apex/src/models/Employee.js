@@ -1,3 +1,4 @@
+// 수정 완전 필요 api 연결 시 삭제 가능
 export const INITIAL_EMPLOYEE_STATE = {
     employeeId: null,      // 사원번호 (int)
     name: '',               // 이름 (varchar)
@@ -18,3 +19,27 @@ export const INITIAL_EMPLOYEE_STATE = {
     familyCertificate: '',   // VARCHAR(250) - 가족 관계 증명서 (새로 추가)
     username: '',            // VARCHAR(100) - 사용자 이름/로그인 ID (새로 추가)  
 };
+
+// 삭제 불가 api 연결용 DATA
+export const InitialEmployeeData = () => ({
+    // 기본 정보
+    name: '',
+    employeeId: '',
+    positionName: '',
+    teamName: '',
+    departmentName: '',
+    birthDate: '',
+    internalNumber: '',
+    email: '',
+    phoneNumber: '',
+    bankName: '',
+    accountNumber: '',
+    
+    // 중첩 정보 (테이블 데이터 - 배열)
+    educations: [],
+    militaryInfo: null, // 단일 객체
+    workExperiences: [],
+    certificates: [],
+    trainings: [], 
+});
+
