@@ -140,8 +140,7 @@ function HrCard() {
           <div className="hr-photo-area">
             <div className="hr-photo-placeholder">
                 {/* [수정] 이미지를 상태(imagePreview)에서 불러옴 */}
-                {/* <img src={imagePreview} alt="user" />  <- 나중에 이걸로 바꾸기*/}
-                <img src={User} alt="user" />
+                <img src={imagePreview} alt="user" />
             </div>
           </div>
 
