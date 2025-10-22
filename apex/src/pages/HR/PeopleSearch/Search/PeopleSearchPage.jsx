@@ -7,7 +7,16 @@ import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
 import PeopleSearchFilter from '../../../../components/HR/PeopleSearch/PeopleSearchFilter.jsx';
 
+// 1. ✨ 기존에 사용하시던 MOCK 데이터 파일을 import 합니다.
+import { EMPLOYEE_SEARCH_MOCK_DATA } from '../../../../models/data/PeopleSearchMock.js';
+
+
 const API_BASE_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev';
+
+// 2. ✨ "마법 스위치"를 만듭니다.
+// true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
+const USE_MOCK_DATA = true;
+
 
 const TABLE_HEADERS = [
     '사번', '이름', '소속', '직급', '이메일', '내선번호'
@@ -34,61 +43,74 @@ const PeopleSearchPage = () => {
     });
 
     // --- 초기 데이터 로드 (직급/팀 목록) ---
+    // (이 부분은 필터 옵션을 위한 것이므로 Mocking하지 않고 그대로 둡니다.)
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                // 1. 직급 목록 조회
+                // 직급 목록 조회
                 const positionsRes = await fetch(`${API_BASE_URL}/get?type=positions`);
                 const positionsData = await positionsRes.json();
                 if (positionsData.data) {
                     setPositions(positionsData.data);
                 }
 
-                // 2. 부서(팀) 목록 조회
+                // 부서(팀) 목록 조회
                 const departmentsRes = await fetch(`${API_BASE_URL}/get?type=departments`);
                 const departmentsData = await departmentsRes.json();
                 if (departmentsData.data) {
-                    // teamName만 추출 (중복 제거)
                     const uniqueTeams = [...new Set(departmentsData.data.map(dept => dept.teamName))];
                     setTeams(uniqueTeams);
                 }
-
-                
             } catch (error) {
                 console.error('초기 데이터 로드 실패:', error);
                 alert('직급/팀 목록을 불러오는 데 실패했습니다.');
             }
         };
 
+        // ✨ Mock 데이터를 사용하더라도, 페이지가 처음 로드될 때
+        // '조회' 버튼을 누른 것처럼 Mock 데이터를 한 번 불러옵니다.
+        if (USE_MOCK_DATA) {
+            handleSearch();
+        }
+        
+        // 필터 옵션은 실제 API에서 가져옵니다.
         fetchInitialData();
     }, []);
 
     // --- 핸들러 함수 ---
 
-    // 검색 필터 값 변경 핸들러 
     const handleSearchChange = (e) => {
         const { name, value } = e.target;
         setSearchParams(prev => ({ ...prev, [name]: value }));
     };
 
-    // '조회' 버튼 클릭 핸들러
+    // 3. ✨ (핵심) '조회' 버튼 클릭 핸들러 수정
     const handleSearch = async () => {
         console.log('검색 시작', searchParams);
         setIsLoading(true);
 
+        // "마법 스위치"가 켜져 있으면...
+        if (USE_MOCK_DATA) {
+            console.log("🛠️ MOCK 데이터를 사용합니다.");
+            // 실제 API처럼 0.5초의 딜레이를 줍니다.
+            await new Promise(resolve => setTimeout(resolve, 500));
+            
+            // MOCK 데이터로 상태를 업데이트합니다.
+            setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
+            setIsLoading(false);
+            return; // 여기서 함수를 종료합니다.
+        }
+
+        // --- (이하 코드는 "마법 스위치"가 꺼져 있을 때만 실행됩니다.) ---
+        console.log("🚀 실제 API를 호출합니다.");
         try {
-            // 쿼리 파라미터 생성 (빈 값 제외)
             const params = new URLSearchParams();
             if (searchParams.name) params.append('name', searchParams.name);
             if (searchParams.employeeId) params.append('employeeId', searchParams.employeeId);
             if (searchParams.positionName) params.append('positionName', searchParams.positionName);
             if (searchParams.teamName) params.append('teamName', searchParams.teamName);
 
-            // JWT 토큰 가져오기 (localStorage 또는 sessionStorage에서)
-            const token = localStorage.getItem('token'); // 또는 적절한 방법으로 토큰 관리
-            console.log('🌐 API 호출 URL:', API_BASE_URL);
-
-            console.log('🔑 토큰 존재 여부:', !!token);
+            const token = localStorage.getItem('token');
 
             const response = await fetch(`${API_BASE_URL}/employees?${params.toString()}`, {
                 method: 'GET',
@@ -118,16 +140,17 @@ const PeopleSearchPage = () => {
         }
     };
     
-    // 테이블 행 렌더링 함수
+    // 4. ✨ (핵심) 테이블 행 렌더링 함수를 MOCK 데이터의 키(key)에 맞게 수정
     const renderEmployeeRow = (employee) => { 
         return (
             <>
+                {/* MOCK 데이터의 키를 사용합니다. */}
                 <td className={tableStyles.tableData}>{employee.employeeId}</td>
                 <td className={tableStyles.tableData}>{employee.name}</td>
-                <td className={tableStyles.tableData}>{employee.teamName || '-'}</td>
-                <td className={tableStyles.tableData}>{employee.positionName || '-'}</td>
+                <td className={tableStyles.tableData}>{employee.department || '-'}</td> {/* 소속 */}
+                <td className={tableStyles.tableData}>{employee.position || '-'}</td>   {/* 직급 */}
                 <td className={tableStyles.tableData}>{employee.email}</td>
-                <td className={tableStyles.tableData}>{employee.internalNumber || '-'}</td>
+                <td className={tableStyles.tableData}>{employee.extension || '-'}</td> {/* 내선번호 */}
             </>
         );
     };
@@ -135,7 +158,6 @@ const PeopleSearchPage = () => {
     return (
         <div className={styles.pageContainer}>
             
-            {/* --- A. 검색 필터 영역 --- */}
             <div className={styles.filterSection}>
                 <PeopleSearchFilter
                     searchParams={searchParams}
@@ -146,14 +168,12 @@ const PeopleSearchPage = () => {
                 />
             </div>
 
-            {/* --- B. 로딩 표시 --- */}
             {isLoading && (
                 <div style={{ textAlign: 'center', padding: '20px' }}>
                     로딩 중...
                 </div>
             )}
 
-            {/* --- C. 데이터 테이블 영역 --- */}
             {!isLoading && (
                 <DataTable
                     headers={TABLE_HEADERS}
