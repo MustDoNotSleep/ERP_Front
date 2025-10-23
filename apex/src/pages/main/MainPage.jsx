@@ -50,7 +50,7 @@ function MainPage() {
         // 🚨 중요: teamName (API key)을 team (state key)으로 매핑하여 저장
         setUserInfo({
           name: user.name || '알 수 없음',
-          employmentType: user.employmentType || '직책정보 없음',
+          positionName: user.positionName || '직책정보 없음',
           team: user.teamName || '팀 정보 없음', // 👈 API 응답의 teamName 키 사용
         });
       } catch (e) {
@@ -109,7 +109,7 @@ function MainPage() {
             <div className="profile-info">
               <h3>{userInfo.name} 님</h3>
               <div className='user-info'>
-                <p>{userInfo.employmentType} </p>
+                {/* <p>{userInfo.positionName} </p> */} <p>부장</p>
                 <p className='user-line'>|</p>
                 <p>{userInfo.team}</p>
               </div>
