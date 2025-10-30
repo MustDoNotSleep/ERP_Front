@@ -1,5 +1,5 @@
 import axios from 'axios'; 
-const API_BASE_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev';
+const API_BASE_URL = 'http://13.124.242.117:8080/api/v1';
 
 const api = axios.create({
   baseURL: API_BASE_URL,
