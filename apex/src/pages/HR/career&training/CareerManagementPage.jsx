@@ -1,12 +1,12 @@
-import React, { useState, useEffect } from 'react'; // 1. useEffect 추가
+import React, { useState, useEffect } from 'react';
 import styles from "./CareerManagementPage.module.css"
 import CareerSearchFilter from '../../../components/HR/career&edu/CareerSearchFilter.jsx';
 import DataTable from '../../../components/common/DataTable.jsx';
 import tableStyles from '../../../components/common/DataTable.module.css'; 
+import { Button } from '../../../components/common';
 import { FaSearch } from "react-icons/fa";
-import axios from 'axios'; // 2. axios 추가
 
-// 3. MOCK 데이터 import 삭제
+// 3. MOCK 데이터 import
 import { EMPLOYEE_LIST_MOCK_DATA } from '../../../models/data/EmployeeMOCK.js';
 
 const MOCK_DEPARTMENTS = [
@@ -24,9 +24,6 @@ const MOCK_TEAMS = [
 // 4. ✨ "마법 스위치"를 만듭니다.
 // true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
 const USE_MOCK_DATA = true;
-
-// 5. API URL 정의
-const API_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/erp-workexperience';
 
 // 테이블 헤더 (변경 없음)
 const EMPLOYEE_TABLE_HEADERS = [
@@ -132,9 +129,11 @@ const CareerManagementPage = () => {
 
         // 🚀 실제 API 사용 시 로직
         try {
-            // API로 GET 요청 (검색 파라미터 포함)
-            const response = await axios.get(API_URL, { params });
-            setEmployees(response.data); // 서버에서 받은 데이터로 상태 업데이트
+            // TODO: 전체 직원 경력 목록 조회 API 필요
+            // 현재는 fetchEmployeeWorkExperience(employeeId)만 있음
+            // 백엔드에 전체 목록 조회 엔드포인트 추가 필요
+            console.warn('전체 경력 목록 조회 API가 필요합니다.');
+            alert('해당 기능은 백엔드 API 개발이 필요합니다.');
         } catch (error) {
             console.error("❌ 경력 데이터 조회 실패:", error);
             alert("데이터를 불러오는 데 실패했습니다.");
@@ -160,6 +159,17 @@ const CareerManagementPage = () => {
         fetchData(searchParams); // 검색 조건(searchParams)을 넣어서 조회
     };
 
+    // 리셋 핸들러 추가
+    const handleReset = () => {
+        setSearchParams({
+            name: '',
+            employeeId: '',
+            department: '',
+            team: ''
+        });
+        fetchData(); // 전체 목록 다시 로드
+    };
+
     // 상세 보기 핸들러 (변경 없음, TODO는 유효)
     const handleViewDetail = (employeeId) => {
         console.log(`사번 ${employeeId}의 상세 경력 정보 보기`);
@@ -183,12 +193,13 @@ const CareerManagementPage = () => {
                 <td className={tableStyles.tableData}>{employee.lang}</td>
                 
                 <td className={tableStyles.tableAction}>
-                    <button 
-                        className={tableStyles.viewButton}
+                    <Button 
+                        variant="ghost"
+                        size="sm"
                         onClick={() => handleViewDetail(employee.employeeId)}
                     >
                         <FaSearch />
-                    </button>
+                    </Button>
                 </td>
             </>
         );
@@ -202,6 +213,7 @@ const CareerManagementPage = () => {
                 searchParams={searchParams}
                 onSearchChange={handleSearchChange}
                 onSearchSubmit={handleSearch}
+                onReset={handleReset}
                 departments={departments} // 추가!
                 teams={teams}
             />

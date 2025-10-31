@@ -1,77 +1,74 @@
 import React from 'react';
-import styles from './AppointmentApproveFilter.module.css';
+import { FilterCard, FilterGroup, Input, Select } from '../../../components/common';
 
-const AppointmentApproveFilter = ({ searchParams, onSearchChange, onSearchSubmit }) => {
+const AppointmentApproveFilter = ({ 
+    searchParams, 
+    onSearchChange, 
+    onSearchSubmit,
+    onReset 
+}) => {
+    const departmentOptions = [
+        { value: '1', label: '경영기획본부' },
+        { value: '2', label: '침해사고대응본부' },
+        { value: '3', label: '자율보안본부' },
+        { value: '4', label: '보안연구본부' }
+    ];
+
+    const handleResetClick = () => {
+        if (onReset) {
+            onReset();
+        }
+    };
+
     return (
-        <div className={styles.filterContainer}>
-            
-            <h2 className={styles.title}>인사발령 관리</h2>
-            
-            {/* 1. 이름 */}
-            <div className={styles.filterGroup}>
-                <label htmlFor="employeeName" className={styles.filterLabel}>이름</label>
-                <input
+        <FilterCard 
+            title="인사발령 관리" 
+            onSearch={onSearchSubmit}
+            onReset={handleResetClick}
+        >
+            <FilterGroup label="이름">
+                <Input
                     type="text"
                     id="employeeName"
                     name="employeeName"
                     value={searchParams.employeeName}
                     onChange={onSearchChange}
-                    placeholder="00000"
-                    className={styles.filterInput}
+                    placeholder="이름을 입력하세요"
                 />
-            </div>
+            </FilterGroup>
 
-            {/* 2. 사원번호 */}
-            <div className={styles.filterGroup}>
-                <label htmlFor="employeeId" className={styles.filterLabel}>사원번호</label>
-                <input
+            <FilterGroup label="사원번호">
+                <Input
                     type="text"
                     id="employeeId"
                     name="employeeId"
                     value={searchParams.employeeId}
                     onChange={onSearchChange}
-                    placeholder="00000"
-                    className={styles.filterInput}
+                    placeholder="사원번호를 입력하세요"
                 />
-            </div>
+            </FilterGroup>
 
-            {/* 3. 요청일 (수정된 부분 ▼▼▼) */}
-            <div className={styles.filterGroup}>
-                <label htmlFor="requestDate" className={styles.filterLabel}>요청일</label>
-                <input
+            <FilterGroup label="요청일">
+                <Input
                     type="date"
                     id="requestDate"
                     name="requestDate"
                     value={searchParams.requestDate}
-                    onChange={onSearchChange} // ✅ 추가됨
-                    className={styles.filterInput}
-                    placeholder="YYYY/MM/DD"
+                    onChange={onSearchChange}
                 />
-            </div>
+            </FilterGroup>
 
-            {/* 4. 부서 */}
-            <div className={styles.filterGroup}>
-                <label htmlFor="departmentId" className={styles.filterLabel}>부서</label>
-                <select
+            <FilterGroup label="부서">
+                <Select
                     id="departmentId"
                     name="departmentId"
                     value={searchParams.departmentId}
                     onChange={onSearchChange}
-                    className={styles.filterSelect}
-                >
-                    <option value="">전체</option>
-                    <option value="1">경영기획본부</option>
-                    <option value="2">침해사고대응본부</option>
-                    <option value="3">자율보안본부</option>
-                    <option value="4">보안연구본부</option>
-                </select>
-            </div>
-
-            {/* 5. 조회 버튼 */}
-            <button onClick={onSearchSubmit} className={styles.searchButton}>
-                조회
-            </button>
-        </div>
+                    options={departmentOptions}
+                    placeholder="전체"
+                />
+            </FilterGroup>
+        </FilterCard>
     );
 };
 

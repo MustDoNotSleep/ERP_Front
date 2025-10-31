@@ -1,9 +1,14 @@
-import React, { useState, useEffect } from 'react'; // 1. useEffect 추가
+import React, { useState, useEffect } from 'react';
 import styles from "./AppointmentApprovePage.module.css";
 import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
 import AppointmentApproveFilter from '../../../../components/HR/AppointmentApprove/AppointmentApproveFilter';
-import axios from 'axios'; // 2. axios 추가
+import { Button } from '../../../../components/common';
+import { 
+    fetchAppointmentRequests, 
+    approveAppointmentRequest, 
+    rejectAppointmentRequest 
+} from '../../../../api/appointment';
 
 // ⬇️ Mock 데이터 import는 삭제
 import { APPOINTMENT_APPROVE_LIST_MOCK } from '../../../../models/data/AppointmentApproveMOCK'; 
@@ -11,9 +16,6 @@ import { APPOINTMENT_APPROVE_LIST_MOCK } from '../../../../models/data/Appointme
 // 2. ✨ "마법 스위치"를 만듭니다.
 // true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
 const USE_MOCK_DATA = true;
-
-// 3. 요청하신 API URL
-const API_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/erp-appointment';
 
 
 const TABLE_HEADERS = [
@@ -96,10 +98,24 @@ const AppointmentApprovePage = () => {
 
         // 🚀 실제 API 사용 시 로직
         try {
-            // 가정 1: 'GET' 요청을 API_URL로 보내 목록을 가져옴
-            const response = await axios.get(API_URL, { params });
+            // fetchAppointmentRequests API 사용
+            const data = await fetchAppointmentRequests(0, 100, params.status);
             
-            setApprovals(response.data); // 서버 응답 데이터로 상태 업데이트
+            // 클라이언트 사이드 필터링 (필요시)
+            let filteredData = data.content || data;
+            
+            if (params.employeeName) {
+                filteredData = filteredData.filter(item => 
+                    item.employee?.name?.includes(params.employeeName)
+                );
+            }
+            if (params.employeeId) {
+                filteredData = filteredData.filter(item => 
+                    String(item.employee?.employeeId).includes(params.employeeId)
+                );
+            }
+            
+            setApprovals(filteredData);
         } catch (error) {
             console.error("❌ 인사발령 목록 조회 실패:", error);
             alert("데이터를 불러오는 데 실패했습니다.");
@@ -123,6 +139,17 @@ const AppointmentApprovePage = () => {
     const handleSearch = () => {
         console.log('🐥 인사발령 검색 시작!', searchParams);
         fetchData(searchParams); // 검색 조건을 담아 조회
+    };
+
+    // 리셋 핸들러 추가
+    const handleReset = () => {
+        setSearchParams({
+            employeeName: '',
+            employeeId: '',
+            requestDate: '',
+            departmentId: ''
+        });
+        fetchData(); // 전체 목록 다시 로드
     };
     
     const handleRowSelect = (id) => {
@@ -163,14 +190,16 @@ const AppointmentApprovePage = () => {
 
         // 🚀 실제 API 사용 시 로직
         try {
-            // 서버에 보낼 데이터 (예시)
-            const payload = {
-                requestIds: selectedRows, // 예: ["req-001", "req-002"]
-                status: action,           // 예: "반려" 또는 "최종승인"
-            };
-
-            // 가정 2: 'POST' 요청을 (신청과) 같은 API_URL로 보내 상태를 변경
-            await axios.post(API_URL, payload);
+            // 선택된 각 요청에 대해 승인/반려 처리
+            const promises = selectedRows.map(requestId => {
+                if (action === '최종승인') {
+                    return approveAppointmentRequest(requestId, '승인되었습니다.');
+                } else {
+                    return rejectAppointmentRequest(requestId, '반려되었습니다.');
+                }
+            });
+            
+            await Promise.all(promises);
 
             alert(`선택된 항목이 ${action} 처리되었습니다.`);
             setSelectedRows([]); // 선택 해제
@@ -228,6 +257,7 @@ const AppointmentApprovePage = () => {
                     searchParams={searchParams}
                     onSearchChange={handleSearchChange}
                     onSearchSubmit={handleSearch}
+                    onReset={handleReset}
                 />
             </div>
 
@@ -249,20 +279,20 @@ const AppointmentApprovePage = () => {
             )}
 
             <div className={styles.buttonGroup}>
-                <button 
+                <Button 
+                    variant="danger"
                     onClick={() => handleAction('반려')} 
-                    className={styles.rejectButton} 
-                    disabled={isLoading} // 12. 로딩 중 비활성화
+                    disabled={isLoading}
                 >
                     반려
-                </button>
-                <button 
+                </Button>
+                <Button 
+                    variant="primary"
                     onClick={() => handleAction('최종승인')} 
-                    className={styles.approveButton} 
-                    disabled={isLoading} // 13. 로딩 중 비활성화
+                    disabled={isLoading}
                 >
                     {isLoading ? "처리 중..." : "최종승인"}
-                </button>
+                </Button>
             </div>
         </div>
     );

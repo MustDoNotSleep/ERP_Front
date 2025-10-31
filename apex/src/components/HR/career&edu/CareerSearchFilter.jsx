@@ -1,98 +1,79 @@
 import React from 'react';
-import styles from './CareerSearchFilter.module.css';
-
+import { FilterCard, FilterGroup, Input, Select } from '../../../components/common';
 
 const CareerSearchFilter = ({ 
     searchParams, 
     onSearchChange, 
     onSearchSubmit,
-    // 1. ✨ 부서와 팀 목록을 props로 받습니다.
+    onReset,
     departments = [], 
     teams = [] 
 }) => {
-    const handleSelectChange = (e) => {
+    const handleChange = (e) => {
         onSearchChange(e.target.name, e.target.value);
     };
 
-    const handleInputChange = (e) => {
-        onSearchChange(e.target.name, e.target.value);
+    // departments 배열을 Select 옵션 형식으로 변환
+    const departmentOptions = departments.map((dept, index) => ({
+        value: dept.value || dept.name,
+        label: dept.name
+    }));
+
+    // teams 배열을 Select 옵션 형식으로 변환
+    const teamOptions = teams.map((team, index) => ({
+        value: team.value || team.name,
+        label: team.name
+    }));
+
+    const handleReset = () => {
+        onReset && onReset();
     };
 
     return (
-        <div className={styles.filterContainer}>
-            <h2 className={styles.title}>경력 관리</h2>
-            <div className={styles.formLayout}> 
-                <div className={styles.filterContent}> 
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>이름</label>
-                        <input 
-                            type="text" 
-                            name="name" 
-                            value={searchParams.name} 
-                            onChange={handleInputChange} 
-                            className={styles.input}
-                            placeholder="이름"
-                        />
-                    </div>
-                    
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>사원번호</label>
-                        <input 
-                            name="employeeId" 
-                            value={searchParams.employeeId} 
-                            onChange={handleInputChange}
-                            className={styles.input}
-                            placeholder="00000"
-                        >
-                        </input>
-                    </div>
-                    
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>부서</label>
-                        <select 
-                            name="department" 
-                            value={searchParams.department} 
-                            onChange={handleSelectChange}
-                            className={`${styles.input} ${styles.select}`}
-                        >
-                            <option value="">전체</option>
-                            {/* 부서 목록을 props로 받아서 렌더링합니다. */}
-                            {departments.map((dept, index) => (
-                                // value는 ID(또는 name), label은 name을 사용
-                                <option key={dept.id || index} value={dept.value || dept.name}>
-                                    {dept.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
+        <FilterCard 
+            title="경력 관리" 
+            onSearch={onSearchSubmit}
+            onReset={handleReset}
+        >
+            <FilterGroup label="이름">
+                <Input 
+                    type="text" 
+                    name="name" 
+                    value={searchParams.name} 
+                    onChange={(e) => handleChange(e)}
+                    placeholder="이름을 입력하세요"
+                />
+            </FilterGroup>
+            
+            <FilterGroup label="사원번호">
+                <Input 
+                    name="employeeId" 
+                    value={searchParams.employeeId} 
+                    onChange={(e) => handleChange(e)}
+                    placeholder="사원번호를 입력하세요"
+                />
+            </FilterGroup>
+            
+            <FilterGroup label="부서">
+                <Select 
+                    name="department" 
+                    value={searchParams.department} 
+                    onChange={(e) => handleChange(e)}
+                    options={departmentOptions}
+                    placeholder="전체"
+                />
+            </FilterGroup>
 
-                    <div className={styles.inputGroup}>
-                        <label className={styles.label}>팀</label>
-                        <select 
-                            name="team" 
-                            value={searchParams.team} 
-                            onChange={handleSelectChange}
-                            className={`${styles.input} ${styles.select}`}
-                        >
-                            <option value="">전체</option>
-                            {/* 팀 목록을 props로 받아서 렌더링합니다. */}
-                            {teams.map((team, index) => (
-                                // value는 ID(또는 name), label은 name을 사용
-                                <option key={team.id || index} value={team.value || team.name}>
-                                    {team.name}
-                                </option>
-                            ))}
-                        </select>
-                    </div>
-                </div>
-
-                <div className={styles.buttonGroup}>
-                    <button onClick={onSearchSubmit} className={styles.searchButton}>
-                        조회
-                    </button>
-                </div>
-            </div>
-        </div>
+            <FilterGroup label="팀">
+                <Select 
+                    name="team" 
+                    value={searchParams.team} 
+                    onChange={(e) => handleChange(e)}
+                    options={teamOptions}
+                    placeholder="전체"
+                />
+            </FilterGroup>
+        </FilterCard>
     );
 };
 

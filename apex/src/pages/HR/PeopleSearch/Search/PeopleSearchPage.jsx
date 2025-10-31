@@ -7,15 +7,14 @@ import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
 import PeopleSearchFilter from '../../../../components/HR/PeopleSearch/PeopleSearchFilter.jsx';
 
-// 1. ✨ 기존에 사용하시던 MOCK 데이터 파일을 import 합니다.
+// API 모듈 - employee만 사용
+import { searchEmployees, fetchEmployees } from '../../../../api/employee';
+
+// MOCK 데이터 (API 실패 시 fallback용)
 import { EMPLOYEE_SEARCH_MOCK_DATA } from '../../../../models/data/PeopleSearchMock.js';
 
-
-const API_BASE_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev';
-
-// 2. ✨ "마법 스위치"를 만듭니다.
-// true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
-const USE_MOCK_DATA = true;
+// ✨ "마법 스위치" - 개발 중에는 true로 설정
+const USE_MOCK_DATA = false; // API 연결 시 false, MOCK 사용 시 true
 
 
 const TABLE_HEADERS = [
@@ -31,48 +30,114 @@ const PeopleSearchPage = () => {
     const [positions, setPositions] = useState([]);
     const [teams, setTeams] = useState([]);
     
+    // 부서/직급 이름 → ID 매핑
+    const [departmentMap, setDepartmentMap] = useState(new Map());
+    const [positionMap, setPositionMap] = useState(new Map());
+    
     // 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
     
-    // 검색 필터 상태 (필드명 통일)
+    // 페이지네이션 상태
+    const [currentPage, setCurrentPage] = useState(0);
+    const [pageSize, setPageSize] = useState(12);
+    const [totalPages, setTotalPages] = useState(0);
+    const [totalElements, setTotalElements] = useState(0);
+    
+    // 검색 필터 상태 (백엔드 API에 맞춤: name, email, departmentId, positionId)
     const [searchParams, setSearchParams] = useState({
         name: '',
+        email: '',
         employeeId: '',
         positionName: '',
         teamName: '',
     });
 
-    // --- 초기 데이터 로드 (직급/팀 목록) ---
-    // (이 부분은 필터 옵션을 위한 것이므로 Mocking하지 않고 그대로 둡니다.)
+    // --- 초기 데이터 로드 (직원 목록에서 직급/팀 추출) ---
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
-                // 직급 목록 조회
-                const positionsRes = await fetch(`${API_BASE_URL}/get?type=positions`);
-                const positionsData = await positionsRes.json();
-                if (positionsData.data) {
-                    setPositions(positionsData.data);
-                }
-
-                // 부서(팀) 목록 조회
-                const departmentsRes = await fetch(`${API_BASE_URL}/get?type=departments`);
-                const departmentsData = await departmentsRes.json();
-                if (departmentsData.data) {
-                    const uniqueTeams = [...new Set(departmentsData.data.map(dept => dept.teamName))];
+                setIsLoading(true);
+                
+                if (USE_MOCK_DATA) {
+                    // MOCK 데이터에서 직급/팀 추출
+                    const uniquePositions = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.position))];
+                    const uniqueTeams = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.department))];
+                    setPositions(uniquePositions.map(pos => ({ positionName: pos })));
                     setTeams(uniqueTeams);
+                    
+                    // 초기 직원 목록도 표시
+                    setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
+                } else {                    
+                    try {
+                        // 직원 목록 조회 (한 번에 모든 정보 포함)
+                        const employeesData = await fetchEmployees(currentPage, pageSize);
+                        // 응답 구조: { success, message, data: { content: [...], pageNumber, pageSize, totalPages, totalElements } }
+                        let empList;
+                        let pageInfo;
+                        
+                        if (employeesData.data && employeesData.data.content && Array.isArray(employeesData.data.content)) {
+                            empList = employeesData.data.content;
+                            pageInfo = employeesData.data;
+                        } else if (employeesData.content && Array.isArray(employeesData.content)) {
+                            empList = employeesData.content;
+                            pageInfo = employeesData;
+                        } else if (Array.isArray(employeesData)) {
+                            empList = employeesData;
+                            pageInfo = null;
+                        } else {
+                            throw new Error('Invalid response structure');
+                        }
+                        setEmployees(empList);
+                        
+                        // 페이지네이션 정보 저장
+                        if (pageInfo) {
+                            setTotalPages(pageInfo.totalPages || 0);
+                            setTotalElements(pageInfo.totalElements || empList.length);
+                    
+                        }
+                        
+                        // 직원 목록에서 직급/팀 추출
+                        const uniquePositions = [...new Set(empList.map(emp => emp.positionName || emp.position))].filter(Boolean);
+                        const uniqueTeams = [...new Set(empList.map(emp => emp.teamName || emp.departmentName || emp.department))].filter(Boolean);
+                        
+                        setPositions(uniquePositions.map(pos => ({ positionName: pos })));
+                        setTeams(uniqueTeams);
+                        
+                        // 부서/직급 이름 → ID 매핑 생성 (검색 시 사용)
+                        const deptMap = new Map();
+                        const posMap = new Map();
+                        
+                        empList.forEach(emp => {
+                            if (emp.departmentId && emp.departmentName) {
+                                deptMap.set(emp.departmentName, emp.departmentId);
+                            }
+                            if (emp.positionId && emp.positionName) {
+                                posMap.set(emp.positionName, emp.positionId);
+                            }
+                        });
+                        
+                        setDepartmentMap(deptMap);
+                        setPositionMap(posMap);
+                        
+                    } catch (apiError) {
+                        
+                        // API 실패 시 MOCK 데이터 사용
+                        const uniquePositions = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.position))];
+                        const uniqueTeams = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.department))];
+                        setPositions(uniquePositions.map(pos => ({ positionName: pos })));
+                        setTeams(uniqueTeams);
+                        setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
+                    }
                 }
             } catch (error) {
-                console.error('초기 데이터 로드 실패:', error);
-                alert('직급/팀 목록을 불러오는 데 실패했습니다.');
+                alert('직원 목록을 불러오는 데 실패했습니다.');
+            } finally {
+                setIsLoading(false);
             }
         };
 
-        // ✨ Mock 데이터를 사용하더라도, 페이지가 처음 로드될 때
-        // '조회' 버튼을 누른 것처럼 Mock 데이터를 한 번 불러옵니다.
-        handleSearch();
-        
-        // 필터 옵션은 실제 API에서 가져옵니다.
         fetchInitialData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []);
 
     // --- 핸들러 함수 ---
@@ -82,92 +147,213 @@ const PeopleSearchPage = () => {
         setSearchParams(prev => ({ ...prev, [name]: value }));
     };
 
+    // 검색 조건 초기화
+    const handleReset = async () => {
+        setSearchParams({
+            name: '',
+            email: '',
+            employeeId: '',
+            positionName: '',
+            teamName: '',
+        });
+        
+        setCurrentPage(0); // 첫 페이지로 리셋
+        setIsLoading(true);
+        
+        // MOCK 데이터 또는 전체 직원 목록으로 복원
+        if (USE_MOCK_DATA) {
+            setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
+            setIsLoading(false);
+        } else {
+            // 실제 API로 전체 목록 다시 로드 (pageSize 사용)
+            try {
+                const data = await fetchEmployees(0, pageSize);
+                
+                let employeeList;
+                let pageInfo;
+                
+                if (data.data && data.data.content) {
+                    employeeList = data.data.content;
+                    pageInfo = data.data;
+                } else if (data.content) {
+                    employeeList = data.content;
+                    pageInfo = data;
+                } else {
+                    employeeList = data;
+                    pageInfo = null;
+                }
+                
+                setEmployees(employeeList);
+                
+                // 페이지네이션 정보 업데이트
+                if (pageInfo) {
+                    setTotalPages(pageInfo.totalPages || 0);
+                    setTotalElements(pageInfo.totalElements || employeeList.length);
+                }
+            } catch (error) {
+                setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
+            } finally {
+                setIsLoading(false);
+            }
+        }
+    };
+
     // 3. ✨ (핵심) '조회' 버튼 클릭 핸들러 수정
     const handleSearch = async () => {
-        console.log('검색 시작', searchParams);
         setIsLoading(true);
 
-        const cleanedParams = {
-            name: searchParams.name.trim().toLowerCase(),
-            employeeId: searchParams.employeeId.trim(), // 사번은 대소문자 구분이 필요 없을 수 있습니다.
-            positionName: searchParams.positionName,
-            teamName: searchParams.teamName,
+        // 백엔드 API에 맞춰 파라미터 변환: name, email, departmentId, positionId
+        const apiParams = {
+            name: searchParams.name.trim(),
+            email: searchParams.email.trim(),
+            departmentId: searchParams.teamName ? departmentMap.get(searchParams.teamName) : undefined,
+            positionId: searchParams.positionName ? positionMap.get(searchParams.positionName) : undefined,
         };
 
-        // "마법 스위치"가 켜져 있으면...
+        // "마법 스위치"가 켜져 있으면 MOCK 데이터 사용
         if (USE_MOCK_DATA) {
-            console.log("🛠️ MOCK 데이터를 사용합니다.");
-            // 실제 API처럼 0.5초의 딜레이를 줍니다.
+            // 실제 API처럼 0.5초의 딜레이
             await new Promise(resolve => setTimeout(resolve, 500));
             
             const filteredEmployees = EMPLOYEE_SEARCH_MOCK_DATA.filter(employee => {
-                const nameMatch = !cleanedParams.name || employee.name.toLowerCase().includes(cleanedParams.name);
-                // 사번은 정확한 일치 또는 시작하는 문자열 일치 (includes)
-                const idMatch = !cleanedParams.employeeId || String(employee.employeeId).includes(cleanedParams.employeeId);
-                // 직급은 정확히 일치 (positionName)
-                const positionMatch = !cleanedParams.positionName || employee.position === cleanedParams.positionName;
-                // 소속은 정확히 일치 (teamName)
-                const teamMatch = !cleanedParams.teamName || employee.department === cleanedParams.teamName;
+                const nameMatch = !searchParams.name || employee.name.toLowerCase().includes(searchParams.name.toLowerCase());
+                const emailMatch = !searchParams.email || employee.email.toLowerCase().includes(searchParams.email.toLowerCase());
+                const idMatch = !searchParams.employeeId || String(employee.employeeId).includes(searchParams.employeeId);
+                const positionMatch = !searchParams.positionName || employee.position === searchParams.positionName;
+                const teamMatch = !searchParams.teamName || employee.department === searchParams.teamName;
 
-                return nameMatch && idMatch && positionMatch && teamMatch;
+                return nameMatch && emailMatch && idMatch && positionMatch && teamMatch;
             });
 
-            // MOCK 데이터로 상태를 업데이트합니다.
             setEmployees(filteredEmployees);
             setIsLoading(false);
-            return; // 여기서 함수를 종료합니다.
+            return;
         }
 
-        // --- (이하 코드는 "마법 스위치"가 꺼져 있을 때만 실행됩니다.) ---
-        console.log("🚀 실제 API를 호출합니다.");
+        // --- 실제 API 호출 ---
         try {
-            const params = new URLSearchParams();
-            if (searchParams.name) params.append('name', searchParams.name);
-            if (searchParams.employeeId) params.append('employeeId', searchParams.employeeId);
-            if (searchParams.positionName) params.append('positionName', searchParams.positionName);
-            if (searchParams.teamName) params.append('teamName', searchParams.teamName);
-
-            const token = localStorage.getItem('token');
-
-            const response = await fetch(`${API_BASE_URL}/employees?${params.toString()}`, {
-                method: 'GET',
-                headers: {
-                    'Authorization': `Bearer ${token}`,
-                    'Content-Type': 'application/json'
-                }
-            });
-
-            if (!response.ok) {
-                throw new Error(`HTTP error! status: ${response.status}`);
-            }
-
-            const data = await response.json();
+            // searchEmployees API 사용 (항상 첫 페이지부터 검색)
+            setCurrentPage(0); // 검색 시 첫 페이지로 리셋
+            const data = await searchEmployees(apiParams, 0, pageSize);
             
-            if (data.employees) {
-                setEmployees(data.employees);
+            // 응답 데이터 처리: { success, message, data: { content: [...], totalPages, totalElements } }
+            let employeeList;
+            let pageInfo;
+            
+            if (data.data && data.data.content && Array.isArray(data.data.content)) {
+                employeeList = data.data.content;
+                pageInfo = data.data;
+            } else if (data.content && Array.isArray(data.content)) {
+                employeeList = data.content;
+                pageInfo = data;
+            } else if (Array.isArray(data)) {
+                employeeList = data;
+                pageInfo = null;
             } else {
-                setEmployees([]);
+                employeeList = [];
+                pageInfo = null;
             }
+            
+            setEmployees(employeeList);
+            
+            // 페이지네이션 정보 저장
+            if (pageInfo) {
+                setTotalPages(pageInfo.totalPages || 0);
+                setTotalElements(pageInfo.totalElements || employeeList.length);
+            }
+            
         } catch (error) {
-            console.error('직원 조회 실패:', error);
-            alert('직원 정보를 조회하는 데 실패했습니다.');
-            setEmployees([]);
+            // API 실패 시 MOCK 데이터로 fallback
+            console.warn('⚠️ MOCK 데이터로 전환하여 검색');
+            const filteredEmployees = EMPLOYEE_SEARCH_MOCK_DATA.filter(employee => {
+                const nameMatch = !searchParams.name || employee.name.toLowerCase().includes(searchParams.name.toLowerCase());
+                const emailMatch = !searchParams.email || employee.email.toLowerCase().includes(searchParams.email.toLowerCase());
+                const idMatch = !searchParams.employeeId || String(employee.employeeId).includes(searchParams.employeeId);
+                const positionMatch = !searchParams.positionName || employee.position === searchParams.positionName;
+                const teamMatch = !searchParams.teamName || employee.department === searchParams.teamName;
+
+                return nameMatch && emailMatch && idMatch && positionMatch && teamMatch;
+            });
+            setEmployees(filteredEmployees);
         } finally {
             setIsLoading(false);
         }
     };
     
-    // 4. ✨ (핵심) 테이블 행 렌더링 함수를 MOCK 데이터의 키(key)에 맞게 수정
+    // 페이지 변경 핸들러
+    const handlePageChange = async (newPage) => {
+        if (newPage < 0 || newPage >= totalPages) return;
+        
+        setCurrentPage(newPage);
+        setIsLoading(true);
+        
+        try {
+            const data = await fetchEmployees(newPage, pageSize);
+            
+            let employeeList;
+            if (data.data && data.data.content) {
+                employeeList = data.data.content;
+            } else if (data.content) {
+                employeeList = data.content;
+            } else {
+                employeeList = data;
+            }
+            
+            setEmployees(employeeList);
+        } catch (error) {
+            console.error('페이지 로드 실패:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    // 페이지 크기 변경 핸들러
+    const handlePageSizeChange = async (newSize) => {
+        setPageSize(newSize);
+        setCurrentPage(0); // 첫 페이지로 리셋
+        setIsLoading(true);
+        
+        try {
+            const data = await fetchEmployees(0, newSize);
+            
+            let employeeList;
+            let pageInfo;
+            
+            if (data.data && data.data.content) {
+                employeeList = data.data.content;
+                pageInfo = data.data;
+            } else if (data.content) {
+                employeeList = data.content;
+                pageInfo = data;
+            } else {
+                employeeList = data;
+                pageInfo = null;
+            }
+            
+            setEmployees(employeeList);
+            
+            if (pageInfo) {
+                setTotalPages(pageInfo.totalPages || 0);
+                setTotalElements(pageInfo.totalElements || employeeList.length);
+            }
+        } catch (error) {
+            console.error('페이지 크기 변경 실패:', error);
+        } finally {
+            setIsLoading(false);
+        }
+    };
+    
+    // 4. ✨ (핵심) 테이블 행 렌더링 함수 - API 응답 구조에 맞게 수정
     const renderEmployeeRow = (employee) => { 
         return (
             <>
-                {/* MOCK 데이터의 키를 사용합니다. */}
-                <td className={tableStyles.tableData}>{employee.employeeId}</td>
+                {/* API 응답: id, name, departmentName, positionName, email, internalNumber */}
+                <td className={tableStyles.tableData}>{employee.id || employee.employeeId}</td>
                 <td className={tableStyles.tableData}>{employee.name}</td>
-                <td className={tableStyles.tableData}>{employee.department || '-'}</td> {/* 소속 */}
-                <td className={tableStyles.tableData}>{employee.position || '-'}</td>   {/* 직급 */}
+                <td className={tableStyles.tableData}>{employee.departmentName || employee.department || '-'}</td>
+                <td className={tableStyles.tableData}>{employee.positionName || employee.position || '-'}</td>
                 <td className={tableStyles.tableData}>{employee.email}</td>
-                <td className={tableStyles.tableData}>{employee.extension || '-'}</td> {/* 내선번호 */}
+                <td className={tableStyles.tableData}>{employee.internalNumber || employee.extension || '-'}</td>
             </>
         );
     };
@@ -180,6 +366,7 @@ const PeopleSearchPage = () => {
                     searchParams={searchParams}
                     onSearchChange={handleSearchChange} 
                     onSearchSubmit={handleSearch}
+                    onReset={handleReset}
                     positions={positions}
                     teams={teams}
                 />
@@ -192,11 +379,87 @@ const PeopleSearchPage = () => {
             )}
 
             {!isLoading && (
-                <DataTable
-                    headers={TABLE_HEADERS}
-                    data={employees}
-                    renderRow={renderEmployeeRow}
-                />
+                <>
+                    <DataTable
+                        headers={TABLE_HEADERS}
+                        data={employees}
+                        renderRow={renderEmployeeRow}
+                    />
+                    
+                    {/* 페이지네이션 UI */}
+                    {totalPages > 1 && (
+                        <div style={{
+                            display: 'flex',
+                            justifyContent: 'space-between',
+                            alignItems: 'center',
+                            padding: '20px',
+                            marginTop: '20px',
+                            borderTop: '1px solid #e0e0e0'
+                        }}>
+                            {/* 페이지 크기 선택 */}
+                            <div style={{ display: 'flex', alignItems: 'center', gap: '10px' }}>
+                                <label>페이지 크기:</label>
+                                <select
+                                    value={pageSize}
+                                    onChange={(e) => handlePageSizeChange(Number(e.target.value))}
+                                    style={{
+                                        padding: '6px 12px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px'
+                                    }}
+                                >
+                                    <option value={12}>기본</option>
+                                    <option value={10}>10개</option>
+                                    <option value={20}>20개</option>
+                                </select>
+                            </div>
+                            
+                            {/* 페이지 네비게이션 */}
+                            <div style={{
+                                display: 'flex',
+                                alignItems: 'center',
+                                gap: '10px'
+                            }}>
+                                <button
+                                    onClick={() => handlePageChange(currentPage - 1)}
+                                    disabled={currentPage === 0}
+                                    style={{
+                                        padding: '8px 16px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        background: currentPage === 0 ? '#f5f5f5' : 'white',
+                                        cursor: currentPage === 0 ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    이전
+                                </button>
+                                
+                                <span style={{ margin: '0 10px', fontWeight: 'bold' }}>
+                                    {currentPage + 1} / {totalPages} 페이지
+                                </span>
+                                
+                                <button
+                                    onClick={() => handlePageChange(currentPage + 1)}
+                                    disabled={currentPage >= totalPages - 1}
+                                    style={{
+                                        padding: '8px 16px',
+                                        border: '1px solid #ddd',
+                                        borderRadius: '4px',
+                                        background: currentPage >= totalPages - 1 ? '#f5f5f5' : 'white',
+                                        cursor: currentPage >= totalPages - 1 ? 'not-allowed' : 'pointer'
+                                    }}
+                                >
+                                    다음
+                                </button>
+                            </div>
+                            
+                            {/* 전체 개수 표시 */}
+                            <div style={{ color: '#666' }}>
+                                총 {totalElements}명
+                            </div>
+                        </div>
+                    )}
+                </>
             )}
         </div>
     );

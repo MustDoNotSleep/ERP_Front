@@ -1,99 +1,97 @@
 import React from 'react';
-import styles from "./PeopleSearchFilter.module.css"; 
+import { FilterCard, FilterGroup, Input, Select } from '../../../components/common';
 
 const PeopleSearchFilter = ({ 
-        searchParams,
-        onSearchChange,
-        onSearchSubmit,
-        positions = [], // 기본값 추가
-        teams = []      // 기본값 추가
-    }) => {
-    
+    searchParams,
+    onSearchChange,
+    onSearchSubmit,
+    onReset,
+    positions = [],
+    teams = []
+}) => {
     const handleChange = (e) => {
         onSearchChange(e);
     };
 
+    const handleResetClick = () => {
+        if (onReset) {
+            onReset();
+        }
+    };
+
+    // positions 배열을 Select 옵션 형식으로 변환
+    const positionOptions = positions.map(pos => ({
+        value: pos.positionName,
+        label: pos.positionName
+    }));
+
+    // teams 배열을 Select 옵션 형식으로 변환
+    const teamOptions = teams.map((team, index) => ({
+        value: team,
+        label: team
+    }));
+
     return (
-        <div className={styles.filterContainer}> 
-            
-            <h2 className={styles.title}>직원 조회</h2>
+        <FilterCard 
+            title="직원 조회" 
+            onSearch={onSearchSubmit}
+            onReset={handleResetClick}
+        >
+            <FilterGroup label="이름">
+                <Input
+                    type="text"
+                    id="name"
+                    name="name"
+                    value={searchParams.name}
+                    onChange={handleChange}
+                    placeholder="이름을 입력하세요"
+                />
+            </FilterGroup>
 
-            <div className={styles.inputGrid}>
-                {/* 1. 이름 */}
-                <div className={styles.inputGroup}>
-                    <label htmlFor="name" className={styles.label}>이름</label>
-                    <input
-                        type="text"
-                        id="name"
-                        name="name"
-                        className={styles.input}
-                        value={searchParams.name}
-                        onChange={handleChange}
-                    />
-                </div>
+            <FilterGroup label="이메일">
+                <Input
+                    type="text"
+                    id="email"
+                    name="email"
+                    value={searchParams.email}
+                    onChange={handleChange}
+                    placeholder="이메일을 입력하세요"
+                />
+            </FilterGroup>
 
-                {/* 2. 사원번호 */}
-                <div className={styles.inputGroup}>
-                    <label htmlFor="employeeId" className={styles.label}>사원번호</label>
-                    <input
-                        type="text"
-                        id="employeeId"
-                        name="employeeId"
-                        className={styles.input}
-                        value={searchParams.employeeId}
-                        onChange={handleChange}
-                    />
-                </div>
+            <FilterGroup label="사원번호">
+                <Input
+                    type="text"
+                    id="employeeId"
+                    name="employeeId"
+                    value={searchParams.employeeId}
+                    onChange={handleChange}
+                    placeholder="사원번호를 입력하세요"
+                />
+            </FilterGroup>
 
-                {/* 3. 직급 (API 데이터) */}
-                <div className={styles.inputGroup}>
-                    <label htmlFor="positionName" className={styles.label}>직급</label>
-                    <select
-                        id="positionName"
-                        name="positionName"
-                        className={styles.select}
-                        value={searchParams.positionName}
-                        onChange={handleChange}
-                    >
-                        <option value="">전체</option>
-                        {positions.map(pos => (
-                            <option key={pos.positionId} value={pos.positionName}>
-                                {pos.positionName}
-                            </option>
-                        ))}
-                    </select>
-                </div>
+            <FilterGroup label="직급">
+                <Select
+                    id="positionName"
+                    name="positionName"
+                    value={searchParams.positionName}
+                    onChange={handleChange}
+                    options={positionOptions}
+                    placeholder="전체"
+                />
+            </FilterGroup>
 
-                {/* 4. 소속 (API 데이터) */}
-                <div className={styles.inputGroup}>
-                    <label htmlFor="teamName" className={styles.label}>소속</label>
-                    <select
-                        id="teamName"
-                        name="teamName"
-                        className={styles.select}
-                        value={searchParams.teamName}
-                        onChange={handleChange}
-                    >
-                        <option value="">전체</option>
-                        {teams.map((team, index) => (
-                            <option key={index} value={team}>
-                                {team}
-                            </option>
-                        ))}
-                    </select>
-                </div>
-
-                {/* 5. 조회 버튼 */}
-                <div className={styles.buttonContainer}>
-                    <button 
-                        className={styles.searchButton}
-                        onClick={onSearchSubmit}
-                    >
-                        조회
-                    </button>
-                </div>
-            </div>
-        </div>
+            <FilterGroup label="소속">
+                <Select
+                    id="teamName"
+                    name="teamName"
+                    value={searchParams.teamName}
+                    onChange={handleChange}
+                    options={teamOptions}
+                    placeholder="전체"
+                />
+            </FilterGroup>
+        </FilterCard>
     );
 };
 

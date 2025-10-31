@@ -40,17 +40,22 @@ function Profile() {
         }
 
         try {
-            const data = await fetchEmployeeProfile(employeeId); 
+            const response = await fetchEmployeeProfile(employeeId);
+            
+            // API 응답 구조: { success, message, data: { id, name, email, ... } }
+            const data = response.data || response;
+            
+            console.log('📋 프로필 데이터:', data); // 디버깅용
             
             setUserInfo({
                 name: data.name || '정보 없음',
-                employeeId: data.employeeId || '---',
+                employeeId: data.id || data.employeeId || '---',
                 positionName: data.positionName || '사원', 
-                teamName: data.teamName || '팀 정보 없음',
+                teamName: data.teamName || data.departmentName || '팀 정보 없음',
                 departmentName: data.departmentName || '부서 정보 없음',
                 birthDate: data.birthDate || 'YYYY.MM.DD',
                 internalNumber: data.internalNumber || '---',
-                phoneNumber: data.phoneNumber || '---',
+                phoneNumber: data.phone || data.phoneNumber || '---',
                 email: data.email || '---',
             });
 
@@ -66,7 +71,6 @@ function Profile() {
     useEffect(() => {
         fetchUserProfile();
     }, []);
-
     const handlePhotoClick = () => { fileInputRef.current.click(); };
     const handleFileChange = (e) => {
       const file = e.target.files[0];
@@ -74,6 +78,7 @@ function Profile() {
         setImagePreview(URL.createObjectURL(file));
       }
     };
+
 
     const navigate = useNavigate();
     // 비밀번호 상태 관리
@@ -152,9 +157,17 @@ function Profile() {
             setNewPasswordError('모든 비밀번호 필드를 올바르게 입력해주세요.');
             return; 
         }
+        
+        // 3. employeeId 가져오기
+        const employeeId = getEmployeeId();
+        if (!employeeId) {
+            setNewPasswordError('사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+            return;
+        }
+        
         try {
-        // ✅ FIX 3: 완성된 API 함수를 호출하고, 상태 값을 전달
-            await updateEmployeePassword(currentPassword, newPassword);
+            // ✅ 수정: employeeId, currentPassword, newPassword 모두 전달
+            await updateEmployeePassword(employeeId, currentPassword, newPassword);
 
             // 4. 성공 시 처리
             alert("비밀번호가 변경되었습니다!");
@@ -168,6 +181,7 @@ function Profile() {
             
         } catch (err) {
             // 🚨 API에서 오류 응답 (예: 현재 비밀번호가 틀림)이 오면 여기에서 처리합니다.
+            console.error('비밀번호 변경 오류:', err);
             const errorMessage = err.response?.data?.message || '비밀번호 변경에 실패했습니다. (현재 비밀번호 불일치 등)';
             setNewPasswordError(errorMessage);
             setSuccessMessage('');

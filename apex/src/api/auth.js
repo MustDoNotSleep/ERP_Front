@@ -14,13 +14,20 @@ export const login = async (email, password) => {
     });
     
     const data = response.data;
+    console.log('🔍 로그인 응답 데이터:', data);
     
     // 토큰을 localStorage에 저장
     if (data.accessToken) {
       localStorage.setItem('token', data.accessToken);
+      console.log('✅ accessToken 저장 완료:', data.accessToken.substring(0, 20) + '...');
+      console.log('🔍 저장 확인 - localStorage.getItem("token"):', localStorage.getItem('token')?.substring(0, 20) + '...');
+    } else {
+      console.error('❌ accessToken이 응답에 없습니다!');
     }
+    
     if (data.refreshToken) {
       localStorage.setItem('refreshToken', data.refreshToken);
+      console.log('✅ refreshToken 저장 완료');
     }
     
     // 사용자 정보 저장
@@ -31,10 +38,11 @@ export const login = async (email, password) => {
         email: data.email,
         role: data.role,
         department: data.department,
-        position: data.position,
+        positionName: data.position,
         teamName: data.department // teamName으로도 사용
       };
       localStorage.setItem('user', JSON.stringify(userInfo));
+      console.log('✅ 사용자 정보 저장 완료:', userInfo);
     }
     
     return data;

@@ -1,10 +1,16 @@
 import React, { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import styles from "./PeopleNewPage.module.css";
-import axios from 'axios';
+import { createEmployee } from '../../../../api/employee';
+import { fetchDepartments } from '../../../../api/department';
+import { fetchPositions } from '../../../../api/position';
 
-// API 엔드포인트
-const API_BASE_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev';
+// MOCK 데이터 임포트 (API 실패 시 fallback용)
+import { DEPARTMENT_MOCK } from '../../../../models/data/DepartmentMOCK';
+import { POSITIONS_MOCK } from '../../../../models/data/PositionsMOCK';
+
+// ✨ "마법 스위치" - 개발 중에는 true로 설정
+const USE_MOCK_DATA = false; // API 연결 시 false, MOCK 사용 시 true
 
 // --- (A) 사용자님이 보내주신 '폼의 빈 상태' ---
 // (※ educationList 등은 '추가' 버튼으로 추가할 것이므로 빈 배열로 초기화)
@@ -72,19 +78,45 @@ const PeopleNewPage = () => {
             try {
                 setLoading(true);
                 
-                // 부서/팀 목록 조회
-                const deptResponse = await axios.get(`${API_BASE_URL}/get?type=departments`);
-                const deptData = deptResponse.data.data;
+                let deptList, posList;
                 
-                // 직급 목록 조회
-                const posResponse = await axios.get(`${API_BASE_URL}/get?type=positions`);
-                const posData = posResponse.data.data;
+                if (USE_MOCK_DATA) {
+                    // MOCK 데이터 사용
+                    console.log('🛠️ MOCK 데이터를 사용하여 부서/직급 목록 조회');
+                    deptList = DEPARTMENT_MOCK;
+                    posList = POSITIONS_MOCK;
+                } else {
+                    // 실제 API 호출
+                    try {
+                        console.log('🚀 실제 API 호출 시도');
+                        
+                        // 부서/팀 목록 조회 - API 모듈 사용
+                        const deptData = await fetchDepartments(0, 100);
+                        console.log('✅ 부서 API 성공:', deptData);
+                        
+                        // 직급 목록 조회 - API 모듈 사용
+                        const posData = await fetchPositions(0, 100);
+                        console.log('✅ 직급 API 성공:', posData);
+                        
+                        // 페이징 응답 처리 (content가 있으면 사용, 아니면 전체 데이터 사용)
+                        deptList = deptData.content || deptData;
+                        posList = posData.content || posData;
+                    } catch (apiError) {
+                        // API 실패 시 자동으로 MOCK 데이터 사용
+                        console.warn('⚠️ API 조회 실패, MOCK 데이터로 전환:', apiError.message);
+                        deptList = DEPARTMENT_MOCK;
+                        posList = POSITIONS_MOCK;
+                    }
+                }
                 
-                setDepartments(deptData); // 전체 부서/팀 목록 저장
-                setPositions(posData);
+                console.log('� 처리된 부서 목록:', deptList);
+                console.log('� 처리된 직급 목록:', posList);
+                
+                setDepartments(deptList); // 전체 부서/팀 목록 저장
+                setPositions(posList);
                 
                 // 부서명으로 그룹화
-                const grouped = deptData.reduce((acc, item) => {
+                const grouped = deptList.reduce((acc, item) => {
                     if (!acc[item.departmentName]) {
                         acc[item.departmentName] = [];
                     }
@@ -97,10 +129,11 @@ const PeopleNewPage = () => {
                     return acc;
                 }, {});
                 
+                console.log('� 그룹화된 부서:', grouped);
                 setDepartmentGroups(grouped);
                 
             } catch (error) {
-                console.error('❌ API 조회 실패:', error);
+                console.error('❌ 치명적 에러:', error);
                 alert('부서/직급 정보를 불러오는데 실패했습니다.');
             } finally {
                 setLoading(false);
@@ -334,21 +367,12 @@ const PeopleNewPage = () => {
         }
 
         try {
-            // 4. 재조립된 'payload'를 서버로 전송
+            // 4. createEmployee API 모듈 사용
             console.log('🧑‍💻 신규 직원 등록 데이터 (최종 전송 Payload):', payload);
             
-            const response = await axios.post(
-                `${API_BASE_URL}/register`,
-                payload, // ★★★ formData 대신 재조립한 payload 전송
-                {
-                    headers: {
-                        'Content-Type': 'application/json',
-                        'Authorization': `Bearer ${localStorage.getItem('token')}`,
-                    },
-                }
-            );
+            const data = await createEmployee(payload);
             
-            console.log('✅ 서버 응답:', response.data);
+            console.log('✅ 서버 응답:', data);
             alert('신규 직원이 등록되었습니다.');
             setFormData(emptyFormData);
         } catch (err) {

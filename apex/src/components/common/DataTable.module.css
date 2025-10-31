@@ -43,6 +43,17 @@ th:last-child, td:last-child {border-right: none;}
     white-space: nowrap; 
 }
 
+/* 빈 데이터 메시지 스타일 */
+.emptyMessage {
+    background-color: white;
+    padding: 20px;
+    text-align: center;
+    color: #999;
+    font-size: 0.95rem;
+    border-bottom: 0.1px solid #663D2B;
+    border-top: 0.1px solid #663D2B;
+}
+
 .rowEven {
     background-color: white;
 }

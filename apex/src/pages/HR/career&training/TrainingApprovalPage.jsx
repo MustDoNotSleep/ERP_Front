@@ -3,19 +3,14 @@ import styles from "./TrainingApprovalPage.module.css"
 import tableStyles from "../../../components/common/DataTable.module.css";
 import DataTable from '../../../components/common/DataTable';
 import TrainingApprovalFilter from '../../../components/HR/career&edu/TrainingApprovalFilter';
-import axios from 'axios'; 
+import { Button } from '../../../components/common';
+import { fetchCourseApplications, approveCourseApplication, rejectCourseApplication } from '../../../api/course';
 
 // 1. ✨ Mock 데이터 import (유지)
 import { TRAINING_APPROVAL_LIST_MOCK } from '../../../models/data/TrainingMOCK';
 
 // 2. ✨ "마법 스위치" (유지)
-const USE_MOCK_DATA = true;
-
-
-// 3. API URL (유지)
-const API_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/erp-education';
-
-const TABLE_HEADERS = [
+const USE_MOCK_DATA = true;const TABLE_HEADERS = [
     '선택', '신청일자', '사번', '이름', '부서', '직급', '교육명', '상태'
 ];
 
@@ -101,8 +96,29 @@ const TrainingApprovalPage = () => {
 
         // 🚀 실제 API 사용 시 로직
         try {
-            const response = await axios.get(API_URL, { params });
-            setApprovals(response.data); 
+            // fetchCourseApplications API 사용
+            const data = await fetchCourseApplications(0, 100, params.approvalStatus);
+            
+            // 클라이언트 사이드 필터링
+            let filteredData = data.content || data;
+            
+            if (params.courseName) {
+                filteredData = filteredData.filter(item => 
+                    item.course?.courseName?.includes(params.courseName)
+                );
+            }
+            if (params.departmentId) {
+                filteredData = filteredData.filter(item => 
+                    item.employee?.department?.departmentId === Number(params.departmentId)
+                );
+            }
+            if (params.positionId) {
+                filteredData = filteredData.filter(item => 
+                    item.employee?.position?.positionId === Number(params.positionId)
+                );
+            }
+            
+            setApprovals(filteredData);
         } catch (error) {
             console.error("❌ 교육 신청 목록 조회 실패:", error);
             alert("데이터를 불러오는 데 실패했습니다.");
@@ -126,6 +142,18 @@ const TrainingApprovalPage = () => {
     const handleSearch = () => {
         console.log('🐥 검색 시작!', searchParams);
         fetchData(searchParams); 
+    };
+
+    // 리셋 핸들러 추가
+    const handleReset = () => {
+        setSearchParams({
+            departmentId: '', 
+            positionId: '', 
+            courseName: '', 
+            applicationDate: '', 
+            approvalStatus: ''
+        });
+        fetchData(); // 전체 목록 다시 로드
     };
     
     // 8. 행 선택 핸들러 (유지)
@@ -165,12 +193,16 @@ const TrainingApprovalPage = () => {
         
         // 🚀 실제 API 사용 시 로직
         try {
-            const payload = {
-                requestIds: selectedRows, 
-                status: action, 
-            };
-
-            await axios.post(API_URL, payload);
+            // 선택된 각 신청에 대해 승인/반려 처리
+            const promises = selectedRows.map(applicationId => {
+                if (action === '승인') {
+                    return approveCourseApplication(applicationId);
+                } else {
+                    return rejectCourseApplication(applicationId, '반려되었습니다.');
+                }
+            });
+            
+            await Promise.all(promises);
 
             alert(`선택된 항목이 ${action} 처리되었습니다.`);
             setSelectedRows([]); 
@@ -226,6 +258,7 @@ const TrainingApprovalPage = () => {
                     searchParams={searchParams}
                     onSearchChange={handleSearchChange}
                     onSearchSubmit={handleSearch}
+                    onReset={handleReset}
                 />
             </div>
 
@@ -247,20 +280,20 @@ const TrainingApprovalPage = () => {
 
             {/* --- C. 액션 버튼 영역 (유지) --- */}
             <div className={styles.buttonGroup}>
-                <button 
+                <Button 
+                    variant="danger"
                     onClick={() => handleAction('반려')} 
-                    className={styles.rejectButton} 
                     disabled={isLoading} 
                 >
                     반려
-                </button>
-                <button 
+                </Button>
+                <Button 
+                    variant="primary"
                     onClick={() => handleAction('승인')} 
-                    className={styles.approveButton} 
                     disabled={isLoading}
                 >
                     {isLoading ? "처리 중..." : "승인"}
-                </button>
+                </Button>
             </div>
         </div>
     );

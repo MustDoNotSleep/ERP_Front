@@ -1,6 +1,6 @@
 // App.jsx
 import './App.css';
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 
 import { BrowserRouter, Routes, Route, Navigate } from 'react-router-dom';
 import 'react-toastify/dist/ReactToastify.css';
@@ -21,13 +21,29 @@ import PeopleSearchPage from './pages/HR/PeopleSearch/Search/PeopleSearchPage.js
 import PeopleNewPage from './pages/HR/PeopleSearch/New/PeopleNewPage.jsx';
 import AppointmentApplyPage from './pages/HR/appointments/Apply/AppointmentApplyPage.jsx';
 import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentApprovePage.jsx';
+import { isAuthenticated, logout } from './api/auth';
 
 function App() {
-  const [isLoggedIn, setIsLoggedIn] = useState(false);
+  // localStorage에 토큰이 있으면 로그인 상태로 초기화
+  const [isLoggedIn, setIsLoggedIn] = useState(() => {
+    const hasToken = isAuthenticated();
+    console.log('🔍 App 초기화 - 토큰 존재 여부:', hasToken);
+    return hasToken;
+  });
+  
   const userRole = "인사팀"; 
+  
+  // 컴포넌트 마운트 시 토큰 확인
+  useEffect(() => {
+    const hasToken = isAuthenticated();
+    console.log('🔍 App useEffect - 토큰 확인:', hasToken);
+    setIsLoggedIn(hasToken);
+  }, []);
+  
   const handleLogout = () => {
+    console.log('🚪 로그아웃 처리');
+    logout(); // localStorage 토큰 삭제
     setIsLoggedIn(false);
-    // 추가적인 로그아웃 처리 (예: 로컬 스토리지 토큰 삭제)
   };
 
   const ProtectedLayout = (

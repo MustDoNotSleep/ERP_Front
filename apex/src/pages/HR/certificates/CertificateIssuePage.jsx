@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import axios from 'axios';
 import styles from "./CertificateIssuePage.module.css";
 import tableStyles from "../../../components/common/DataTable.module.css"; 
 import DataTable from '../../../components/common/DataTable';
 import CertificateIssueFilter from '../../../components/HR/certificate/CertificateIssueFilter';
+import { Button } from '../../../components/common';
+import { fetchCertificates, approveCertificate, rejectCertificate } from '../../../api/certificate';
 
 // ✨ 목 데이터 임포트
 // import { CERTIFICATE_ISSUE_MOCK } from '../../../models/data/CertificateIssueMOCK';
@@ -12,9 +13,6 @@ import CertificateIssueFilter from '../../../components/HR/certificate/Certifica
 const TABLE_HEADERS = [
     '선택', '신청일자', '사번', '이름', '증명서', '부수', '발급일자', '상태'
 ];
-
-// ✨ API 기본 URL 설정 (스테이지 'dev' 포함)
-const API_BASE_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev';
 
 const CertificateIssuePage = () => {
     
@@ -27,18 +25,36 @@ const CertificateIssuePage = () => {
 
     //api 호출 함수 (조회)
     const fetchRequests =  async () => {
-        console.log('API로 증명서 조회 시작!', searchParams);
+        console.log('증명서 조회 시작!', searchParams);
         try {
-            //GET /documents 호출
-            //params 옵션이 searchParams를 쿼리 스트링으로 자동 변환
-            const response = await axios.get(`${API_BASE_URL}/documents`, {
-                params : searchParams
-            });
-
-            //api 응답 데이터로 state 업데이트
-            // [주의] response.data가 배열 형태인지 확인 필요
-            // 만약 {"items": [...]} 같은 객체 형태라면 setRequests(response.data.items)로 수정
-            setRequests(response.data);
+            // fetchCertificates API 사용 (페이징 포함)
+            const data = await fetchCertificates(0, 100); // 페이지 0, 사이즈 100
+            
+            // 검색 조건에 따라 클라이언트 사이드 필터링
+            let filteredData = data.content || data;
+            
+            if (searchParams.employeeName) {
+                filteredData = filteredData.filter(item => 
+                    item.employee?.name?.includes(searchParams.employeeName)
+                );
+            }
+            if (searchParams.employeeId) {
+                filteredData = filteredData.filter(item => 
+                    String(item.employee?.employeeId).includes(searchParams.employeeId)
+                );
+            }
+            if (searchParams.certificateType) {
+                filteredData = filteredData.filter(item => 
+                    item.certificateType === searchParams.certificateType
+                );
+            }
+            if (searchParams.issueStatus) {
+                filteredData = filteredData.filter(item => 
+                    item.status === searchParams.issueStatus
+                );
+            }
+            
+            setRequests(filteredData);
         } catch (error) {
             console.error('증명서 조회 중 오류 발생 : ', error);
             alert('데이터를 불러오는 데 실패했습니다.');
@@ -48,6 +64,7 @@ const CertificateIssuePage = () => {
     //컴포넌트가 처음 렌더링될 때 데이터 로드
     useEffect(() => {
         fetchRequests();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
     }, []); // 빈 배열 '[]'은 마운트 시 1회 실행을 의미
 
     // --- 핸들러 함수 ---
@@ -59,7 +76,20 @@ const CertificateIssuePage = () => {
     //검색 버튼 핸들러 : api 호출 함수 실행
     const handleSearch = () => {
         fetchRequests();
-    }
+    };
+
+    // 리셋 핸들러 추가
+    const handleReset = () => {
+        setSearchParams({
+            employeeName: '', 
+            employeeId: '', 
+            certificateType: '', 
+            applicationDate: '', 
+            issueStatus: ''
+        });
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+        fetchRequests(); // 전체 목록 다시 로드
+    };
 
     // const handleSearch = () => {
     //     console.log('🐥 증명서 조회 시작!', searchParams);
@@ -79,51 +109,50 @@ const CertificateIssuePage = () => {
             return;
         }
 
-        //'승인'이면 'approve', '반려'면 'reject' 엔드포인트 동적 선택
-        const endpoint = action === '승인' ? 'approve' : 'reject';
-        const url = `${API_BASE_URL}/documents/${endpoint}`;
-
-        console.log(`Action: ${action}, URL : ${url}, Selected IDs:`, selectedRows);
+        console.log(`Action: ${action}, Selected IDs:`, selectedRows);
+        
         try {
-            // PUT API 호출 (axios.put)
-            //[중요] api가 본문으로 id 목록을 받는 방식을 가정
-            //예 : {"requestsIds" : ["id1", "id2"]}
-            //실제 Lambda가 기대하는 body 형식에 맞춰 수정해야 함
-            const response = await axios.put(url, {
-                requestId: selectedRows
+            // 선택된 각 증명서에 대해 승인/반려 처리
+            const promises = selectedRows.map(certificateId => {
+                if (action === '승인') {
+                    return approveCertificate(certificateId);
+                } else {
+                    return rejectCertificate(certificateId, '반려 처리되었습니다.');
+                }
             });
-            alert(`선택된 ${selectedRows.length}건을 ${action} 처리합니다.`);
             
-            //처리가 완료되면 목록을 새로고침
+            await Promise.all(promises);
+            
+            alert(`선택된 ${selectedRows.length}건을 ${action} 처리했습니다.`);
+            
+            // 처리가 완료되면 목록을 새로고침
             fetchRequests();
             setSelectedRows([]);
         } catch (error) {
-        console.error(`${action} 처리 중 오류 발생:`, error);
-        alert(`${action} 처리 중 오류가 발생했습니다.`);
+            console.error(`${action} 처리 중 오류 발생:`, error);
+            alert(`${action} 처리 중 오류가 발생했습니다.`);
         }
-    }
+    };
 
 
     // 3. 테이블 행 렌더링 로직
-    // [주의] item.requestId가 api 응답의 고유 id(pk)와 일치해야 함
-    //만약 api에서 'id' 또는 'document_id' 등으로 온다면 item.id 등으로 수정 필요
     const renderRequestRow = (item) => { 
         return (
             <>
                 <td className={tableStyles.tableData}>
                     <input 
                         type="checkbox" 
-                        checked={selectedRows.includes(item.requestId)}
-                        onChange={() => handleRowSelect(item.requestId)}
+                        checked={selectedRows.includes(item.certificateId)}
+                        onChange={() => handleRowSelect(item.certificateId)}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{item.applicationDate}</td>
-                <td className={tableStyles.tableData}>{item.employeeId}</td>
-                <td className={tableStyles.tableData}>{item.name}</td>
-                <td className={tableStyles.tableData}>{item.type}</td>
-                <td className={tableStyles.tableData}>{item.count}</td>
-                <td className={tableStyles.tableData}>{item.issueDate}</td>
-                <td className={tableStyles.tableData}>{item.status}</td>
+                <td className={tableStyles.tableData}>{item.applicationDate || '-'}</td>
+                <td className={tableStyles.tableData}>{item.employee?.employeeId || '-'}</td>
+                <td className={tableStyles.tableData}>{item.employee?.name || '-'}</td>
+                <td className={tableStyles.tableData}>{item.certificateType || '-'}</td>
+                <td className={tableStyles.tableData}>{item.copies || 1}</td>
+                <td className={tableStyles.tableData}>{item.issueDate || '-'}</td>
+                <td className={tableStyles.tableData}>{item.status || '-'}</td>
             </>
         );
     };
@@ -137,6 +166,7 @@ const CertificateIssuePage = () => {
                     searchParams={searchParams}
                     onSearchChange={handleSearchChange}
                     onSearchSubmit={handleSearch}
+                    onReset={handleReset}
                 />
             </div>
 
@@ -149,18 +179,18 @@ const CertificateIssuePage = () => {
 
             {/* --- C. 액션 버튼 영역 --- */}
             <div className={styles.buttonGroup}>
-                <button 
+                <Button 
+                    variant="danger"
                     onClick={() => handleAction('반려')} 
-                    className={styles.rejectButton} 
                 >
                     반려
-                </button>
-                <button 
+                </Button>
+                <Button 
+                    variant="primary"
                     onClick={() => handleAction('승인')} 
-                    className={styles.approveButton} 
                 >
                     승인
-                </button>
+                </Button>
             </div>
         </div>
     );

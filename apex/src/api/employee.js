@@ -1,59 +1,177 @@
 import api from './axios';
 
 /**
- * 사용자 상세 정보 조회 (GET /employees/{employeeId})
- * Lambda 핸들러의 'CASE B'를 호출합니다.
- * @param {number} employeeId - 조회할 직원의 고유 ID
- * @returns {Promise<object>} 직원 상세 정보 데이터
+ * 전체 직원 목록 조회 (페이징)
+ * GET /employees
+ * @param {number} page - 페이지 번호 (0부터 시작)
+ * @param {number} size - 페이지 크기
+ * @param {string} sort - 정렬 기준 (예: 'name,asc')
+ * @returns {Promise<object>} 페이징된 직원 목록
  */
-export const fetchEmployeeProfile = async (employeeId) => {
+export const fetchEmployees = async (page = 1, size = 10, sort = 'id,asc') => {
     try {
-        // GET /employees/{employeeId} 경로로 요청을 보냅니다.
-        const response = await api.get(`/employees/${employeeId}`);
-        // Lambda 핸들러는 { employee: details } 형태로 응답할 것이므로, employee 객체를 리턴합니다.
-        return response.data.employee;
-    } catch (error) {
-        // 에러 처리: 404 Not Found, 403 Forbidden 등
-        console.error(`Error fetching employee ${employeeId}:`, error);
-        throw error; 
-    }
-};
-/**
- * 2. 사용자 비밀번호 변경 (PATCH /employees/{employeeId}/password)
- * @param {string} currentPassword - 현재 비밀번호
- * @param {string} newPassword - 새로운 비밀번호
- * @returns {Promise<object>} 성공/실패 메시지
- */
-export const updateEmployeePassword = async (currentPassword, newPassword) => {
-    const employeeId = JSON.parse(localStorage.getItem('user')).employeeId;
-
-    try {
-        const response = await api.patch(`/employees/${employeeId}/password`, { 
-            currentPassword,
-            newPassword 
+        const response = await api.get('/employees', {
+            params: { page, size, sort }
         });
         return response.data;
     } catch (error) {
-        console.error("Error updating password:", error);
+        console.error('Error fetching employees:', error);
         throw error;
     }
 };
 
 /**
- *  3. 직원의 학력 정보를 전용 API 엔드포인트에서 가져옵니다. (GET /employees/{employeeId}/education)
- * @param {string} employeeId - 직원 ID
- * @returns {Promise<Array>} 학력 배열
+ * 직원 검색 (상세 검색)
+ * GET /employees/search
+ * @param {object} searchParams - 검색 조건 { name, email, departmentId, positionId }
+ * @param {number} page - 페이지 번호 (0부터 시작)
+ * @param {number} size - 페이지 크기
+ * @returns {Promise<object>} 검색된 직원 목록
  */
-export const fetchEmployeeEducation = async (employeeId) => {
+export const searchEmployees = async (searchParams = {}, page = 0, size = 100) => {
     try {
-        const response = await api.get(`/employees/${employeeId}/education`); 
-        const data = response.data;
+        const params = { page, size };
         
-        // API 응답이 배열 형태이거나 { educations: [...] } 형태일 수 있습니다.
-        return Array.isArray(data) ? data : (data.educations || []); 
-
+        // 검색 파라미터가 있는 경우만 추가
+        if (searchParams.name && searchParams.name.trim()) {
+            params.name = searchParams.name.trim();
+        }
+        if (searchParams.email && searchParams.email.trim()) {
+            params.email = searchParams.email.trim();
+        }
+        if (searchParams.departmentId) {
+            params.departmentId = searchParams.departmentId;
+        }
+        if (searchParams.positionId) {
+            params.positionId = searchParams.positionId;
+        }
+        
+        console.log('🔍 검색 API 요청 파라미터:', params);
+        
+        const response = await api.get('/employees/search', { params });
+        return response.data;
     } catch (error) {
-        console.error("Error fetching employee education:", error);
-        throw error; // 오류 발생 시 호출 컴포넌트에서 catch하도록 throw합니다.
+        console.error('Error searching employees:', error);
+        throw error;
+    }
+};
+
+/**
+ * 직원 상세 정보 조회
+ * GET /employees/{employeeId}
+ * @param {number} employeeId - 조회할 직원의 고유 ID
+ * @returns {Promise<object>} 직원 상세 정보
+ */
+export const fetchEmployeeProfile = async (employeeId) => {
+    try {
+        const response = await api.get(`/employees/${employeeId}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching employee ${employeeId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * 새 직원 등록
+ * POST /employees
+ * @param {object} employeeData - 직원 정보
+ * @returns {Promise<object>} 생성된 직원 정보
+ */
+export const createEmployee = async (employeeData) => {
+    try {
+        const response = await api.post('/employees', employeeData);
+        return response.data;
+    } catch (error) {
+        console.error('Error creating employee:', error);
+        throw error;
+    }
+};
+
+/**
+ * 직원 정보 수정
+ * PUT /employees/{employeeId}
+ * @param {number} employeeId - 직원 ID
+ * @param {object} employeeData - 수정할 직원 정보
+ * @returns {Promise<object>} 수정된 직원 정보
+ */
+export const updateEmployee = async (employeeId, employeeData) => {
+    try {
+        const response = await api.put(`/employees/${employeeId}`, employeeData);
+        return response.data;
+    } catch (error) {
+        console.error('Error updating employee:', error);
+        throw error;
+    }
+};
+
+/**
+ * 직원 삭제
+ * DELETE /employees/{employeeId}
+ * @param {number} employeeId - 직원 ID
+ * @returns {Promise<object>} 삭제 결과
+ */
+export const deleteEmployee = async (employeeId) => {
+    try {
+        const response = await api.delete(`/employees/${employeeId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error deleting employee:', error);
+        throw error;
+    }
+};
+
+/**
+ * 직원 비밀번호 변경
+ * PUT /employees/{employeeId}/password
+ * @param {number} employeeId - 직원 ID
+ * @param {string} currentPassword - 현재 비밀번호
+ * @param {string} newPassword - 새로운 비밀번호
+ * @returns {Promise<object>} 성공/실패 메시지
+ */
+export const updateEmployeePassword = async (employeeId, currentPassword, newPassword) => {
+    try {
+        // 백엔드가 request parameter를 요구함 (JSON body가 아님)
+        console.log('🔐 비밀번호 변경 요청 (query params):', {
+            employeeId,
+            endpoint: `/employees/${employeeId}/password`,
+            params: { oldPassword: currentPassword, newPassword }
+        });
+        
+        // params로 전달 (query string으로)
+        const response = await api.put(`/employees/${employeeId}/password`, null, {
+            params: {
+                oldPassword: currentPassword,
+                newPassword: newPassword
+            }
+        });
+        
+        console.log('✅ 비밀번호 변경 성공:', response.data);
+        
+        return response.data;
+    } catch (error) {
+        console.error('❌ 비밀번호 변경 실패 - 상세:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            errorData: error.response?.data,
+            requestSent: { oldPassword: currentPassword, newPassword }
+        });
+        throw error;
+    }
+};
+
+/**
+ * 직원 급여 정보 조회
+ * GET /salary-info/employee/{employeeId}
+ * @param {number} employeeId - 직원 ID
+ * @returns {Promise<object>} 급여 정보 (은행명, 계좌번호 등)
+ */
+export const fetchEmployeeSalaryInfo = async (employeeId) => {
+    try {
+        const response = await api.get(`/salary-info/employee/${employeeId}`);
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching employee salary info:', error);
+        throw error;
     }
 };

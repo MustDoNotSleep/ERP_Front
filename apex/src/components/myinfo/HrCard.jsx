@@ -4,13 +4,23 @@ import User from '../../img/user.png'
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 
-import { fetchEmployeeProfile, fetchEmployeeEducation } from '../../api/employee.js';
-import { InitialEmployeeData } from '../../models/Employee.js'; 
+import { fetchEmployeeProfile, fetchEmployeeSalaryInfo } from '../../api/employee.js';
 import DataTable from '../common/DataTable.jsx';
+import tableStyles from '../common/DataTable.module.css';
+import { fetchEducationsByEmployeeId } from '../../api/education.js';
+import { fetchMilitaryServiceByEmployeeId } from '../../api/military.js';
+import { fetchWorkExperiencesByEmployeeId } from '../../api/workExperience.js';
+import { fetchCertificatesByEmployeeId } from '../../api/certificate.js';
+import { fetchCoursesByEmployeeId } from '../../api/course.js';
+import { InitialEmployeeData } from '../../models/Employee.js';
 
 function HrCard() {
   const [hrCardData, setHrCardData] = useState(InitialEmployeeData());
   const [educationsData, setEducationsData] = useState([]);
+  const [militaryData, setMilitaryData] = useState(null);
+  const [workExperiencesData, setWorkExperiencesData] = useState([]);
+  const [certificatesData, setCertificatesData] = useState([]);
+  const [coursesData, setCoursesData] = useState([]);
   const [isLoading, setIsLoading] = useState(true);
   const [dataError, setDataError] = useState(null);
   // 1. 사진 변경을 위한 상태 및 참조
@@ -83,9 +93,77 @@ function HrCard() {
 
     const loadData = async () => {
         try {
-          const profileData = await fetchEmployeeProfile(employeeId);
+          const response = await fetchEmployeeProfile(employeeId);
+          
+          // API 응답 구조: { success, message, data: { id, name, email, ... } }
+          const profileData = response.data || response;
+          
+          console.log('📋 HrCard 프로필 데이터:', profileData);
 
-          // const educations = await fetchEmployeeEducation(employeeId);
+          // 급여 정보 조회
+          let salaryData = null;
+          try {
+            const salaryResponse = await fetchEmployeeSalaryInfo(employeeId);
+            salaryData = salaryResponse.data || salaryResponse;
+            console.log('💰 급여 정보:', salaryData);
+          } catch (salaryError) {
+            console.warn('급여 정보 조회 실패:', salaryError);
+          }
+
+          // 학력 정보 조회
+          let educations = [];
+          try {
+            const educationResponse = await fetchEducationsByEmployeeId(employeeId);
+            educations = educationResponse.data || educationResponse || [];
+            console.log('🎓 학력 정보:', educations);
+            setEducationsData(educations);
+          } catch (educationError) {
+            console.warn('학력 정보 조회 실패:', educationError);
+          }
+
+          // 병역 정보 조회
+          let military = null;
+          try {
+            const militaryResponse = await fetchMilitaryServiceByEmployeeId(employeeId);
+            military = militaryResponse.data || militaryResponse || null;
+            console.log('🪖 병역 정보:', military);
+            setMilitaryData(military);
+          } catch (militaryError) {
+            console.warn('병역 정보 조회 실패:', militaryError);
+          }
+
+          // 경력 정보 조회
+          let workExperiences = [];
+          try {
+            const workExperienceResponse = await fetchWorkExperiencesByEmployeeId(employeeId);
+            workExperiences = workExperienceResponse.data || workExperienceResponse || [];
+            console.log('💼 경력 정보:', workExperiences);
+            setWorkExperiencesData(workExperiences);
+          } catch (workExperienceError) {
+            console.warn('경력 정보 조회 실패:', workExperienceError);
+          }
+
+          // 자격증 정보 조회
+          let certificates = [];
+          try {
+            const certificateResponse = await fetchCertificatesByEmployeeId(employeeId);
+            certificates = certificateResponse.data || certificateResponse || [];
+            console.log('📜 자격증 정보:', certificates);
+            setCertificatesData(certificates);
+          } catch (certificateError) {
+            console.warn('자격증 정보 조회 실패:', certificateError);
+          }
+
+          // 교육훈련 정보 조회
+          let courses = [];
+          try {
+            const courseResponse = await fetchCoursesByEmployeeId(employeeId);
+            courses = courseResponse.data || courseResponse || [];
+            console.log('🎓 교육훈련 정보:', courses);
+            setCoursesData(courses);
+          } catch (courseError) {
+            console.warn('교육훈련 정보 조회 실패:', courseError);
+          }
           
           // API 응답 구조를 모델 초기화 함수로 생성한 기본 객체에 덮어쓰기 방식으로 매핑
           setHrCardData({
@@ -93,16 +171,14 @@ function HrCard() {
             
             // 기본 정보
             name: profileData.name || '',
-            employeeId: profileData.employeeId || '',
+            employeeId: profileData.id || profileData.employeeId || '',
             positionName: profileData.positionName || '',
-            teamName: profileData.teamName || '',
+            teamName: profileData.teamName || profileData.departmentName || '',
             departmentName: profileData.departmentName || '',
             birthDate: profileData.birthDate || '',
             internalNumber: profileData.internalNumber || '',
             email: profileData.email || '',
-            phoneNumber: profileData.phoneNumber || '',
-            bankName: profileData.salaryInfo?.bankName || '',
-            accountNumber: profileData.salaryInfo?.accountNumber || '',
+            phoneNumber: profileData.phone || profileData.phoneNumber || '',
             
             // 중첩 정보 (테이블에 바인딩)
             // educations: data.educations || [],
@@ -110,9 +186,12 @@ function HrCard() {
             workExperiences: profileData.workExperiences || [],
             certificates: profileData.certificates || [],
             trainings: profileData.trainings || [],
+
+            // 급여 정보 (별도 API)
+            bankName: salaryData?.bankName || '',
+            accountNumber: salaryData?.accountNumber || '',
           });
 
-          // setEducationsData(educations);
           setDataError(null);
 
         } catch (error) {
@@ -209,51 +288,21 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>학력</h3>
-        <table className="hr-table">
-          <thead>
-            <tr>
-              <th>학교명</th>
-              <th>학위</th>
-              <th>전공</th>
-              <th>입학일</th>
-              <th>졸업일</th>
-              <th>졸업구분</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>명지전문대</td>
-              <td>학사</td>
-              <td>정보보안</td>
-              <td>2000/03/02</td>
-              <td>2001/02/27</td>
-              <td>졸업</td>
-            </tr>
-            <tr>
-              <td>명지전문대</td>
-              <td>전문학사</td>
-              <td>소프트웨어 개발</td>
-              <td>1997/03/04</td>
-              <td>2000/02/27</td>
-              <td>졸업</td>
-            </tr>
-          </tbody>
-        </table>
-        {/* <DataTable
-          headers={['학교명', '학위', '전공', '입학일', '졸업일', '졸업 구분']}
-          data={hrCardData.educations}
+        <DataTable
+          headers={['학교명', '학위', '전공', '입학일', '졸업일', '졸업구분']}
+          data={educationsData}
           emptyMessage="학력 정보가 없습니다."
           renderRow={(edu) => (
-              <>
-                  <td>{edu.schoolName || '-'}</td>
-                  <td>{edu.degree || '-'}</td>
-                  <td>{edu.major || '-'}</td>
-                  <td>{edu.admissionDate || '-'}</td>
-                  <td>{edu.graduationDate || '-'}</td>
-                  <td>{edu.graduationStatus || '-'}</td>
-              </>
+            <>
+              <td className={tableStyles.tableData}>{edu.schoolName || '-'}</td>
+              <td className={tableStyles.tableData}>{edu.degree || '-'}</td>
+              <td className={tableStyles.tableData}>{edu.major || '-'}</td>
+              <td className={tableStyles.tableData}>{edu.admissionDate ? edu.admissionDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{edu.graduationDate ? edu.graduationDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{edu.graduationStatus || '-'}</td>
+            </>
           )}
-        /> */}
+        />
       </section>
 
       {/* =================================
@@ -261,30 +310,22 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>병역여부</h3>
-        <table className="hr-table">
-          <thead>
-            <tr>
-              <th>병역 구분</th>
-              <th>군별</th>
-              <th>복무 시작일</th>
-              <th>복무 종료일</th>
-              <th>계급</th>
-              <th>병과</th>
-              <th>미필사유</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>-</td>
-              <td>해당사항없음</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          headers={['병역 구분', '군별', '복무 시작일', '복무 종료일', '계급', '병과', '미필사유']}
+          data={militaryData ? [militaryData] : []}
+          emptyMessage="병역 정보가 없습니다."
+          renderRow={(military) => (
+            <>
+              <td className={tableStyles.tableData}>{military.serviceType || '-'}</td>
+              <td className={tableStyles.tableData}>{military.branch || '-'}</td>
+              <td className={tableStyles.tableData}>{military.serviceStartDate ? military.serviceStartDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{military.serviceEndDate ? military.serviceEndDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{military.rank || '-'}</td>
+              <td className={tableStyles.tableData}>{military.specialty || '-'}</td>
+              <td className={tableStyles.tableData}>{military.exemptionReason || '-'}</td>
+            </>
+          )}
+        />
       </section>
 
       {/* =================================
@@ -292,36 +333,21 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>경력</h3>
-        <table className="hr-table">
-          <thead>
-            <tr>
-              <th>근무처</th>
-              <th>입사일</th>
-              <th>퇴직일</th>
-              <th>담당업무</th>
-              <th>최종직위</th>
-              <th>최종연봉</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>넥스트보안테크(주)</td>
-              <td>2000.3.20</td>
-              <td>2005.03.19</td>
-              <td>백엔드 개발</td>
-              <td>대리</td>
-              <td>1,500만원</td>
-            </tr>
-            <tr>
-              <td>에이펙스금융보안(주)</td>
-              <td>2005.3.20</td>
-              <td>-</td>
-              <td>CERT</td>
-              <td>부장</td>
-              <td>1억원</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          headers={['근무처', '입사일', '퇴직일', '담당업무', '최종직위', '최종연봉']}
+          data={workExperiencesData}
+          emptyMessage="경력 정보가 없습니다."
+          renderRow={(work) => (
+            <>
+              <td className={tableStyles.tableData}>{work.companyName || '-'}</td>
+              <td className={tableStyles.tableData}>{work.startDate ? work.startDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{work.endDate ? work.endDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{work.responsibilities || '-'}</td>
+              <td className={tableStyles.tableData}>{work.finalPosition || '-'}</td>
+              <td className={tableStyles.tableData}>{work.finalSalary ? `${work.finalSalary.toLocaleString()}원` : '-'}</td>
+            </>
+          )}
+        />
       </section>
 
       {/* =================================
@@ -329,47 +355,20 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>자격면허</h3>
-        <table className="hr-table">
-          <thead>
-            <tr>
-              <th>자격증명</th>
-              <th>발급기관</th>
-              <th>취득일</th>
-              <th>유효일</th>
-              <th>점수</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>정보보안기사</td>
-              <td>한국인터넷진흥원</td>
-              <td>2005/09/20</td>
-              <td>갱신</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td>정보처리기사</td>
-              <td>한국산업인력공단</td>
-              <td>2005/01/18</td>
-              <td>갱신</td>
-              <td>-</td>
-            </tr>
-            <tr>
-              <td>TOEIC</td>
-              <td>한국 TOEIC 위원회</td>
-              <td>2009/01/20</td>
-              <td>2011/01/20</td>
-              <td>900</td>
-            </tr>
-            <tr>
-              <td>HSK 3급</td>
-              <td>한국산업인력공단</td>
-              <td>2010/06/30</td>
-              <td>2013/06/30</td>
-              <td>270</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          headers={['자격증명', '발급기관', '취득일', '유효일', '점수']}
+          data={certificatesData}
+          emptyMessage="자격증 정보가 없습니다."
+          renderRow={(cert) => (
+            <>
+              <td className={tableStyles.tableData}>{cert.certificateName || '-'}</td>
+              <td className={tableStyles.tableData}>{cert.issuingOrganization || '-'}</td>
+              <td className={tableStyles.tableData}>{cert.acquisitionDate ? cert.acquisitionDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{cert.expirationDate ? cert.expirationDate.split('T')[0] : '-'}</td>
+              <td className={tableStyles.tableData}>{cert.score || '-'}</td>
+            </>
+          )}
+        />
       </section>
 
       {/* =================================
@@ -377,47 +376,24 @@ function HrCard() {
       ================================= */}
       <section className="hr-section">
         <h3>교육 훈련</h3>
-        <table className="hr-table">
-          <thead>
-            <tr>
-              <th>교육기간</th>
-              <th>교육명</th>
-              <th>교육기관</th>
-              <th>교육구분</th>
-              <th>이수 여부</th>
-            </tr>
-          </thead>
-          <tbody>
-            <tr>
-              <td>YYYY/MM/DD~YYYY/MM/DD</td>
-              <td>보안사고대응실무</td>
-              <td>Apex</td>
-              <td>내부교육</td>
-              <td>이수 완료</td>
-            </tr>
-            <tr>
-              <td>YYYY/MM/DD~YYYY/MM/DD</td>
-              <td>보안사고대응실무</td>
-              <td>Apex</td>
-              <td>내부교육</td>
-              <td>이수 완료 (B+)</td>
-            </tr>
-            <tr>
-              <td>YYYY/MM/DD~YYYY/MM/DD</td>
-              <td>ISMS-P</td>
-              <td>KISA</td>
-              <td>외부교육</td>
-              <td>이수 완료 (A)</td>
-            </tr>
-            <tr>
-              <td>YYYY/MM/DD~YYYY/MM/DD</td>
-              <td>ISMS-P</td>
-              <td>KISA</td>
-              <td>외부교육</td>
-              <td>미이수</td>
-            </tr>
-          </tbody>
-        </table>
+        <DataTable
+          headers={['교육기간', '교육명', '교육기관', '교육구분', '이수 여부']}
+          data={coursesData}
+          emptyMessage="교육훈련 정보가 없습니다."
+          renderRow={(course) => (
+            <>
+              <td className={tableStyles.tableData}>
+                {course.startDate && course.endDate 
+                  ? `${course.startDate.split('T')[0]} ~ ${course.endDate.split('T')[0]}` 
+                  : '-'}
+              </td>
+              <td className={tableStyles.tableData}>{course.courseName || '-'}</td>
+              <td className={tableStyles.tableData}>{course.institution || '-'}</td>
+              <td className={tableStyles.tableData}>{course.courseType || '-'}</td>
+              <td className={tableStyles.tableData}>{course.completionStatus || '-'}</td>
+            </>
+          )}
+        />
       </section>
     </div>
   );
