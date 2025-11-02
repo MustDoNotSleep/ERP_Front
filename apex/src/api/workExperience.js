@@ -1,6 +1,21 @@
 import api from './axios.js';
 
 /**
+ * 전체 직원의 경력 정보 조회
+ * GET /work-experiences
+ * @returns {Promise<object>} 전체 경력 정보 목록
+ */
+export const fetchAllWorkExperiences = async () => {
+  try {
+    const response = await api.get('/work-experiences');
+    return response.data;
+  } catch (error) {
+    console.error('전체 경력 정보 조회 실패:', error);
+    throw error;
+  }
+};
+
+/**
  * 특정 직원의 경력 정보 조회
  */
 export const fetchWorkExperiencesByEmployeeId = async (employeeId) => {

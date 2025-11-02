@@ -99,3 +99,18 @@ export const fetchDepartmentEmployees = async (departmentId) => {
         throw error;
     }
 };
+
+/**
+ * 중복 제거된 부서명 목록 조회 (드롭다운용)
+ * GET /departments/unique-names
+ * @returns {Promise<Array<string>>} 중복 제거된 부서명 목록
+ */
+export const fetchUniqueDepartmentNames = async () => {
+    try {
+        const response = await api.get('/departments/unique-names');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching unique department names:', error);
+        throw error;
+    }
+};

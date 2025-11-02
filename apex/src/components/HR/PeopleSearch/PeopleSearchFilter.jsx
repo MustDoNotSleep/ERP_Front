@@ -7,7 +7,7 @@ const PeopleSearchFilter = ({
     onSearchSubmit,
     onReset,
     positions = [],
-    teams = []
+    departments = []
 }) => {
     const handleChange = (e) => {
         onSearchChange(e);
@@ -21,14 +21,14 @@ const PeopleSearchFilter = ({
 
     // positions 배열을 Select 옵션 형식으로 변환
     const positionOptions = positions.map(pos => ({
-        value: pos.positionName,
-        label: pos.positionName
+        value: pos,
+        label: pos
     }));
 
-    // teams 배열을 Select 옵션 형식으로 변환
-    const teamOptions = teams.map((team, index) => ({
-        value: team,
-        label: team
+    // departments 배열을 Select 옵션 형식으로 변환
+    const departmentOptions = departments.map(dept => ({
+        value: dept,
+        label: dept
     }));
 
     return (
@@ -83,11 +83,11 @@ const PeopleSearchFilter = ({
 
             <FilterGroup label="소속">
                 <Select
-                    id="teamName"
-                    name="teamName"
-                    value={searchParams.teamName}
+                    id="departmentName"
+                    name="departmentName"
+                    value={searchParams.departmentName}
                     onChange={handleChange}
-                    options={teamOptions}
+                    options={departmentOptions}
                     placeholder="전체"
                 />
             </FilterGroup>

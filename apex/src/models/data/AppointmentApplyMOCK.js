@@ -7,15 +7,17 @@ export const APPROVAL_STATUS = {
     REJECTED: '반려',
 };
 
-// 2. 인사발령 구분 상수 (UI 이미지 참고)
+// 2. 인사발령 구분 상수 (백엔드 AppointmentType ENUM 기준)
 export const APPOINTMENT_TYPE = {
     TRANSFER: '전보',
-    PROMOTION_SUGGESTION: '승진 제안',
+    PROMOTION: '승진',
+    REINSTATEMENT: '복직',
     DISPATCH: '파견',
-    REINSTATEMENT: '복귀',
-    JOB_CHANGE: '직무 변경',
-    POSITION_APPOINTMENT: '직책 임명',
-    LEAVE_OF_ABSENCE: '휴직 요청',
+    POSITION_CHANGE: '직무 변경',
+    POSITION_NAME: '직책 임명',
+    POSITION_CANCELLATION: '직책 해임',
+    RESTRICTION: '승진 제한',
+    LEAVE: '휴직 요청',
 };
 
 // 3. 인사발령 신청/조회 테이블 Mock Data
@@ -82,10 +84,12 @@ export const APPROVAL_STATUS_OPTIONS = [
 export const APPOINTMENT_TYPE_OPTIONS = [
     { value: '', label: '전체' },
     { value: APPOINTMENT_TYPE.TRANSFER, label: '전보' },
-    { value: APPOINTMENT_TYPE.PROMOTION_SUGGESTION, label: '승진 제안' },
+    { value: APPOINTMENT_TYPE.PROMOTION, label: '승진' },
+    { value: APPOINTMENT_TYPE.REINSTATEMENT, label: '복직' },
     { value: APPOINTMENT_TYPE.DISPATCH, label: '파견' },
-    { value: APPOINTMENT_TYPE.REINSTATEMENT, label: '복귀' },
-    { value: APPOINTMENT_TYPE.JOB_CHANGE, label: '직무 변경' },
-    { value: APPOINTMENT_TYPE.POSITION_APPOINTMENT, label: '직책 임명' },
-    { value: APPOINTMENT_TYPE.LEAVE_OF_ABSENCE, label: '휴직 요청' },
+    { value: APPOINTMENT_TYPE.POSITION_CHANGE, label: '직무 변경' },
+    { value: APPOINTMENT_TYPE.POSITION_NAME, label: '직책 임명' },
+    { value: APPOINTMENT_TYPE.POSITION_CANCELLATION, label: '직책 해임' },
+    { value: APPOINTMENT_TYPE.RESTRICTION, label: '승진 제한' },
+    { value: APPOINTMENT_TYPE.LEAVE, label: '휴직 요청' },
 ];

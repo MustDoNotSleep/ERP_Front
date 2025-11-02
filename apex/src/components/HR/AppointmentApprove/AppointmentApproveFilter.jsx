@@ -1,19 +1,15 @@
 import React from 'react';
-import { FilterCard, FilterGroup, Input, Select } from '../../../components/common';
+import { FilterCard, FilterGroup, Input } from '../../../components/common';
 
 const AppointmentApproveFilter = ({ 
     searchParams, 
     onSearchChange, 
     onSearchSubmit,
-    onReset 
+    onReset,
+    onOpenEmployeeSearch,  // 직원 검색 모달 열기
+    statusFilter,          // 상태 필터 값
+    onStatusFilterChange   // 상태 필터 변경 핸들러
 }) => {
-    const departmentOptions = [
-        { value: '1', label: '경영기획본부' },
-        { value: '2', label: '침해사고대응본부' },
-        { value: '3', label: '자율보안본부' },
-        { value: '4', label: '보안연구본부' }
-    ];
-
     const handleResetClick = () => {
         if (onReset) {
             onReset();
@@ -26,15 +22,35 @@ const AppointmentApproveFilter = ({
             onSearch={onSearchSubmit}
             onReset={handleResetClick}
         >
-            <FilterGroup label="이름">
-                <Input
-                    type="text"
-                    id="employeeName"
-                    name="employeeName"
-                    value={searchParams.employeeName}
-                    onChange={onSearchChange}
-                    placeholder="이름을 입력하세요"
-                />
+            <FilterGroup label="대상 직원">
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Input
+                        type="text"
+                        id="employeeName"
+                        name="employeeName"
+                        value={searchParams.employeeName}
+                        onChange={onSearchChange}
+                        placeholder="이름을 입력하세요"
+                        readOnly
+                        style={{ flex: 1, cursor: 'pointer' }}
+                        onClick={onOpenEmployeeSearch}
+                    />
+                    <button
+                        type="button"
+                        onClick={onOpenEmployeeSearch}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        직원 검색
+                    </button>
+                </div>
             </FilterGroup>
 
             <FilterGroup label="사원번호">
@@ -44,7 +60,9 @@ const AppointmentApproveFilter = ({
                     name="employeeId"
                     value={searchParams.employeeId}
                     onChange={onSearchChange}
-                    placeholder="사원번호를 입력하세요"
+                    placeholder="사원번호"
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
                 />
             </FilterGroup>
 
@@ -58,15 +76,25 @@ const AppointmentApproveFilter = ({
                 />
             </FilterGroup>
 
-            <FilterGroup label="부서">
-                <Select
-                    id="departmentId"
-                    name="departmentId"
-                    value={searchParams.departmentId}
-                    onChange={onSearchChange}
-                    options={departmentOptions}
-                    placeholder="전체"
-                />
+            <FilterGroup label="상태">
+                <select 
+                    value={statusFilter}
+                    onChange={onStatusFilterChange}
+                    style={{
+                        padding: '8px 16px',
+                        borderRadius: '4px',
+                        border: 'none',
+                        fontSize: '14px',
+                        cursor: 'pointer',
+                        backgroundColor: 'white',
+                        minWidth: '120px'
+                    }}
+                >
+                    <option value="ALL">전체</option>
+                    <option value="PENDING">대기</option>
+                    <option value="APPROVED">최종승인</option>
+                    <option value="REJECTED">반려</option>
+                </select>
             </FilterGroup>
         </FilterCard>
     );

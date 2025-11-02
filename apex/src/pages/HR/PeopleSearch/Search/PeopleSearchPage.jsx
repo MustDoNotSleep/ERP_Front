@@ -7,8 +7,10 @@ import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
 import PeopleSearchFilter from '../../../../components/HR/PeopleSearch/PeopleSearchFilter.jsx';
 
-// API 모듈 - employee만 사용
+// API 모듈 - employee, department, position 사용
 import { searchEmployees, fetchEmployees } from '../../../../api/employee';
+import { fetchUniqueDepartmentNames } from '../../../../api/department';
+import { fetchUniquePositionNames } from '../../../../api/position';
 
 // MOCK 데이터 (API 실패 시 fallback용)
 import { EMPLOYEE_SEARCH_MOCK_DATA } from '../../../../models/data/PeopleSearchMock.js';
@@ -26,13 +28,9 @@ const PeopleSearchPage = () => {
     // 테이블에 표시될 직원 목록 상태
     const [employees, setEmployees] = useState([]);
     
-    // API로 가져올 직급/팀 목록
-    const [positions, setPositions] = useState([]);
-    const [teams, setTeams] = useState([]);
-    
-    // 부서/직급 이름 → ID 매핑
-    const [departmentMap, setDepartmentMap] = useState(new Map());
-    const [positionMap, setPositionMap] = useState(new Map());
+    // API로 가져올 중복 제거된 직급/부서명 목록
+    const [positionNames, setPositionNames] = useState([]);
+    const [departmentNames, setDepartmentNames] = useState([]);
     
     // 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
@@ -43,35 +41,40 @@ const PeopleSearchPage = () => {
     const [totalPages, setTotalPages] = useState(0);
     const [totalElements, setTotalElements] = useState(0);
     
-    // 검색 필터 상태 (백엔드 API에 맞춤: name, email, departmentId, positionId)
+    // 검색 필터 상태 (백엔드 API에 맞춤: name, email, departmentName, positionName)
     const [searchParams, setSearchParams] = useState({
         name: '',
         email: '',
         employeeId: '',
         positionName: '',
-        teamName: '',
+        departmentName: '',
     });
 
-    // --- 초기 데이터 로드 (직원 목록에서 직급/팀 추출) ---
+    // --- 초기 데이터 로드 (unique-names API 사용) ---
     useEffect(() => {
         const fetchInitialData = async () => {
             try {
                 setIsLoading(true);
                 
                 if (USE_MOCK_DATA) {
-                    // MOCK 데이터에서 직급/팀 추출
+                    // MOCK 데이터에서 직급/부서 추출
                     const uniquePositions = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.position))];
-                    const uniqueTeams = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.department))];
-                    setPositions(uniquePositions.map(pos => ({ positionName: pos })));
-                    setTeams(uniqueTeams);
+                    const uniqueDepartments = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.department))];
+                    setPositionNames(uniquePositions);
+                    setDepartmentNames(uniqueDepartments);
                     
                     // 초기 직원 목록도 표시
                     setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
                 } else {                    
                     try {
-                        // 직원 목록 조회 (한 번에 모든 정보 포함)
-                        const employeesData = await fetchEmployees(currentPage, pageSize);
-                        // 응답 구조: { success, message, data: { content: [...], pageNumber, pageSize, totalPages, totalElements } }
+                        // 병렬로 직원 목록 + 부서명/직급명 조회
+                        const [employeesData, deptNamesData, posNamesData] = await Promise.all([
+                            fetchEmployees(currentPage, pageSize),
+                            fetchUniqueDepartmentNames(),
+                            fetchUniquePositionNames()
+                        ]);
+                        
+                        // 직원 목록 처리
                         let empList;
                         let pageInfo;
                         
@@ -93,43 +96,30 @@ const PeopleSearchPage = () => {
                         if (pageInfo) {
                             setTotalPages(pageInfo.totalPages || 0);
                             setTotalElements(pageInfo.totalElements || empList.length);
-                    
                         }
                         
-                        // 직원 목록에서 직급/팀 추출
-                        const uniquePositions = [...new Set(empList.map(emp => emp.positionName || emp.position))].filter(Boolean);
-                        const uniqueTeams = [...new Set(empList.map(emp => emp.teamName || emp.departmentName || emp.department))].filter(Boolean);
+                        // 부서명/직급명 목록 저장
+                        const deptList = deptNamesData.data || deptNamesData;
+                        const posList = posNamesData.data || posNamesData;
                         
-                        setPositions(uniquePositions.map(pos => ({ positionName: pos })));
-                        setTeams(uniqueTeams);
+                        setDepartmentNames(Array.isArray(deptList) ? deptList : []);
+                        setPositionNames(Array.isArray(posList) ? posList : []);
                         
-                        // 부서/직급 이름 → ID 매핑 생성 (검색 시 사용)
-                        const deptMap = new Map();
-                        const posMap = new Map();
-                        
-                        empList.forEach(emp => {
-                            if (emp.departmentId && emp.departmentName) {
-                                deptMap.set(emp.departmentName, emp.departmentId);
-                            }
-                            if (emp.positionId && emp.positionName) {
-                                posMap.set(emp.positionName, emp.positionId);
-                            }
-                        });
-                        
-                        setDepartmentMap(deptMap);
-                        setPositionMap(posMap);
+                        console.log('📦 부서명 목록:', deptList);
+                        console.log('📦 직급명 목록:', posList);
                         
                     } catch (apiError) {
-                        
+                        console.error('API 조회 실패:', apiError);
                         // API 실패 시 MOCK 데이터 사용
                         const uniquePositions = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.position))];
-                        const uniqueTeams = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.department))];
-                        setPositions(uniquePositions.map(pos => ({ positionName: pos })));
-                        setTeams(uniqueTeams);
+                        const uniqueDepartments = [...new Set(EMPLOYEE_SEARCH_MOCK_DATA.map(emp => emp.department))];
+                        setPositionNames(uniquePositions);
+                        setDepartmentNames(uniqueDepartments);
                         setEmployees(EMPLOYEE_SEARCH_MOCK_DATA);
                     }
                 }
             } catch (error) {
+                console.error('초기 데이터 로드 실패:', error);
                 alert('직원 목록을 불러오는 데 실패했습니다.');
             } finally {
                 setIsLoading(false);
@@ -154,7 +144,7 @@ const PeopleSearchPage = () => {
             email: '',
             employeeId: '',
             positionName: '',
-            teamName: '',
+            departmentName: '',
         });
         
         setCurrentPage(0); // 첫 페이지로 리셋
@@ -198,16 +188,16 @@ const PeopleSearchPage = () => {
         }
     };
 
-    // 3. ✨ (핵심) '조회' 버튼 클릭 핸들러 수정
+    // 3. ✨ (핵심) '조회' 버튼 클릭 핸들러 수정 - name 기준 검색
     const handleSearch = async () => {
         setIsLoading(true);
 
-        // 백엔드 API에 맞춰 파라미터 변환: name, email, departmentId, positionId
+        // 백엔드 API에 맞춰 파라미터 변환: name, email, departmentName, positionName
         const apiParams = {
             name: searchParams.name.trim(),
             email: searchParams.email.trim(),
-            departmentId: searchParams.teamName ? departmentMap.get(searchParams.teamName) : undefined,
-            positionId: searchParams.positionName ? positionMap.get(searchParams.positionName) : undefined,
+            departmentName: searchParams.departmentName.trim(),
+            positionName: searchParams.positionName.trim(),
         };
 
         // "마법 스위치"가 켜져 있으면 MOCK 데이터 사용
@@ -270,9 +260,9 @@ const PeopleSearchPage = () => {
                 const emailMatch = !searchParams.email || employee.email.toLowerCase().includes(searchParams.email.toLowerCase());
                 const idMatch = !searchParams.employeeId || String(employee.employeeId).includes(searchParams.employeeId);
                 const positionMatch = !searchParams.positionName || employee.position === searchParams.positionName;
-                const teamMatch = !searchParams.teamName || employee.department === searchParams.teamName;
+                const departmentMatch = !searchParams.departmentName || employee.department === searchParams.departmentName;
 
-                return nameMatch && emailMatch && idMatch && positionMatch && teamMatch;
+                return nameMatch && emailMatch && idMatch && positionMatch && departmentMatch;
             });
             setEmployees(filteredEmployees);
         } finally {
@@ -367,8 +357,8 @@ const PeopleSearchPage = () => {
                     onSearchChange={handleSearchChange} 
                     onSearchSubmit={handleSearch}
                     onReset={handleReset}
-                    positions={positions}
-                    teams={teams}
+                    positions={positionNames}
+                    departments={departmentNames}
                 />
             </div>
 

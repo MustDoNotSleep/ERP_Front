@@ -1,4 +1,4 @@
-.filterContainer {
+/* .filterContainer {
     display: flex;
     flex-wrap: wrap; 
     align-items: center;
@@ -7,20 +7,20 @@
     background-color: #E3E3E1; 
     border: 1px solid #eaeaea;
     border-radius: 8px;
-}
-
+} */
+/* 
 .title {
     width: 100%; 
     font-size: 1.25rem; 
     font-weight: 600;
     color: #333;
     margin: 0 0 24px 0; 
-}
+} */
 
-.filterGroup {
+/* .filterGroup {
     display: flex;
     align-items: center;
-}
+} */
 
 .filterLabel {
     font-size: 14px;

@@ -2,8 +2,12 @@ import React, { useState, useEffect } from 'react';
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import styles from "./PeopleNewPage.module.css";
 import { createEmployee } from '../../../../api/employee';
-import { fetchDepartments } from '../../../../api/department';
-import { fetchPositions } from '../../../../api/position';
+import { fetchUniqueDepartmentNames } from '../../../../api/department';
+import { fetchUniquePositionNames } from '../../../../api/position';
+import { createEducation } from '../../../../api/education';
+import { createMilitaryService } from '../../../../api/military';
+import { createWorkExperience } from '../../../../api/workExperience';
+import { createCertificateRecord } from '../../../../api/certificate';
 
 // MOCK 데이터 임포트 (API 실패 시 fallback용)
 import { DEPARTMENT_MOCK } from '../../../../models/data/DepartmentMOCK';
@@ -19,7 +23,7 @@ const emptyFormData = {
     employeeId: '', name: '', nameeng: '', password: 'auto', // password 기본값을 'auto'로 설정
     rrn: '', address: '', addressDetails: '', phoneNumber: '', email: '',
     birthDate: '', hireDate: '', quitDate: null, internalNumber: '',
-    departmentId: '', positionId: '', employmentType: '계약직',
+    departmentName: '', teamName: '', positionName: '', employmentType: '계약직',
     familyCertificate: '', username: '', nationality: '내국인',
   },
   militaryServiceInfo: {
@@ -33,28 +37,23 @@ const emptyFormData = {
   salaryInfo: {
     salaryInfoId: '', bankName: '', accountNumber: '', salary: '',
   },
-  
-  // --- (B) UI 제어를 위한 추가 상태 ---
-  // (※ 백엔드로 보내지 않음. 드롭다운 선택용)
+  // UI 제어용 (관리자 비밀번호만 남김)
   uiInfo: {
-    departmentName: '', // '경영지원본부' 등 부서명
-    teamName: '',       // '인사팀' 등 팀명
-    positionName: '',   // '사원' 등 직급명
-    adminPassword: '',  // 관리자가 입력하는 임시 비밀번호
+    adminPassword: '', // 관리자가 입력하는 임시 비밀번호
   }
 };
 
 // 동적 리스트를 위한 빈 객체들 (addListItem에서 사용)
 const emptyEducation = {
-  educationId: '', schoolName: '', major: '', admissionDate: '',
+  schoolName: '', major: '', admissionDate: '',
   graduationDate: '', degree: '', graduationStatus: '',
 };
 const emptyCareer = {
-  experienceId: '', companyName: '', jobTitle: '', finalPosition: '',
+  companyName: '', jobTitle: '', finalPosition: '',
   finalSalary: '', startDate: '', endDate: '',
 };
 const emptyCertification = {
-  certificateId: '', certificateName: '', issuingAuthority: '',
+  certificateName: '', issuingAuthority: '',
   score: '', acquisitionDate: '', expirationDate: '',
 };
 
@@ -63,14 +62,10 @@ const PeopleNewPage = () => {
     const [formData, setFormData] = useState(emptyFormData);
     const [showPassword, setShowPassword] = useState(false);
     
-    // API에서 가져온 데이터
-    const [departments, setDepartments] = useState([]); // [ { departmentId, departmentName, teamName }, ... ]
-    const [positions, setPositions] = useState([]);     // [ { positionId, positionName }, ... ]
+    // API에서 가져온 데이터 (중복 제거된 이름 목록)
+    const [departmentNames, setDepartmentNames] = useState([]); // [ "경영지원본부", "사이버관제본부", ... ]
+    const [positionNames, setPositionNames] = useState([]);     // [ "사원", "대리", "과장", ... ]
     const [loading, setLoading] = useState(true);
-
-    // 부서별로 그룹화된 데이터
-    const [departmentGroups, setDepartmentGroups] = useState({}); // { "경영지원본부": [ { id, teamName }, ... ] }
-    const [availableTeams, setAvailableTeams] = useState([]);
 
     // 컴포넌트 마운트 시 API 호출
     useEffect(() => {
@@ -78,59 +73,47 @@ const PeopleNewPage = () => {
             try {
                 setLoading(true);
                 
-                let deptList, posList;
+                let deptNames, posNames;
                 
                 if (USE_MOCK_DATA) {
-                    // MOCK 데이터 사용
+                    // MOCK 데이터 사용 - 중복 제거된 이름만 추출
                     console.log('🛠️ MOCK 데이터를 사용하여 부서/직급 목록 조회');
-                    deptList = DEPARTMENT_MOCK;
-                    posList = POSITIONS_MOCK;
+                    deptNames = [...new Set(DEPARTMENT_MOCK.map(d => d.departmentName))].sort();
+                    posNames = [...new Set(POSITIONS_MOCK.map(p => p.positionName))].sort();
                 } else {
-                    // 실제 API 호출
+                    // 실제 API 호출 - unique-names 엔드포인트 사용
                     try {
-                        console.log('🚀 실제 API 호출 시도');
+                        console.log('🚀 실제 API 호출 시도 (unique-names)');
                         
-                        // 부서/팀 목록 조회 - API 모듈 사용
-                        const deptData = await fetchDepartments(0, 100);
-                        console.log('✅ 부서 API 성공:', deptData);
+                        // 중복 제거된 부서명/직급명 목록 조회
+                        const [deptData, posData] = await Promise.all([
+                            fetchUniqueDepartmentNames(),
+                            fetchUniquePositionNames()
+                        ]);
                         
-                        // 직급 목록 조회 - API 모듈 사용
-                        const posData = await fetchPositions(0, 100);
-                        console.log('✅ 직급 API 성공:', posData);
+                        console.log('✅ 부서명 API 성공:', deptData);
+                        console.log('✅ 직급명 API 성공:', posData);
                         
-                        // 페이징 응답 처리 (content가 있으면 사용, 아니면 전체 데이터 사용)
-                        deptList = deptData.content || deptData;
-                        posList = posData.content || posData;
+                        // API 응답에서 데이터 추출
+                        deptNames = deptData.data || deptData;
+                        posNames = posData.data || posData;
+                        
+                        console.log('📦 추출된 부서명 배열:', deptNames);
+                        console.log('📦 추출된 직급명 배열:', posNames);
                     } catch (apiError) {
                         // API 실패 시 자동으로 MOCK 데이터 사용
                         console.warn('⚠️ API 조회 실패, MOCK 데이터로 전환:', apiError.message);
-                        deptList = DEPARTMENT_MOCK;
-                        posList = POSITIONS_MOCK;
+                        deptNames = [...new Set(DEPARTMENT_MOCK.map(d => d.departmentName))].sort();
+                        posNames = [...new Set(POSITIONS_MOCK.map(p => p.positionName))].sort();
                     }
                 }
                 
-                console.log('� 처리된 부서 목록:', deptList);
-                console.log('� 처리된 직급 목록:', posList);
+                console.log('📋 최종 부서명 목록:', deptNames);
+                console.log('📋 최종 직급명 목록:', posNames);
                 
-                setDepartments(deptList); // 전체 부서/팀 목록 저장
-                setPositions(posList);
-                
-                // 부서명으로 그룹화
-                const grouped = deptList.reduce((acc, item) => {
-                    if (!acc[item.departmentName]) {
-                        acc[item.departmentName] = [];
-                    }
-                    if (item.teamName) {
-                        acc[item.departmentName].push({
-                            id: item.departmentId, // 팀의 고유 ID (이것이 departmentId가 됨)
-                            teamName: item.teamName
-                        });
-                    }
-                    return acc;
-                }, {});
-                
-                console.log('� 그룹화된 부서:', grouped);
-                setDepartmentGroups(grouped);
+                // 배열인지 확인 후 저장
+                setDepartmentNames(Array.isArray(deptNames) ? deptNames : []);
+                setPositionNames(Array.isArray(posNames) ? posNames : []);
                 
             } catch (error) {
                 console.error('❌ 치명적 에러:', error);
@@ -142,28 +125,6 @@ const PeopleNewPage = () => {
 
         fetchData();
     }, []);
-
-    // 부서 선택 시 팀 필터링
-    useEffect(() => {
-        // formData.uiInfo.departmentName이 변경될 때
-        if (formData.uiInfo.departmentName) {
-            const teams = departmentGroups[formData.uiInfo.departmentName] || [];
-            setAvailableTeams(teams);
-            
-            // 부서 변경 시 팀/ID 초기화
-            setFormData(prev => ({
-                ...prev,
-                basicInfo: {
-                ...prev.basicInfo,
-                departmentId: ''
-                },
-                uiInfo: {
-                    ...prev.uiInfo,
-                    teamName: '', // 팀 이름 초기화
-                }
-            }));
-        }
-    }, [formData.uiInfo.departmentName, departmentGroups]); // uiInfo.departmentName 기준으로 변경
     
 
     // --- (C) 수정된 핸들러 함수들 ---
@@ -192,73 +153,7 @@ const PeopleNewPage = () => {
         }));
     };
 
-    // 부서 선택 핸들러 (UI용 departmentName 변경)
-    const handleDepartmentChange = (e) => {
-        const departmentName = e.target.value;
-        setFormData(prev => ({
-            ...prev,
-            uiInfo: {
-                ...prev.uiInfo,
-                departmentName: departmentName
-            }
-        }));
-    };
 
-    // [FIXED] 팀 선택 핸들러 (basicInfo.departmentId 변경)
-    const handleTeamChange = (e) => {
-        const selectedTeamId = parseInt(e.target.value); // "1", "2" ...
-        if (isNaN(selectedTeamId)) {
-          // "선택" (value="")을 누른 경우
-          setFormData(prev => ({
-            ...prev,
-            basicInfo: { ...prev.basicInfo, departmentId: '' },
-            uiInfo: { ...prev.uiInfo, teamName: '' }
-          }));
-          return;
-        }
-        
-        const selectedTeam = availableTeams.find(t => t.id === selectedTeamId);
-        
-        setFormData(prev => ({
-            ...prev,
-            basicInfo: {
-                ...prev.basicInfo,
-                departmentId: selectedTeamId // ★ 백엔드로 보낼 ID 저장
-            },
-            uiInfo: {
-                ...prev.uiInfo,
-                teamName: selectedTeam ? selectedTeam.teamName : '' // UI 표시용 이름 저장
-            }
-        }));
-    };
-
-    // [FIXED] 직급 선택 핸들러 (basicInfo.positionId 변경)
-    const handlePositionChange = (e) => {
-        const selectedPositionId = parseInt(e.target.value);
-        if (isNaN(selectedPositionId)) {
-          // "선택" (value="")을 누른 경우
-          setFormData(prev => ({
-            ...prev,
-            basicInfo: { ...prev.basicInfo, positionId: '' },
-            uiInfo: { ...prev.uiInfo, positionName: '' }
-          }));
-          return;
-        }
-
-        const selectedPosition = positions.find(p => p.positionId === selectedPositionId);
-        
-        setFormData(prev => ({
-            ...prev,
-            basicInfo: {
-                ...prev.basicInfo,
-                positionId: selectedPositionId // ★ 백엔드로 보낼 ID 저장
-            },
-            uiInfo: {
-                ...prev.uiInfo,
-                positionName: selectedPosition ? selectedPosition.positionName : '' // UI 표시용 이름 저장
-            }
-        }));
-    };
 
     /**
      * 'educationList', 'workExperienceList' 등 
@@ -317,68 +212,137 @@ const PeopleNewPage = () => {
     };
 
 
-    // --- (D) [CRITICAL FIX] handleSubmit 수정 ---
+    // --- (D) [UPDATED] handleSubmit - 직원 등록 후 학력/병역/경력/자격증 별도 POST ---
     const handleSubmit = async (e) => {
         e.preventDefault();
 
-        // 1. 'basicInfo'를 풀어서 백엔드가 원하는 '평평한' 구조로 재조립합니다.
-        const payload = {
-            // ...basicInfo의 모든 값을 최상위로 복사
-            ...formData.basicInfo,
-            
-            // ... 나머지 객체/배열들의 '키 이름'을 백엔드에 맞게 수정
-            militaryInfo: formData.militaryServiceInfo,
-            educations: formData.educationList,
-            workExperiences: formData.workExperienceList,
-            certificates: formData.certificateList,
-            salaryInfo: formData.salaryInfo,
-        };
-
-        // 2. 비밀번호 정책 처리
-        if (payload.password === 'auto') {
-            // 'auto'일 때, username이나 email 기반으로 임시 비밀번호 생성
-            const base = payload.username || payload.email?.split('@')[0];
+        // 1. 비밀번호 정책 처리
+        let finalPassword = formData.basicInfo.password;
+        if (finalPassword === 'auto') {
+            const base = formData.basicInfo.username || formData.basicInfo.email?.split('@')[0];
             if (!base) {
-                alert('자동생성을 위해 Username 또는 이메일을 입력해주세요.');
+                alert('자동생성을 위해 이메일을 입력해주세요.');
                 return;
             }
-            payload.password = `${base}123!`; // 예: testuser123!
-        } else if (payload.password === 'admin') {
-            // 'admin'일 때, uiInfo.adminPassword 값을 사용
+            finalPassword = `${base}123!`;
+        } else if (finalPassword === 'admin') {
             if (!formData.uiInfo.adminPassword) {
                 alert('관리자가 등록을 선택했습니다. 비밀번호를 입력해주세요.');
                 return;
             }
-            payload.password = formData.uiInfo.adminPassword;
+            finalPassword = formData.uiInfo.adminPassword;
         }
         
-        // 3. (중요) 백엔드 필수 필드 6개 값이 비어있는지 마지막으로 확인
-        if (!payload.name || !payload.email || !payload.password || !payload.hireDate || !payload.departmentId || !payload.positionId) {
+        // 2. 필수 필드 검증 (✅ Name 기준으로 변경)
+        if (!formData.basicInfo.name || !formData.basicInfo.email || !finalPassword || 
+            !formData.basicInfo.hireDate || !formData.basicInfo.departmentName || 
+            !formData.basicInfo.teamName || !formData.basicInfo.positionName) {
             console.error('❌ 필수 필드 누락!', {
-              name: payload.name,
-              email: payload.email,
-              password: payload.password,
-              hireDate: payload.hireDate,
-              departmentId: payload.departmentId,
-              positionId: payload.positionId
+              name: formData.basicInfo.name,
+              email: formData.basicInfo.email,
+              password: finalPassword,
+              hireDate: formData.basicInfo.hireDate,
+              departmentName: formData.basicInfo.departmentName,
+              teamName: formData.basicInfo.teamName,
+              positionName: formData.basicInfo.positionName
             });
-            alert('필수 항목(이름, 이메일, 입사일, 소속팀, 직급)이 모두 입력되었는지 확인해주세요.');
+            alert('필수 항목(이름, 이메일, 입사일, 소속부서, 소속팀, 직급)이 모두 입력되었는지 확인해주세요.');
             return;
         }
 
+        // 3. 기본 직원 정보 payload (✅ Name 기준으로 전송)
+        const employeePayload = {
+            name: formData.basicInfo.name,
+            nameeng: formData.basicInfo.nameeng,
+            email: formData.basicInfo.email,
+            password: finalPassword,
+            rrn: formData.basicInfo.rrn,
+            phoneNumber: formData.basicInfo.phoneNumber,
+            address: formData.basicInfo.address,
+            addressDetails: formData.basicInfo.addressDetails,
+            birthDate: formData.basicInfo.birthDate,
+            hireDate: formData.basicInfo.hireDate,
+            quitDate: formData.basicInfo.quitDate || null,
+            internalNumber: formData.basicInfo.internalNumber,
+            departmentName: formData.basicInfo.departmentName,  // ✅ 변경
+            teamName: formData.basicInfo.teamName,              // ✅ 추가
+            positionName: formData.basicInfo.positionName,      // ✅ 변경
+            familyCertificate: formData.basicInfo.familyCertificate,
+            employmentType: formData.basicInfo.employmentType,
+            nationality: formData.basicInfo.nationality,
+            username: formData.basicInfo.username,
+            salaryInfo: formData.salaryInfo, // 급여 정보 포함
+        };
+
         try {
-            // 4. createEmployee API 모듈 사용
-            console.log('🧑‍💻 신규 직원 등록 데이터 (최종 전송 Payload):', payload);
+            // 4. 직원 기본 정보 등록
+            console.log('🧑‍💻 신규 직원 등록 데이터:', employeePayload);
+            const employeeData = await createEmployee(employeePayload);
+            console.log('✅ 직원 등록 성공:', employeeData);
             
-            const data = await createEmployee(payload);
-            
-            console.log('✅ 서버 응답:', data);
+            // 생성된 직원 ID 추출
+            const newEmployeeId = employeeData.data?.id || employeeData.data || employeeData.id;
+            if (!newEmployeeId) {
+                throw new Error('생성된 직원 ID를 찾을 수 없습니다.');
+            }
+            console.log('🆔 생성된 직원 ID:', newEmployeeId);
+
+            // 5. 학력 정보 등록 (배열이 비어있지 않으면)
+            if (formData.educationList && formData.educationList.length > 0) {
+                console.log('🎓 학력 정보 등록 시작...');
+                for (const education of formData.educationList) {
+                    try {
+                        await createEducation(newEmployeeId, education);
+                        console.log('✅ 학력 등록 성공:', education.schoolName);
+                    } catch (eduError) {
+                        console.warn('⚠️ 학력 등록 실패:', education.schoolName, eduError);
+                    }
+                }
+            }
+
+            // 6. 병역 정보 등록 (값이 있으면)
+            if (formData.militaryServiceInfo && formData.militaryServiceInfo.militaryStatus) {
+                console.log('🪖 병역 정보 등록 시작...');
+                try {
+                    await createMilitaryService(newEmployeeId, formData.militaryServiceInfo);
+                    console.log('✅ 병역 정보 등록 성공');
+                } catch (militaryError) {
+                    console.warn('⚠️ 병역 정보 등록 실패:', militaryError);
+                }
+            }
+
+            // 7. 경력 정보 등록 (배열이 비어있지 않으면)
+            if (formData.workExperienceList && formData.workExperienceList.length > 0) {
+                console.log('💼 경력 정보 등록 시작...');
+                for (const work of formData.workExperienceList) {
+                    try {
+                        await createWorkExperience(newEmployeeId, work);
+                        console.log('✅ 경력 등록 성공:', work.companyName);
+                    } catch (workError) {
+                        console.warn('⚠️ 경력 등록 실패:', work.companyName, workError);
+                    }
+                }
+            }
+
+            // 8. 자격증 정보 등록 (배열이 비어있지 않으면)
+            if (formData.certificateList && formData.certificateList.length > 0) {
+                console.log('📜 자격증 정보 등록 시작...');
+                for (const cert of formData.certificateList) {
+                    try {
+                        await createCertificateRecord(newEmployeeId, cert);
+                        console.log('✅ 자격증 등록 성공:', cert.certificateName);
+                    } catch (certError) {
+                        console.warn('⚠️ 자격증 등록 실패:', cert.certificateName, certError);
+                    }
+                }
+            }
+
             alert('신규 직원이 등록되었습니다.');
             setFormData(emptyFormData);
+            
         } catch (err) {
             console.error('❌ 직원 등록 실패:', err);
-            // 백엔드가 { error: "메시지" } 형식으로 응답
-            const errorMessage = err.response?.data?.error || err.message || '직원 등록 중 오류가 발생했습니다.';
+            const errorMessage = err.response?.data?.error || err.response?.data?.message || err.message || '직원 등록 중 오류가 발생했습니다.';
             alert(errorMessage);
         }
     };
@@ -410,7 +374,7 @@ const PeopleNewPage = () => {
                         <div className={styles.inputGroup}><label>성명(국문)</label><input type="text" name="name" value={formData.basicInfo.name} onChange={(e) => handleInputChange(e, 'basicInfo')} required /></div>
                         <div className={styles.inputGroup}><label>성명(영문)</label><input type="text" name="nameeng" value={formData.basicInfo.nameeng} onChange={(e) => handleInputChange(e, 'basicInfo')} /></div>
                         <div className={styles.inputGroup}><label>국적</label><select name="nationality" value={formData.basicInfo.nationality} onChange={(e) => handleInputChange(e, 'basicInfo')}><option value="내국인">내국인</option><option value="외국인">외국인</option></select></div>
-                        <div className={styles.inputGroup}><label>사원번호</label><input type="text" name="employeeId" value={formData.basicInfo.employeeId} onChange={(e) => handleInputChange(e, 'basicInfo')} required /></div>
+                        {/* <div className={styles.inputGroup}><label>사원번호</label><input type="text" name="employeeId" value={formData.basicInfo.employeeId} onChange={(e) => handleInputChange(e, 'basicInfo')} required /></div> */}
                         <div className={styles.inputGroup}><label>연락처</label><input type="tel" name="phoneNumber" value={formData.basicInfo.phoneNumber} onChange={(e) => handleInputChange(e, 'basicInfo')} placeholder="010-1234-5678" /></div>
                         <div className={styles.inputGroup}><label>주민등록번호</label><input type="text" name="rrn" value={formData.basicInfo.rrn} onChange={(e) => handleInputChange(e, 'basicInfo')} placeholder="001010-xxxxxxx" /></div>
                         <div className={styles.inputGroup}><label>입사일자</label><input type="date" name="hireDate" value={formData.basicInfo.hireDate} onChange={(e) => handleInputChange(e, 'basicInfo')} required /></div> {/* required 추가 */}
@@ -433,16 +397,16 @@ const PeopleNewPage = () => {
                             <select name="militaryStatus" value={formData.militaryServiceInfo.militaryStatus} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}>
                                 <option value="">선택</option>
                                 <option value="군필">군필</option>
-                                <option value="면제">면제</option>
                                 <option value="미필">미필</option>
-                                <option value="해당없음">해당없음</option>
+                                <option value="면제">면제</option>
+                                <option value="해당 없음">해당 없음</option>
                             </select>
                         </div>
                         {/* ... 이하 병역정보 name, value, section을 모두 'militaryServiceInfo' 기준으로 맞춥니다 ... */}
                         <div className={styles.inputGroup}> <label>군별</label> <select name="militaryBranch" value={formData.militaryServiceInfo.militaryBranch} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}> <option value="">선택</option> <option value="육군">육군</option> <option value="해군">해군</option> <option value="공군">공군</option> <option value="해병대">해병대</option> <option value="기타">기타</option> </select> </div>
-                        <div className={styles.inputGroup}> <label>계급</label> <select name="militaryRank" value={formData.militaryServiceInfo.militaryRank} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}> <option value="">선택</option> <option value="이병">이병</option> <option value="일병">일병</option> <option value="상병">상병</option> <option value="병장">병장</option> <option value="하사">하사</option> <option value="기타">기타</option> </select> </div>
+                        <div className={styles.inputGroup}> <label>계급</label> <select name="militaryRank" value={formData.militaryServiceInfo.militaryRank} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}> <option value="">선택</option> <option value="병장">병장</option> <option value="상병">상병</option> <option value="일병">일병</option> <option value="하사">하사</option> <option value="기타">기타</option> </select> </div>
                         <div className={styles.inputGroup}> <label>병과</label> <select name="militarySpecialty" value={formData.militaryServiceInfo.militarySpecialty} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}> <option value="">선택</option> <option value="보병">보병</option> <option value="포병">포병</option> <option value="통신">통신</option> <option value="공병">공병</option> <option value="기타">기타</option> </select> </div>
-                        <div className={styles.inputGroup}> <label>면제사유</label> <select name="exemptionReason" value={formData.militaryServiceInfo.exemptionReason} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}> <option value="">선택</option> <option value="해당없음">해당없음</option> <option value="복무대기">복무대기</option> <option value="생계곤란">생계곤란</option> <option value="질병">질병</option> <option value="기타">기타</option> </select> </div>
+                        <div className={styles.inputGroup}> <label>면제사유</label> <select name="exemptionReason" value={formData.militaryServiceInfo.exemptionReason} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')}> <option value="">선택</option> <option value="복무대기">복무대기</option> <option value="생계곤란">생계곤란</option> <option value="질병">질병</option> <option value="기타">기타</option> </select> </div>
                         <div className={styles.inputGroup}> <label>복무시작일</label> <input type="date" name="serviceStartDate" value={formData.militaryServiceInfo.serviceStartDate} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')} /> </div>
                         <div className={styles.inputGroup}> <label>복무종료일</label> <input type="date" name="serviceEndDate" value={formData.militaryServiceInfo.serviceEndDate} onChange={(e) => handleInputChange(e, 'militaryServiceInfo')} /> </div>
                     </div>
@@ -461,7 +425,7 @@ const PeopleNewPage = () => {
                             <div className={styles.inputGroup}><label>전공</label><input type="text" name="major" value={edu.major} onChange={(e) => handleListChange(e, 'educationList', index)} /></div> {/* [TYPO FIX] 'eeducationList' -> 'educationList' */}
                             <div className={styles.inputGroup}><label>입학일자</label><input type="date" name="admissionDate" value={edu.admissionDate} onChange={(e) => handleListChange(e, 'educationList', index)} /></div>
                             <div className={styles.inputGroup}><label>졸업일자</label><input type="date" name="graduationDate" value={edu.graduationDate} onChange={(e) => handleListChange(e, 'educationList', index)} /></div>
-                            <div className={styles.inputGroup}><label>졸업여부</label><select name="graduationStatus" value={edu.graduationStatus} onChange={(e) => handleListChange(e, 'educationList', index)}><option value="">선택</option><option value="졸업">졸업</option><option value="재학">재학</option><option value="휴학">휴학</option><option value="중퇴">중퇴</option></select></div> {/* [TYPO FIX] 'gradulationStatus' -> 'graduationStatus' */}
+                            <div className={styles.inputGroup}><label>졸업여부</label><select name="graduationStatus" value={edu.graduationStatus} onChange={(e) => handleListChange(e, 'educationList', index)}><option value="">선택</option><option value="졸업">졸업</option><option value="수료">수료</option><option value="재학">재학</option><option value="중퇴">중퇴</option></select></div> {/* [TYPO FIX] 'gradulationStatus' -> 'graduationStatus' */}
                             <button type="button" className={styles.removeButton} onClick={() => removeListItem('educationList', index)}>삭제</button>
                         </div>
                     ))}
@@ -515,55 +479,50 @@ const PeopleNewPage = () => {
                     </div>
                 </section>
 
-                {/* [FIXED] 회사정보 - 드롭다운 로직 전체 수정 */}
+                {/* [FIXED] 회사정보 - unique-names 기반 드롭다운 */}
                 <section className={styles.formSection}>
                     <h2 className={styles.sectionTitle}>회사정보</h2>
                     <div className={styles.gridContainer}>
-                        {/* 1. '부서명'을 선택 (UI 상태인 uiInfo.departmentName에 저장) */}
+                        {/* ✅ 1. 부서 선택 (중복 제거된 부서명) */}
                         <div className={styles.inputGroup}>
                             <label>소속부서</label>
                             <select 
-                                name="department" 
-                                value={formData.uiInfo.departmentName} // value를 uiInfo.departmentName으로
-                                onChange={handleDepartmentChange} // 전용 핸들러 사용
-                                required // 필수로 선택
+                                name="departmentName" 
+                                value={formData.basicInfo.departmentName}
+                                onChange={(e) => handleInputChange(e, 'basicInfo')}
+                                required
                             >
                                 <option value="">선택</option>
-                                {Object.keys(departmentGroups).map((deptName) => (
+                                {departmentNames.map((deptName) => (
                                     <option key={deptName} value={deptName}>{deptName}</option>
                                 ))}
                             </select>
                         </div>
-                        {/* 2. '팀명'을 선택 (실제 ID인 basicInfo.departmentId에 저장) */}
+                        {/* ✅ 2. 팀명 직접 입력 */}
                         <div className={styles.inputGroup}>
                             <label>소속팀</label>
-                            <select
-                                name="departmentId" // name을 basicInfo.departmentId와 맞추면 좋음
-                                value={formData.basicInfo.departmentId} // value를 basicInfo.departmentId (ID)로
-                                onChange={handleTeamChange} // 전용 핸들러 사용
-                                disabled={!formData.uiInfo.departmentName} // 부서를 먼저 선택해야 활성화
-                                required // 필수로 선택
-                            >
-                                <option value="">선택</option>
-                                {availableTeams.map((team) => (
-                                    // [NaN Bug FIX] key와 value에 team.id (숫자)를 사용
-                                    <option key={team.id} value={team.id}>{team.teamName}</option>
-                                ))}
-                            </select>
+                            <input
+                                type="text"
+                                name="teamName"
+                                value={formData.basicInfo.teamName}
+                                onChange={(e) => handleInputChange(e, 'basicInfo')}
+                                placeholder="팀명을 입력하세요"
+                                required
+                            />
                         </div>
-                        {/* 3. '직급'을 선택 (basicInfo.positionId에 저장) */}
+                        {/* ✅ 3. 직급 선택 (중복 제거된 직급명) */}
                         <div className={styles.inputGroup}>
                             <label>직급</label>
                             <select 
-                                name="positionId" // name을 basicInfo.positionId와 맞추면 좋음
-                                value={formData.basicInfo.positionId} // value를 basicInfo.positionId (ID)로
-                                onChange={handlePositionChange} // 전용 핸들러 사용
-                                required // 필수로 선택
+                                name="positionName"
+                                value={formData.basicInfo.positionName}
+                                onChange={(e) => handleInputChange(e, 'basicInfo')}
+                                required
                             >
                                 <option value="">선택</option>
-                                {positions.map((pos) => (
-                                    <option key={pos.positionId} value={pos.positionId}>
-                                        {pos.positionName}
+                                {positionNames.map((posName) => (
+                                    <option key={posName} value={posName}>
+                                        {posName}
                                     </option>
                                 ))}
                             </select>

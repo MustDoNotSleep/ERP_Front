@@ -1,10 +1,7 @@
 import React, { useState } from 'react';
 import styles from './TrainingCreate.module.css';
 import TrainingCourseInputGrid from '../../../components/HR/career&edu/TrainingInputGrid';
-import axios from 'axios'; // 1. axios import
-
-// 2. 알려주신 API 엔드포인트 URL
-const API_URL = 'https://xtjea0rsb6.execute-api.ap-northeast-2.amazonaws.com/dev/erp-education';
+import { createCourse } from '../../../api/course';
 
 const TrainingCreate = () => {
     // 폼 데이터 상태 정의
@@ -18,7 +15,7 @@ const TrainingCreate = () => {
         goal: '',                // 교육목표 (대형 텍스트 영역)
     });
 
-    // 3. API 요청 로딩 상태 추가
+    // API 요청 로딩 상태
     const [isLoading, setIsLoading] = useState(false);
 
     const handleChange = (e) => {
@@ -29,26 +26,45 @@ const TrainingCreate = () => {
         }));
     };
 
-    // 4. (핵심) handleSubmit 함수 수정
+    // handleSubmit 함수
     const handleSubmit = async (e) => {
         e.preventDefault();
-        setIsLoading(true); // 로딩 시작
+        
+        // 필수 필드 검증
+        if (!formData.courseName || !formData.courseType || !formData.startDate || !formData.endDate) {
+            alert('교육명, 교육유형, 교육기간은 필수입니다.');
+            return;
+        }
+        
+        setIsLoading(true);
 
         try {
-            // 5. API로 formData를 POST 방식으로 전송
-            const response = await axios.post(API_URL, formData);
+            // 백엔드 API 스펙에 맞게 데이터 변환
+            const requestPayload = {
+                courseName: formData.courseName,
+                completionCriteria: formData.completionCriteria || null,
+                capacity: formData.capacity ? parseInt(formData.capacity) : null,
+                courseType: formData.courseType,
+                startDate: formData.startDate,
+                endDate: formData.endDate,
+                goal: formData.goal || null,
+            };
 
-            console.log('🐥 교육과정 등록 성공:', response.data);
-            alert('교육과정이 등록되었습니다! 삐약!');
-            handleCancel(); // 성공 시 폼 초기화
+            console.log('� 교육과정 등록 데이터:', requestPayload);
+            
+            // createCourse API 호출
+            const response = await createCourse(requestPayload);
+
+            console.log('✅ 교육과정 등록 성공:', response);
+            alert('교육과정이 성공적으로 등록되었습니다!');
+            handleCancel(); // 폼 초기화
 
         } catch (error) {
-            // 6. API 요청 실패 시
             console.error('❌ 교육과정 등록 실패:', error);
-            alert('등록 중 오류가 발생했습니다. 관리자에게 문의하세요.');
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || '등록 중 오류가 발생했습니다.';
+            alert(errorMessage);
 
         } finally {
-            // 7. 성공/실패와 관계없이 로딩 종료
             setIsLoading(false);
         }
     };
@@ -79,8 +95,8 @@ const TrainingCreate = () => {
                     onChange={handleChange} 
                     className={styles.textarea} 
                     rows="8"
-                    required
-                    disabled={isLoading} // 8. 로딩 중 비활성화
+                    placeholder="교육 목표를 자세히 입력해주세요."
+                    disabled={isLoading}
                 />
                 
                 {/* 3. 버튼 영역 */}
@@ -89,16 +105,15 @@ const TrainingCreate = () => {
                         type="button" 
                         onClick={handleCancel} 
                         className={styles.cancelButton}
-                        disabled={isLoading} // 9. 로딩 중 비활성화
+                        disabled={isLoading}
                     >
                         취소
                     </button>
                     <button 
                         type="submit" 
                         className={styles.submitButton}
-                        disabled={isLoading} // 10. 로딩 중 비활성화
+                        disabled={isLoading}
                     >
-                        {/* 11. 로딩 상태에 따라 텍스트 변경 */}
                         {isLoading ? '등록 중...' : '등록'}
                     </button>
                 </div>

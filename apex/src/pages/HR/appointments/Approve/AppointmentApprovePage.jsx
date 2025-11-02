@@ -3,6 +3,7 @@ import styles from "./AppointmentApprovePage.module.css";
 import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
 import AppointmentApproveFilter from '../../../../components/HR/AppointmentApprove/AppointmentApproveFilter';
+import EmployeeSearchModal from '../../../../components/HR/AppointmentApply/EmployeeSearchModal';
 import { Button } from '../../../../components/common';
 import { 
     fetchAppointmentRequests, 
@@ -15,7 +16,7 @@ import { APPOINTMENT_APPROVE_LIST_MOCK } from '../../../../models/data/Appointme
 
 // 2. ✨ "마법 스위치"를 만듭니다.
 // true로 설정하면 MOCK 데이터를, false로 설정하면 실제 API를 호출합니다.
-const USE_MOCK_DATA = true;
+const USE_MOCK_DATA = false;
 
 
 const TABLE_HEADERS = [
@@ -72,6 +73,9 @@ const AppointmentApprovePage = () => {
     const [approvals, setApprovals] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [isLoading, setIsLoading] = useState(false); // 5. 로딩 상태 추가
+    const [statusFilter, setStatusFilter] = useState('ALL'); // 상태 필터: 'ALL', 'PENDING', 'APPROVED', 'REJECTED'
+    const [hasWarned, setHasWarned] = useState(false); // 첫 선택 시 경고 플래그
+    const [isEmployeeSearchOpen, setIsEmployeeSearchOpen] = useState(false); // 직원 검색 모달
     
     const [searchParams, setSearchParams] = useState({
         employeeName: '',
@@ -99,22 +103,38 @@ const AppointmentApprovePage = () => {
         // 🚀 실제 API 사용 시 로직
         try {
             // fetchAppointmentRequests API 사용
-            const data = await fetchAppointmentRequests(0, 100, params.status);
+            const response = await fetchAppointmentRequests(0, 100);
             
-            // 클라이언트 사이드 필터링 (필요시)
-            let filteredData = data.content || data;
+            // 응답 구조: { success, message, data: { content: [...], ... } }
+            let requestList;
+            
+            if (response.data && response.data.content) {
+                requestList = response.data.content;
+            } else if (response.content) {
+                requestList = response.content;
+            } else if (Array.isArray(response.data)) {
+                requestList = response.data;
+            } else if (Array.isArray(response)) {
+                requestList = response;
+            } else {
+                requestList = [];
+            }
+            
+            // 클라이언트 사이드 필터링
+            let filteredData = requestList;
             
             if (params.employeeName) {
                 filteredData = filteredData.filter(item => 
-                    item.employee?.name?.includes(params.employeeName)
+                    item.targetEmployeeName?.includes(params.employeeName)
                 );
             }
             if (params.employeeId) {
                 filteredData = filteredData.filter(item => 
-                    String(item.employee?.employeeId).includes(params.employeeId)
+                    String(item.targetEmployeeId).includes(params.employeeId)
                 );
             }
             
+            console.log('📋 조회된 발령 목록:', filteredData);
             setApprovals(filteredData);
         } catch (error) {
             console.error("❌ 인사발령 목록 조회 실패:", error);
@@ -151,8 +171,46 @@ const AppointmentApprovePage = () => {
         });
         fetchData(); // 전체 목록 다시 로드
     };
+
+    // 직원 검색 모달 열기
+    const handleOpenEmployeeSearch = () => {
+        setIsEmployeeSearchOpen(true);
+    };
+
+    // 직원 선택 핸들러
+    const handleSelectEmployee = (employee) => {
+        setSearchParams(prev => ({
+            ...prev,
+            employeeName: employee.name,
+            employeeId: employee.id ? String(employee.id) : ''
+        }));
+        setIsEmployeeSearchOpen(false);
+    };
     
     const handleRowSelect = (id) => {
+        const selectedItem = approvals.find(item => (item.id || item.requestId) === id);
+        const status = selectedItem?.status || selectedItem?.approvalStatus;
+        
+        // 최종 처리된 항목(승인/반려)은 선택 불가
+        if (status === 'APPROVED' || status === '최종승인' || status === 'REJECTED' || status === '반려') {
+            alert('이미 처리 완료된 항목은 선택할 수 없습니다.');
+            return;
+        }
+
+        // 첫 선택 시 경고 메시지
+        if (!hasWarned && selectedRows.length === 0) {
+            const confirmed = window.confirm(
+                '⚠️ 중요 안내\n\n' +
+                '승인 또는 반려 처리 후에는 되돌릴 수 없습니다.\n' +
+                '신중하게 선택해주세요.\n\n' +
+                '계속 진행하시겠습니까?'
+            );
+            if (!confirmed) {
+                return;
+            }
+            setHasWarned(true);
+        }
+        
         setSelectedRows(prev => 
             prev.includes(id) 
                 ? prev.filter(rowId => rowId !== id) 
@@ -162,6 +220,8 @@ const AppointmentApprovePage = () => {
 
     // 8. (핵심) 승인/반려 버튼 핸들러
     const handleAction = async (action) => { // 'action'은 "반려" 또는 "최종승인"
+        console.log('🎯 handleAction 호출됨:', { action, selectedRows });
+        
         if (selectedRows.length === 0) {
             alert(`먼저 ${action}할 항목을 선택해주세요.`);
             return;
@@ -192,72 +252,123 @@ const AppointmentApprovePage = () => {
         try {
             // 선택된 각 요청에 대해 승인/반려 처리
             const promises = selectedRows.map(requestId => {
+                console.log(`📤 API 호출 준비 - action: ${action}, requestId: ${requestId}`);
+                
                 if (action === '최종승인') {
+                    console.log(`✅ approveAppointmentRequest 호출: ${requestId}`);
                     return approveAppointmentRequest(requestId, '승인되었습니다.');
                 } else {
+                    console.log(`❌ rejectAppointmentRequest 호출: ${requestId}`);
                     return rejectAppointmentRequest(requestId, '반려되었습니다.');
                 }
             });
             
-            await Promise.all(promises);
+            const results = await Promise.all(promises);
+            console.log('✅ 처리 결과:', results);
 
             alert(`선택된 항목이 ${action} 처리되었습니다.`);
             setSelectedRows([]); // 선택 해제
-            fetchData(); // 10. (중요) 목록을 새로고침해서 변경사항을 반영
+            fetchData(); // 목록을 새로고침해서 변경사항을 반영
 
         } catch (error) {
             console.error(`❌ ${action} 처리 실패:`, error);
-            alert("처리 중 오류가 발생했습니다.");
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || '처리 중 오류가 발생했습니다.';
+            alert(errorMessage);
         } finally {
             setIsLoading(false);
+            setHasWarned(false); // 처리 완료 후 경고 플래그 리셋
         }
     };
 
-    // 테이블 행 렌더링 로직 (수정 없음)
+    // 테이블 행 렌더링 로직 - 백엔드 응답 구조에 맞게 수정
     const renderApproveRow = (item) => {
         
         let statusStyle = '';
-        if (item.status === '반려') {
+        const status = item.status || item.approvalStatus;
+        
+        if (status === 'REJECTED' || status === '반려') {
             statusStyle = styles.statusRejected;
-        } else if (item.status === '대기') {
+        } else if (status === 'PENDING' || status === '대기') {
             statusStyle = styles.statusPending;
-        } else if (item.status === '최종승인') {
+        } else if (status === 'APPROVED' || status === '최종승인') {
             statusStyle = styles.statusApproved;
         }
 
+        // 백엔드 응답 구조에 맞게 필드 매핑
+        const id = item.id || item.requestId;
+        const requestDate = item.createdAt || item.requestDate;
+        const employeeId = item.targetEmployeeId || item.employeeId;
+        const employeeName = item.targetEmployeeName || item.employeeName;
+        const appointmentType = item.appointmentType;
+        const requesterName = item.requesterName || '-';
+        const approverName = item.approverName || '-';
+
+        // 처리 완료된 항목인지 확인
+        const isProcessed = status === 'APPROVED' || status === '최종승인' || status === 'REJECTED' || status === '반려';
+
         return (
             <>
-                <td className={tableStyles.tableData}>
+                <td className={tableStyles.tableData} style={{ 
+                    backgroundColor: isProcessed ? '#f5f5f5' : 'transparent',
+                    opacity: isProcessed ? 0.7 : 1
+                }}>
                     <input 
                         type="checkbox" 
-                        // ⚠️ 'item.requestId'가 MOCK 데이터의 고유 ID였습니다.
-                        // 실제 데이터의 고유 ID 키(key)로 변경해야 할 수 있습니다. (예: item.id)
-                        checked={selectedRows.includes(item.requestId)}
-                        onChange={() => handleRowSelect(item.requestId)}
+                        checked={selectedRows.includes(id)}
+                        onChange={() => handleRowSelect(id)}
+                        disabled={isProcessed}
+                        style={{ cursor: isProcessed ? 'not-allowed' : 'pointer' }}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{item.requestDate}</td>
-                <td className={tableStyles.tableData}>{item.employeeId}</td>
-                <td className={tableStyles.tableData}>{item.employeeName}</td>
-                <td className={tableStyles.tableData}>{item.appointmentType}</td>
-                <td className={tableStyles.tableData}>{item.requesterName}</td>
+                <td className={tableStyles.tableData}>{requestDate}</td>
+                <td className={tableStyles.tableData}>{employeeId}</td>
+                <td className={tableStyles.tableData}>{employeeName}</td>
+                <td className={tableStyles.tableData}>{appointmentType}</td>
+                <td className={tableStyles.tableData}>{requesterName}</td>
                 <td className={`${tableStyles.tableData} ${statusStyle}`}>
-                    {item.status}
+                    {status === 'APPROVED' ? '최종승인' : status === 'REJECTED' ? '반려' : status === 'PENDING' ? '대기' : status}
                 </td>
-                <td className={tableStyles.tableData}>{item.approverName}</td>
+                <td className={tableStyles.tableData}>{approverName}</td>
             </>
         );
     };
 
+    // 상태 필터링 적용
+    const filteredApprovals = approvals.filter(item => {
+        const status = item.status || item.approvalStatus || '';
+        
+        if (statusFilter === 'ALL') {
+            return true;
+        } else if (statusFilter === 'PENDING') {
+            return status === 'PENDING' || status === '대기';
+        } else if (statusFilter === 'APPROVED') {
+            return status === 'APPROVED' || status === '최종승인';
+        } else if (statusFilter === 'REJECTED') {
+            return status === 'REJECTED' || status === '반려';
+        }
+        
+        return true;
+    });
+
     return (
         <div className={styles.pageContainer}>
             
+            {/* 직원 검색 모달 */}
+            <EmployeeSearchModal
+                isOpen={isEmployeeSearchOpen}
+                onClose={() => setIsEmployeeSearchOpen(false)}
+                onSelectEmployee={handleSelectEmployee}
+            />
+
             <div className={styles.filterSection}>
                 <AppointmentApproveFilter
                     searchParams={searchParams}
                     onSearchChange={handleSearchChange}
                     onSearchSubmit={handleSearch}
                     onReset={handleReset}
+                    onOpenEmployeeSearch={handleOpenEmployeeSearch}
+                    statusFilter={statusFilter}
+                    onStatusFilterChange={(e) => setStatusFilter(e.target.value)}
                 />
             </div>
 
@@ -265,16 +376,16 @@ const AppointmentApprovePage = () => {
             {isLoading && <p>데이터를 불러오는 중입니다...</p>}
 
             {/* 데이터가 있을 때만 테이블 표시 */}
-            {!isLoading && approvals.length > 0 && (
+            {!isLoading && filteredApprovals.length > 0 && (
                 <DataTable
                     headers={TABLE_HEADERS}
-                    data={approvals}
+                    data={filteredApprovals}
                     renderRow={renderApproveRow}
                 />
             )}
             
             {/* 데이터가 없을 때 메시지 */}
-            {!isLoading && approvals.length === 0 && (
+            {!isLoading && filteredApprovals.length === 0 && (
                 <div className={styles.noDataMessage}>조회된 데이터가 없습니다.</div>
             )}
 

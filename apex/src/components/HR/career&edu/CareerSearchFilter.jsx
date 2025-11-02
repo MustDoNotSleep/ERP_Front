@@ -1,29 +1,16 @@
 import React from 'react';
-import { FilterCard, FilterGroup, Input, Select } from '../../../components/common';
+import { FilterCard, FilterGroup, Input } from '../../../components/common';
 
 const CareerSearchFilter = ({ 
     searchParams, 
     onSearchChange, 
     onSearchSubmit,
     onReset,
-    departments = [], 
-    teams = [] 
+    onOpenEmployeeSearch  // 직원 검색 모달 열기
 }) => {
     const handleChange = (e) => {
         onSearchChange(e.target.name, e.target.value);
     };
-
-    // departments 배열을 Select 옵션 형식으로 변환
-    const departmentOptions = departments.map((dept, index) => ({
-        value: dept.value || dept.name,
-        label: dept.name
-    }));
-
-    // teams 배열을 Select 옵션 형식으로 변환
-    const teamOptions = teams.map((team, index) => ({
-        value: team.value || team.name,
-        label: team.name
-    }));
 
     const handleReset = () => {
         onReset && onReset();
@@ -36,13 +23,33 @@ const CareerSearchFilter = ({
             onReset={handleReset}
         >
             <FilterGroup label="이름">
-                <Input 
-                    type="text" 
-                    name="name" 
-                    value={searchParams.name} 
-                    onChange={(e) => handleChange(e)}
-                    placeholder="이름을 입력하세요"
-                />
+                <div style={{ display: 'flex', gap: '8px' }}>
+                    <Input 
+                        type="text" 
+                        name="name" 
+                        value={searchParams.name} 
+                        onChange={(e) => handleChange(e)}
+                        placeholder="이름을 입력하세요"
+                        readOnly
+                        style={{ flex: 1, cursor: 'pointer' }}
+                        onClick={onOpenEmployeeSearch}
+                    />
+                    <button
+                        type="button"
+                        onClick={onOpenEmployeeSearch}
+                        style={{
+                            padding: '8px 16px',
+                            backgroundColor: '#007bff',
+                            color: 'white',
+                            border: 'none',
+                            borderRadius: '4px',
+                            cursor: 'pointer',
+                            whiteSpace: 'nowrap'
+                        }}
+                    >
+                        직원 검색
+                    </button>
+                </div>
             </FilterGroup>
             
             <FilterGroup label="사원번호">
@@ -50,27 +57,31 @@ const CareerSearchFilter = ({
                     name="employeeId" 
                     value={searchParams.employeeId} 
                     onChange={(e) => handleChange(e)}
-                    placeholder="사원번호를 입력하세요"
+                    placeholder="사원번호"
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
                 />
             </FilterGroup>
             
             <FilterGroup label="부서">
-                <Select 
+                <Input 
                     name="department" 
                     value={searchParams.department} 
                     onChange={(e) => handleChange(e)}
-                    options={departmentOptions}
-                    placeholder="전체"
+                    placeholder="부서"
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
                 />
             </FilterGroup>
 
             <FilterGroup label="팀">
-                <Select 
+                <Input 
                     name="team" 
                     value={searchParams.team} 
                     onChange={(e) => handleChange(e)}
-                    options={teamOptions}
-                    placeholder="전체"
+                    placeholder="팀"
+                    readOnly
+                    style={{ backgroundColor: '#f5f5f5' }}
                 />
             </FilterGroup>
         </FilterCard>

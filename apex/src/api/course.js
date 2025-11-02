@@ -21,13 +21,19 @@ export const fetchCoursesByEmployeeId = async (employeeId) => {
  * GET /courses
  * @param {number} page - 페이지 번호
  * @param {number} size - 페이지 크기
+ * @param {object} filters - 필터 조건 { courseName, dateStatus, approvalStatus }
  * @returns {Promise<object>} 교육 과정 목록
  */
-export const fetchCourses = async (page = 0, size = 20) => {
+export const fetchCourses = async (page = 0, size = 20, filters = {}) => {
     try {
-        const response = await api.get('/courses', {
-            params: { page, size }
-        });
+        const params = { page, size };
+        
+        // 필터 조건 추가
+        if (filters.courseName) params.courseName = filters.courseName;
+        if (filters.dateStatus) params.dateStatus = filters.dateStatus;
+        if (filters.approvalStatus) params.status = filters.approvalStatus;
+        
+        const response = await api.get('/courses', { params });
         return response.data;
     } catch (error) {
         console.error('Error fetching courses:', error);
@@ -181,7 +187,10 @@ export const deleteCourseApplication = async (applicationId) => {
  */
 export const approveCourseApplication = async (applicationId) => {
     try {
-        const response = await api.patch(`/course-applications/${applicationId}/approve`);
+        const response = await api.put(`/course-applications/${applicationId}/approval`, {
+            approved: true,
+            comment: '승인되었습니다.'
+        });
         return response.data;
     } catch (error) {
         console.error('Error approving course application:', error);
@@ -198,10 +207,50 @@ export const approveCourseApplication = async (applicationId) => {
  */
 export const rejectCourseApplication = async (applicationId, reason) => {
     try {
-        const response = await api.patch(`/course-applications/${applicationId}/reject`, { reason });
+        const response = await api.put(`/course-applications/${applicationId}/approval`, {
+            approved: false,
+            comment: reason
+        });
         return response.data;
     } catch (error) {
         console.error('Error rejecting course application:', error);
+        throw error;
+    }
+};
+
+/**
+ * 특정 교육의 신청자 목록 조회
+ * GET /courses/{courseId}/applications
+ * @param {number} courseId - 교육 ID
+ * @returns {Promise<object>} 해당 교육의 신청자 목록
+ */
+export const fetchApplicantsByCourseId = async (courseId) => {
+    try {
+        const response = await api.get(`/courses/${courseId}/applications`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching applicants for course ${courseId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * 교육 과정 승인/반려
+ * PUT /courses/{id}/approval
+ * @param {number} courseId - 교육 ID
+ * @param {boolean} approved - 승인 여부
+ * @param {string} comment - 코멘트
+ * @returns {Promise<object>} 승인/반려된 교육 정보
+ */
+export const approveCourse = async (courseId, approved, comment = '') => {
+    try {
+        const response = await api.put(`/courses/${courseId}/approval`, {
+            approved,
+            comment
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error approving/rejecting course:', error);
         throw error;
     }
 };

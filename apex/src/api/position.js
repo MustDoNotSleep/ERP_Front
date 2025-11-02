@@ -83,3 +83,18 @@ export const deletePosition = async (positionId) => {
         throw error;
     }
 };
+
+/**
+ * 중복 제거된 직급명 목록 조회 (드롭다운용)
+ * GET /positions/unique-names
+ * @returns {Promise<Array<string>>} 중복 제거된 직급명 목록
+ */
+export const fetchUniquePositionNames = async () => {
+    try {
+        const response = await api.get('/positions/unique-names');
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching unique position names:', error);
+        throw error;
+    }
+};

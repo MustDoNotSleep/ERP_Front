@@ -12,11 +12,17 @@ export const fetchAppointmentRequests = async (page = 0, size = 20, status = nul
     try {
         const params = { page, size };
         if (status) params.status = status;
-        
-        const response = await api.get('/appointment-requests', { params });
+            
+        const response = await api.get('/appointment-requests', { params });        
         return response.data;
     } catch (error) {
-        console.error('Error fetching appointment requests:', error);
+        console.error('❌ Error fetching appointment requests:', error);
+        console.error('❌ Error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            url: error.config?.url
+        });
         throw error;
     }
 };
@@ -107,35 +113,65 @@ export const deleteAppointmentRequest = async (requestId) => {
 };
 
 /**
- * 인사발령 승인
- * PATCH /appointment-requests/{requestId}/approve
+ * 인사발령 승인/반려 (통합)
+ * PUT /appointment-requests/{requestId}/approval
  * @param {number} requestId - 인사발령 요청 ID
- * @param {string} approverComment - 승인자 코멘트
- * @returns {Promise<object>} 승인된 인사발령 요청 정보
+ * @param {boolean} approved - true: 승인, false: 반려
+ * @param {string} comment - 승인/반려 코멘트
+ * @returns {Promise<object>} 처리된 인사발령 요청 정보
  */
-export const approveAppointmentRequest = async (requestId, approverComment = '') => {
+export const approveOrRejectAppointmentRequest = async (requestId, approved, comment = '') => {
     try {
-        const response = await api.patch(`/appointment-requests/${requestId}/approve`, { approverComment });
+        const payload = {
+            approved: approved,
+            comment: comment
+        };
+        
+        console.log('🔍 인사발령 승인/반려 API 호출:', {
+            endpoint: `/appointment-requests/${requestId}/approval`,
+            method: 'PUT',
+            payload,
+            '⚠️ approved 값': approved,
+            '⚠️ approved 타입': typeof approved
+        });
+        
+        const response = await api.put(`/appointment-requests/${requestId}/approval`, payload);
+        
         return response.data;
     } catch (error) {
-        console.error('Error approving appointment request:', error);
+        console.error('❌ Error processing appointment request:', error);
+        console.error('❌ Error details:', {
+            status: error.response?.status,
+            statusText: error.response?.statusText,
+            data: error.response?.data,
+            url: error.config?.url,
+            method: error.config?.method,
+            requestData: error.config?.data
+        });
         throw error;
     }
 };
 
 /**
- * 인사발령 반려
- * PATCH /appointment-requests/{requestId}/reject
+ * 인사발령 승인 (편의 함수)
+ * PUT /appointment-requests/{requestId}/approval
+ * @param {number} requestId - 인사발령 요청 ID
+ * @param {string} approverComment - 승인자 코멘트
+ * @returns {Promise<object>} 승인된 인사발령 요청 정보
+ */
+export const approveAppointmentRequest = async (requestId, approverComment = '') => {
+    console.log('✅ approveAppointmentRequest 함수 호출 - approved: true 전송');
+    return approveOrRejectAppointmentRequest(requestId, true, approverComment);
+};
+
+/**
+ * 인사발령 반려 (편의 함수)
+ * PUT /appointment-requests/{requestId}/approval
  * @param {number} requestId - 인사발령 요청 ID
  * @param {string} approverComment - 반려 사유
  * @returns {Promise<object>} 반려된 인사발령 요청 정보
  */
 export const rejectAppointmentRequest = async (requestId, approverComment) => {
-    try {
-        const response = await api.patch(`/appointment-requests/${requestId}/reject`, { approverComment });
-        return response.data;
-    } catch (error) {
-        console.error('Error rejecting appointment request:', error);
-        throw error;
-    }
+    console.log('❌ rejectAppointmentRequest 함수 호출 - approved: false 전송');
+    return approveOrRejectAppointmentRequest(requestId, false, approverComment);
 };

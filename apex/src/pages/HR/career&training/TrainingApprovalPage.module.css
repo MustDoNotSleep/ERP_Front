@@ -1,37 +1,82 @@
 /* TrainingApprovalPage.module.css */
 
-/* 추가: 테이블과의 상단 간격 확보 */
 .filterSection {
-    /* CareerSearchFilter 컨테이너가 이곳에 들어간다고 가정하고,
-       아래 테이블과의 간격을 확보합니다. */
-    margin-bottom: 2rem; /* 32px */
+    margin-bottom: var(--spacing-xl);
 }
 
 .buttonGroup {
     display: flex;
-    justify-content: flex-end; /* 버튼을 오른쪽 끝으로 정렬 */
-    gap: 1rem;
-    margin-top: 2rem;
+    justify-content: flex-end;
+    gap: var(--spacing-md);
+    margin-top: var(--spacing-xl);
 }
 
 .approveButton, .rejectButton {
-    padding: 0.75rem 1.5rem;
-    font-size: 1rem;
-    font-weight: bold;
-    border-radius: 0.25rem;
+    padding: var(--spacing-md) var(--spacing-xl);
+    font-size: var(--font-size-sm);
+    font-weight: var(--font-weight-semibold);
+    border-radius: var(--radius-md);
     cursor: pointer;
-    border: 0.0625rem solid transparent;
+    border: 1px solid transparent;
 }
 
 .approveButton {
-    /* 이미지에 맞춘 갈색 */
-    background-color: #875c4e; 
+    background-color: var(--color-primary);
     color: white;
 }
 
+.approveButton:hover {
+    background-color: var(--color-primary-dark);
+}
+
 .rejectButton {
-    /* 이미지에 맞춘 밝은 배경색 */
-    background-color: #f9f9f9; 
-    color: #555;
-    border-color: #ccc;
+    background-color: var(--color-bg-light);
+    color: var(--color-text-secondary);
+    border-color: var(--color-border-gray);
+}
+
+.rejectButton:hover {
+    background-color: var(--color-hover-bg);
+}
+
+.statusPending {
+    color: var(--color-info);
+    font-weight: var(--font-weight-semibold);
+}
+
+.statusApproved {
+    color: var(--color-success);
+    font-weight: var(--font-weight-semibold);
+}
+
+.statusRejected {
+    color: var(--color-error);
+    font-weight: var(--font-weight-semibold);
+}
+
+.viewButton {
+    padding: var(--spacing-sm) var(--spacing-md);
+    background-color: #007bff;
+    color: white;
+    border: none;
+    border-radius: var(--radius-sm);
+    cursor: pointer;
+    font-size: var(--font-size-xs);
+    font-weight: var(--font-weight-medium);
+    transition: var(--transition-base);
+}
+
+.viewButton:hover {
+    background-color: #0056b3;
+}
+
+.noDataMessage {
+    text-align: center;
+    padding: var(--spacing-2xl);
+    color: var(--color-text-light);
+    font-size: var(--font-size-sm);
+}
+
+.pageContainer {
+    padding: var(--spacing-xl);
 }

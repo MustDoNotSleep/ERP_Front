@@ -3,256 +3,248 @@ import styles from "./TrainingApprovalPage.module.css"
 import tableStyles from "../../../components/common/DataTable.module.css";
 import DataTable from '../../../components/common/DataTable';
 import TrainingApprovalFilter from '../../../components/HR/career&edu/TrainingApprovalFilter';
+import CourseApplicantsModal from '../../../components/HR/career&edu/CourseApplicantsModal';
 import { Button } from '../../../components/common';
-import { fetchCourseApplications, approveCourseApplication, rejectCourseApplication } from '../../../api/course';
+import { 
+    fetchCourses, 
+    approveCourse,
+    fetchApplicantsByCourseId,
+    approveCourseApplication,
+    rejectCourseApplication 
+} from '../../../api/course';
 
-// 1. ✨ Mock 데이터 import (유지)
-import { TRAINING_APPROVAL_LIST_MOCK } from '../../../models/data/TrainingMOCK';
-
-// 2. ✨ "마법 스위치" (유지)
-const USE_MOCK_DATA = true;const TABLE_HEADERS = [
-    '선택', '신청일자', '사번', '이름', '부서', '직급', '교육명', '상태'
+const TABLE_HEADERS = [
+    '선택', '교육명', '교육 기간', '교육 유형', '이수 기준', '상태', '신청자'
 ];
 
-// --- MOCK 데이터 관련 함수 (내부 함수로 수정) ---
-
-// ⭐️ MOCK 데이터를 필터링하는 로직 (검색 기능 강화) ⭐️
-const filterMockData = (data, params) => {
-    const { departmentId, positionId, courseName, applicationDate, approvalStatus } = params;
-
-    // 검색어가 없으면 전체 반환
-    if (!departmentId && !positionId && !courseName && !applicationDate && !approvalStatus) {
-        return data;
-    }
-
-    const deptQuery = departmentId?.trim();
-    const posQuery = positionId?.trim();
-    const courseQuery = courseName?.trim().toLowerCase();
-    const dateQuery = applicationDate?.trim();
-    const statusQuery = approvalStatus?.trim();
-
-    return data.filter(item => {
-        // ✨ 안전하게 문자열로 변환하여 비교 (필터링 문제 해결) ✨
-        const itemDeptId = String(item.departmentName || '');
-        const itemPosId = String(item.positionName || '');
-
-        // 부서 ID 일치
-        const deptMatch = !deptQuery || itemDeptId === deptQuery; 
-        // 직급 ID 일치
-        const posMatch = !posQuery || itemPosId === posQuery; 
-        // 교육명 부분 일치
-        const courseMatch = !courseQuery || String(item.courseName || '').toLowerCase().includes(courseQuery);
-        // 신청일자 일치
-        const dateMatch = !dateQuery || item.applicationDate === dateQuery;
-        // 상태 일치
-        const statusMatch = !statusQuery || item.status === statusQuery;
-
-        return deptMatch && posMatch && courseMatch && dateMatch && statusMatch;
-    });
-};
-
-// MOCK 데이터의 상태를 변경하는 함수 (유지)
-const updateMockStatus = (data, requestIds, newStatus) => {
-    return data.map(item => {
-        if (requestIds.includes(item.requestId)) {
-            return {
-                ...item,
-                status: newStatus,
-            };
-        }
-        return item;
-    });
-};
-
-// ---------------------------------------------
-
-
 const TrainingApprovalPage = () => {
+    const [courses, setCourses] = useState([]);
+    const [selectedCourses, setSelectedCourses] = useState([]);
+    const [isLoading, setIsLoading] = useState(false);
     
-    // 4. State 초기화 (유지)
-    const [approvals, setApprovals] = useState([]);
-    const [selectedRows, setSelectedRows] = useState([]);
-    const [isLoading, setIsLoading] = useState(false); 
+    // 모달 관련 state
+    const [isModalOpen, setIsModalOpen] = useState(false);
+    const [selectedCourse, setSelectedCourse] = useState(null);
+    const [applicants, setApplicants] = useState([]);
+    const [isLoadingApplicants, setIsLoadingApplicants] = useState(false);
     
     const [searchParams, setSearchParams] = useState({
-        departmentId: '', positionId: '', courseName: '', applicationDate: '', approvalStatus: '',
+        courseName: '',
+        dateStatus: '',
+        approvalStatus: ''
     });
 
-    // 5. (핵심) 데이터 조회 함수 (MOCK/API 분기) - 유지
+    // 데이터 조회 함수
     const fetchData = async (params = {}) => {
         setIsLoading(true);
         
-        // ✨ MOCK 데이터 사용 시 로직 ✨
-        if (USE_MOCK_DATA) {
-            console.log("🛠️ MOCK 데이터를 사용하여 교육 신청 목록 조회/필터링");
-            await new Promise(resolve => setTimeout(resolve, 500)); 
-            
-            // 필터링 적용
-            const filteredData = filterMockData(TRAINING_APPROVAL_LIST_MOCK, params);
-            setApprovals(filteredData);
-            setIsLoading(false);
-            return;
-        }
-
-        // 🚀 실제 API 사용 시 로직
         try {
-            // fetchCourseApplications API 사용
-            const data = await fetchCourseApplications(0, 100, params.approvalStatus);
+            const response = await fetchCourses(0, 100, params);
+            const courseList = response.data?.content || response.content || response.data || [];
             
-            // 클라이언트 사이드 필터링
-            let filteredData = data.content || data;
-            
-            if (params.courseName) {
-                filteredData = filteredData.filter(item => 
-                    item.course?.courseName?.includes(params.courseName)
-                );
-            }
-            if (params.departmentId) {
-                filteredData = filteredData.filter(item => 
-                    item.employee?.department?.departmentId === Number(params.departmentId)
-                );
-            }
-            if (params.positionId) {
-                filteredData = filteredData.filter(item => 
-                    item.employee?.position?.positionId === Number(params.positionId)
-                );
-            }
-            
-            setApprovals(filteredData);
+            console.log('📋 조회된 교육 과정 목록:', courseList);
+            setCourses(courseList);
         } catch (error) {
-            console.error("❌ 교육 신청 목록 조회 실패:", error);
+            console.error("❌ 교육 과정 목록 조회 실패:", error);
             alert("데이터를 불러오는 데 실패했습니다.");
         } finally {
             setIsLoading(false);
         }
     };
 
-    // 6. 페이지 초기 로드 (유지)
+    // 페이지 초기 로드
     useEffect(() => {
-        fetchData(); 
-    }, []); 
+        fetchData();
+    }, []);
 
-    // --- 핸들러 함수 ---
+    // 검색 핸들러
     const handleSearchChange = (e) => {
         const { name, value } = e.target;
         setSearchParams(prev => ({ ...prev, [name]: value }));
     };
 
-    // 7. 검색 버튼 핸들러 (유지)
     const handleSearch = () => {
-        console.log('🐥 검색 시작!', searchParams);
-        fetchData(searchParams); 
+        console.log('🔍 검색 시작:', searchParams);
+        fetchData(searchParams);
     };
 
-    // 리셋 핸들러 추가
     const handleReset = () => {
         setSearchParams({
-            departmentId: '', 
-            positionId: '', 
-            courseName: '', 
-            applicationDate: '', 
+            courseName: '',
+            dateStatus: '',
             approvalStatus: ''
         });
-        fetchData(); // 전체 목록 다시 로드
+        fetchData();
     };
-    
-    // 8. 행 선택 핸들러 (유지)
-    const handleRowSelect = (id) => {
-        setSelectedRows(prev => 
-            prev.includes(id) 
-                ? prev.filter(rowId => rowId !== id) 
+
+    // 교육 과정 선택 핸들러
+    const handleCourseSelect = (id) => {
+        setSelectedCourses(prev =>
+            prev.includes(id)
+                ? prev.filter(courseId => courseId !== id)
                 : [...prev, id]
         );
     };
 
-    // 9. (핵심) 승인/반려 버튼 핸들러 (MOCK/API 분기) - 유지
-    const handleAction = async (action) => { 
-        if (selectedRows.length === 0) {
-            alert(`먼저 ${action}할 항목을 선택해주세요.`);
+    // 교육 과정 승인/반려
+    const handleCourseAction = async (action) => {
+        if (selectedCourses.length === 0) {
+            alert(`먼저 ${action}할 교육 과정을 선택해주세요.`);
             return;
         }
 
-        console.log(`🚀 ${action} 처리:`, selectedRows);
+        const confirmed = window.confirm(
+            `선택한 ${selectedCourses.length}개의 교육 과정을 ${action}하시겠습니까?`
+        );
+        if (!confirmed) return;
+
         setIsLoading(true);
 
-        // ✨ MOCK 데이터 사용 시 로직 ✨
-        if (USE_MOCK_DATA) {
-            console.log(`🛠️ MOCK 데이터 ${action} 처리`);
-            await new Promise(resolve => setTimeout(resolve, 500)); 
-            
-            // ⭐️ 현재 approvals 상태를 기반으로 업데이트 ⭐️
-            // 이 로직 덕분에 체크박스 선택 후 상태 변경이 정상 작동합니다. (체크박스 문제 해결)
-            const newApprovals = updateMockStatus(approvals, selectedRows, action);
-            setApprovals(newApprovals); 
-            
-            alert(`선택된 항목이 ${action} 처리되었습니다.`);
-            setSelectedRows([]); 
-            setIsLoading(false);
-            return;
-        }
-        
-        // 🚀 실제 API 사용 시 로직
         try {
-            // 선택된 각 신청에 대해 승인/반려 처리
-            const promises = selectedRows.map(applicationId => {
-                if (action === '승인') {
-                    return approveCourseApplication(applicationId);
-                } else {
-                    return rejectCourseApplication(applicationId, '반려되었습니다.');
-                }
-            });
-            
+            const approved = action === '승인';
+            const promises = selectedCourses.map(courseId =>
+                approveCourse(courseId, approved, `${action}되었습니다.`)
+            );
+
             await Promise.all(promises);
 
-            alert(`선택된 항목이 ${action} 처리되었습니다.`);
-            setSelectedRows([]); 
-            fetchData(); 
+            alert(`선택된 교육 과정이 ${action} 처리되었습니다.`);
+            setSelectedCourses([]);
+            fetchData(searchParams);
 
         } catch (error) {
-            console.error(`❌ ${action} 처리 실패:`, error);
-            alert("처리 중 오류가 발생했습니다.");
+            console.error(`❌ 교육 과정 ${action} 처리 실패:`, error);
+            const errorMessage = error.response?.data?.message || error.response?.data?.error || '처리 중 오류가 발생했습니다.';
+            alert(errorMessage);
         } finally {
             setIsLoading(false);
         }
     };
 
-    // 테이블 행 렌더링 로직 (유지)
-    const renderApprovalRow = (item) => { 
-        let statusStyle = '';
-        if (item.status === '반려') {
-            statusStyle = styles.statusRejected;
-        } else if (item.status === '대기') {
-            statusStyle = styles.statusPending;
-        } else if (item.status === '승인') {
-            statusStyle = styles.statusApproved;
+    // 신청자 목록 조회
+    const handleViewApplicants = async (course) => {
+        setSelectedCourse(course);
+        setIsModalOpen(true);
+        setIsLoadingApplicants(true);
+
+        try {
+            const response = await fetchApplicantsByCourseId(course.id);
+            const applicantList = response.data?.content || response.content || response.data || [];
+            
+            console.log('👥 신청자 목록:', applicantList);
+            setApplicants(applicantList);
+        } catch (error) {
+            console.error('❌ 신청자 목록 조회 실패:', error);
+            alert('신청자 목록을 불러오는 데 실패했습니다.');
+            setApplicants([]);
+        } finally {
+            setIsLoadingApplicants(false);
         }
-        
+    };
+
+    // 신청자 승인
+    const handleApproveApplicants = async (applicationIds) => {
+        setIsLoadingApplicants(true);
+
+        try {
+            const promises = applicationIds.map(id =>
+                approveCourseApplication(id)
+            );
+
+            await Promise.all(promises);
+
+            alert('선택된 신청자가 승인되었습니다.');
+            // 신청자 목록 새로고침
+            handleViewApplicants(selectedCourse);
+
+        } catch (error) {
+            console.error('❌ 신청자 승인 실패:', error);
+            alert('승인 처리 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoadingApplicants(false);
+        }
+    };
+
+    // 신청자 반려
+    const handleRejectApplicants = async (applicationIds) => {
+        setIsLoadingApplicants(true);
+
+        try {
+            const promises = applicationIds.map(id =>
+                rejectCourseApplication(id, '반려되었습니다.')
+            );
+
+            await Promise.all(promises);
+
+            alert('선택된 신청자가 반려되었습니다.');
+            // 신청자 목록 새로고침
+            handleViewApplicants(selectedCourse);
+
+        } catch (error) {
+            console.error('❌ 신청자 반려 실패:', error);
+            alert('반려 처리 중 오류가 발생했습니다.');
+        } finally {
+            setIsLoadingApplicants(false);
+        }
+    };
+
+    // 테이블 행 렌더링
+    const renderCourseRow = (course) => {
+        const statusStyle = 
+            course.status === 'APPROVED' ? styles.statusApproved :
+            course.status === 'REJECTED' ? styles.statusRejected :
+            styles.statusPending;
+
+        const startDate = course.startDate || '-';
+        const endDate = course.endDate || '-';
+        const period = `${startDate} ~ ${endDate}`;
+
         return (
             <>
                 <td className={tableStyles.tableData}>
                     <input 
                         type="checkbox" 
-                        // ⭐️ requestId는 MOCK 데이터에서 유일해야 합니다! ⭐️
-                        checked={selectedRows.includes(item.requestId)} 
-                        onChange={() => handleRowSelect(item.requestId)}
+                        checked={selectedCourses.includes(course.id)}
+                        onChange={() => handleCourseSelect(course.id)}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{item.applicationDate}</td>
-                <td className={tableStyles.tableData}>{item.employeeId}</td>
-                <td className={tableStyles.tableData}>{item.employeeName}</td>
-                <td className={tableStyles.tableData}>{item.departmentName}</td>
-                <td className={tableStyles.tableData}>{item.positionName}</td>
-                <td className={tableStyles.tableData}>{item.courseName}</td>
-                <td className={`${tableStyles.tableData} ${statusStyle}`}>{item.status}</td> 
+                <td className={tableStyles.tableData}>{course.courseName || '-'}</td>
+                <td className={tableStyles.tableData}>{period}</td>
+                <td className={tableStyles.tableData}>{course.courseType || '-'}</td>
+                <td className={tableStyles.tableData}>{course.completionCriteria || '-'}</td>
+                <td className={`${tableStyles.tableData} ${statusStyle}`}>
+                    {course.status === 'PENDING' ? '대기' : 
+                     course.status === 'APPROVED' ? '승인' : 
+                     course.status === 'REJECTED' ? '반려' : course.status}
+                </td>
+                <td className={tableStyles.tableData}>
+                    <button
+                        onClick={() => handleViewApplicants(course)}
+                        className={styles.viewButton}
+                    >
+                        조회
+                    </button>
+                </td>
             </>
         );
     };
 
-
     return (
         <div className={styles.pageContainer}>
             
-            {/* --- A. 검색 필터 영역 --- */}
+            {/* 신청자 목록 모달 */}
+            <CourseApplicantsModal
+                isOpen={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                courseId={selectedCourse?.id}
+                courseName={selectedCourse?.courseName}
+                applicants={applicants}
+                isLoading={isLoadingApplicants}
+                onApprove={handleApproveApplicants}
+                onReject={handleRejectApplicants}
+            />
+
+            {/* 검색 필터 */}
             <div className={styles.filterSection}>
                 <TrainingApprovalFilter
                     searchParams={searchParams}
@@ -262,34 +254,34 @@ const TrainingApprovalPage = () => {
                 />
             </div>
 
-            {/* 10. 로딩 및 데이터 없음 UI (유지) */}
+            {/* 로딩 UI */}
             {isLoading && <p>데이터를 불러오는 중입니다...</p>}
 
-            {/* --- B. 데이터 테이블 영역 --- */}
-            {!isLoading && approvals.length > 0 && (
+            {/* 데이터 테이블 */}
+            {!isLoading && courses.length > 0 && (
                 <DataTable
                     headers={TABLE_HEADERS}
-                    data={approvals}
-                    renderRow={renderApprovalRow}
+                    data={courses}
+                    renderRow={renderCourseRow}
                 />
             )}
 
-            {!isLoading && approvals.length === 0 && (
+            {!isLoading && courses.length === 0 && (
                 <div className={styles.noDataMessage}>조회된 데이터가 없습니다.</div>
             )}
 
-            {/* --- C. 액션 버튼 영역 (유지) --- */}
+            {/* 액션 버튼 */}
             <div className={styles.buttonGroup}>
                 <Button 
                     variant="danger"
-                    onClick={() => handleAction('반려')} 
+                    onClick={() => handleCourseAction('반려')} 
                     disabled={isLoading} 
                 >
                     반려
                 </Button>
                 <Button 
                     variant="primary"
-                    onClick={() => handleAction('승인')} 
+                    onClick={() => handleCourseAction('승인')} 
                     disabled={isLoading}
                 >
                     {isLoading ? "처리 중..." : "승인"}

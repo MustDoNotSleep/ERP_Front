@@ -23,7 +23,7 @@ export const fetchEmployees = async (page = 1, size = 10, sort = 'id,asc') => {
 /**
  * 직원 검색 (상세 검색)
  * GET /employees/search
- * @param {object} searchParams - 검색 조건 { name, email, departmentId, positionId }
+ * @param {object} searchParams - 검색 조건 { name, email, departmentName, positionName }
  * @param {number} page - 페이지 번호 (0부터 시작)
  * @param {number} size - 페이지 크기
  * @returns {Promise<object>} 검색된 직원 목록
@@ -36,17 +36,22 @@ export const searchEmployees = async (searchParams = {}, page = 0, size = 100) =
         if (searchParams.name && searchParams.name.trim()) {
             params.name = searchParams.name.trim();
         }
+
+        // id로 검색 (백엔드에서 id를 사번으로 사용)
+        if (searchParams.id) {
+            params.id = searchParams.id;
+        }
+        
         if (searchParams.email && searchParams.email.trim()) {
             params.email = searchParams.email.trim();
         }
-        if (searchParams.departmentId) {
-            params.departmentId = searchParams.departmentId;
+        // ✅ Name 기반 검색으로 변경
+        if (searchParams.departmentName && searchParams.departmentName.trim()) {
+            params.departmentName = searchParams.departmentName.trim();
         }
-        if (searchParams.positionId) {
-            params.positionId = searchParams.positionId;
+        if (searchParams.positionName && searchParams.positionName.trim()) {
+            params.positionName = searchParams.positionName.trim();
         }
-        
-        console.log('🔍 검색 API 요청 파라미터:', params);
         
         const response = await api.get('/employees/search', { params });
         return response.data;
