@@ -4,8 +4,9 @@ import tableStyles from "../../../components/common/DataTable.module.css";
 import DataTable from '../../../components/common/DataTable';
 import CertificateIssueFilter from '../../../components/HR/certificate/CertificateIssueFilter';
 import { Button } from '../../../components/common';
-import { fetchCertificates, approveCertificate, rejectCertificate } from '../../../api/certificate';
-
+//import { fetchCertificates, approveCertificate, rejectCertificate } from '../../../api/certificate';
+// ✅ 변경: certificate → document
+import {fetchDocumentApplications, approveDocumentApplication, rejectDocumentApplication } from '../../../api/document';
 // ✨ 목 데이터 임포트
 // import { CERTIFICATE_ISSUE_MOCK } from '../../../models/data/CertificateIssueMOCK';
 
@@ -19,8 +20,8 @@ const CertificateIssuePage = () => {
     const [requests, setRequests] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
     const [searchParams, setSearchParams] = useState({
-        employeeName: '', employeeId: '', certificateType: '', 
-        applicationDate: '', issueStatus: '',
+        employeeName: '', employeeId: '', documentType: '', 
+        applicationDate: '', documentStatus: '',
     });
 
     //api 호출 함수 (조회)
@@ -28,10 +29,13 @@ const CertificateIssuePage = () => {
         console.log('증명서 조회 시작!', searchParams);
         try {
             // fetchCertificates API 사용 (페이징 포함)
-            const data = await fetchCertificates(0, 100); // 페이지 0, 사이즈 100
+            const response = await fetchDocumentApplications(0, 100); // 페이지 0, 사이즈 100
             
             // 검색 조건에 따라 클라이언트 사이드 필터링
-            let filteredData = data.content || data;
+           // let filteredData = data.content || data;
+            const data = response.data?.data?.content || response.data?.data || [];
+            //const data = response.data?.content || response.data || response; 
+            let filteredData = Array.isArray(data) ? data : [];
             
             if (searchParams.employeeName) {
                 filteredData = filteredData.filter(item => 
@@ -43,16 +47,25 @@ const CertificateIssuePage = () => {
                     String(item.employee?.employeeId).includes(searchParams.employeeId)
                 );
             }
-            if (searchParams.certificateType) {
-                filteredData = filteredData.filter(item => 
-                    item.certificateType === searchParams.certificateType
-                );
+            // if (searchParams.certificateType) {
+            //     filteredData = filteredData.filter(item => 
+            //         item.certificateType === searchParams.certificateType
+            //     );
+            // } 
+            // if (searchParams.issueStatus) {
+            //     filteredData = filteredData.filter(item => 
+            //         item.status === searchParams.issueStatus
+            //     );
+            // }
+            if(searchParams.documentType){
+                filteredData = filteredData.filter
+                (item => item.documentType === searchParams.documentType);
             }
-            if (searchParams.issueStatus) {
-                filteredData = filteredData.filter(item => 
-                    item.status === searchParams.issueStatus
-                );
+            if(searchParams.documentStatus){
+                filteredData = filteredData.filter
+                (item => item.documentStatus === searchParams.documentStatus);
             }
+            
             
             setRequests(filteredData);
         } catch (error) {
@@ -83,9 +96,9 @@ const CertificateIssuePage = () => {
         setSearchParams({
             employeeName: '', 
             employeeId: '', 
-            certificateType: '', 
+            documentTypeType: '', 
             applicationDate: '', 
-            issueStatus: ''
+            documentStatus: ''
         });
         // eslint-disable-next-line react-hooks/exhaustive-deps
         fetchRequests(); // 전체 목록 다시 로드
@@ -113,11 +126,11 @@ const CertificateIssuePage = () => {
         
         try {
             // 선택된 각 증명서에 대해 승인/반려 처리
-            const promises = selectedRows.map(certificateId => {
+            const promises = selectedRows.map(documentId => {
                 if (action === '승인') {
-                    return approveCertificate(certificateId);
+                    return approveDocumentApplication(documentId);
                 } else {
-                    return rejectCertificate(certificateId, '반려 처리되었습니다.');
+                    return rejectDocumentApplication(documentId, '반려 처리되었습니다.');
                 }
             });
             
@@ -142,17 +155,17 @@ const CertificateIssuePage = () => {
                 <td className={tableStyles.tableData}>
                     <input 
                         type="checkbox" 
-                        checked={selectedRows.includes(item.certificateId)}
-                        onChange={() => handleRowSelect(item.certificateId)}
+                        checked={selectedRows.includes(item.documentId)}
+                        onChange={() => handleRowSelect(item.documentId)}
                     />
                 </td>
                 <td className={tableStyles.tableData}>{item.applicationDate || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.employeeId || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.name || '-'}</td>
-                <td className={tableStyles.tableData}>{item.certificateType || '-'}</td>
+                <td className={tableStyles.tableData}>{item.documentType|| '-'}</td>
                 <td className={tableStyles.tableData}>{item.copies || 1}</td>
                 <td className={tableStyles.tableData}>{item.issueDate || '-'}</td>
-                <td className={tableStyles.tableData}>{item.status || '-'}</td>
+                <td className={tableStyles.tableData}>{item.documentStatus|| '-'}</td>
             </>
         );
     };

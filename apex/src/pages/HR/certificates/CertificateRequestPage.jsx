@@ -5,7 +5,8 @@ import DataTable from '../../../components/common/DataTable';
 import CertificateRequestFilter from '../../../components/HR/certificate/CertificateRequestFilter';
 import CertificateRequestModal from '../../../components/HR/certificate/CertificateRequestModal';
 import { Button } from '../../../components/common';
-import { fetchCertificates } from '../../../api/certificate';
+import { fetchDocumentApplications, createDocumentApplication } from '../../../api/document';
+import { CERTIFICATE_TYPES, ISSUE_STATUS_OPTIONS } from '../../../models/data/CertificateIssueMOCK.js';
 
 // 테이블 헤더 정의
 const TABLE_HEADERS = [
@@ -21,30 +22,42 @@ const CertificateRequestPage = () => {
         issueStatus: '',
     });
 
+    // 🧭 Enum 한글 매핑 함수
+    const getStatusLabel = (status) => {
+        const found = ISSUE_STATUS_OPTIONS.find(opt => opt.value === status);
+        return found ? found.label : status;
+    };
+
+    const getCertificateLabel = (type) => {
+        return CERTIFICATE_TYPES[type] || type;
+    };
+
     // API 호출 함수 (조회)
     const fetchRequests = async () => {
-        console.log('증명서 신청 내역 조회 시작!', searchParams);
+        console.log('📡 증명서 신청 내역 조회 시작!', searchParams);
         try {
-            const data = await fetchCertificates(0, 100);
-            let filteredData = data.content || data;
-            
-            // 본인의 신청 내역만 필터링 (실제로는 로그인한 사용자 ID로 필터링)
-            // filteredData = filteredData.filter(item => item.employee?.employeeId === currentUserId);
-            
+            const response = await fetchDocumentApplications(0, 100);
+            console.log("📦 백엔드 응답:", response);
+
+            // ✅ 백엔드 구조: { success, data: { content: [...] } }
+            const data = response.data?.data?.content || response.data?.data || response.data || [];
+
+            let filteredData = Array.isArray(data) ? data : [];
+
             if (searchParams.certificateType) {
                 filteredData = filteredData.filter(item => 
-                    item.certificateType === searchParams.certificateType
+                    item.documentType === searchParams.certificateType
                 );
             }
             if (searchParams.issueStatus) {
                 filteredData = filteredData.filter(item => 
-                    item.status === searchParams.issueStatus
+                    item.documentStatus === searchParams.issueStatus
                 );
             }
-            
+
             setRequests(filteredData);
         } catch (error) {
-            console.error('증명서 신청 내역 조회 중 오류 발생:', error);
+            console.error('❌ 증명서 신청 내역 조회 중 오류 발생:', error);
             alert('데이터를 불러오는 데 실패했습니다.');
         }
     };
@@ -81,16 +94,15 @@ const CertificateRequestPage = () => {
     };
 
     const handleSubmitRequest = async (requestData) => {
-        console.log('증명서 신청:', requestData);
+        console.log('📨 증명서 신청 요청:', requestData);
         try {
-            // TODO: API 호출 - 증명서 신청
-            // await createCertificateRequest(requestData);
-            
+            const result = await createDocumentApplication(requestData);
+            console.log('✅ 신청 완료:', result);
             alert('증명서 신청이 완료되었습니다.');
             handleCloseModal();
             fetchRequests(); // 목록 새로고침
         } catch (error) {
-            console.error('증명서 신청 중 오류 발생:', error);
+            console.error('❌ 증명서 신청 중 오류 발생:', error);
             alert('증명서 신청 중 오류가 발생했습니다.');
         }
     };
@@ -99,13 +111,13 @@ const CertificateRequestPage = () => {
     const getStatusClass = (status) => {
         switch (status) {
             case 'APPROVED':
-            case '승인':
+            case '승인완료':
                 return styles.statusApproved;
             case 'PENDING':
-            case '대기':
+            case '승인대기':
                 return styles.statusPending;
             case 'REJECTED':
-            case '반려':
+            case '승인반려':
                 return styles.statusRejected;
             default:
                 return '';
@@ -119,12 +131,12 @@ const CertificateRequestPage = () => {
                 <td className={tableStyles.tableData}>{item.applicationDate || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.employeeId || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.name || '-'}</td>
-                <td className={tableStyles.tableData}>{item.certificateType || '-'}</td>
+                <td className={tableStyles.tableData}>{getCertificateLabel(item.documentType)}</td>
                 <td className={tableStyles.tableData}>{item.copies || 1}</td>
                 <td className={tableStyles.tableData}>{item.issueDate || '-'}</td>
                 <td className={tableStyles.tableData}>
-                    <span className={getStatusClass(item.status)}>
-                        {item.status || '-'}
+                    <span className={getStatusClass(item.documentStatus)}>
+                        {getStatusLabel(item.documentStatus)}
                     </span>
                 </td>
             </>
