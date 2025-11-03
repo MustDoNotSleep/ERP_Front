@@ -39,34 +39,44 @@ const MENU_BY_ROLE = {
       label: "인사",
       children: [
         {
-          label: "직원조회",
+          label: "직원 조회",
           children: [
-            { label: "조회", to: "/hr/people/search" },
+            { label: "직원 조회", to: "/hr/people/search" },
             { label: "신규직원등록", to: "/hr/people/new" },
+            { label: "부서 인사 정보 조회", to: "/hr/dept/info", audience : "manager" }, //관리자용
           ],
         },
         {
-          label: "인사발령관리",
+          label: "인사발령관리", // 인사, 관리자랑 동일 구성이므로 통합해야 함
           children: [
-            { label: "인사 발령 신청", to: "/hr/appointments/apply" },
-            { label: "인사 발령 승인/조회", to: "/hr/appointments/approve" },
+            { label: "인사 발령 신청", to: "/hr/appointments/apply" }, 
+            { label: "인사 발령 승인", to: "/hr/appointments/approve" },
+            { label: "인사 발령 조회", to: "/me/hr/appointments/history" }, // 사원용
+            {label : "인사발령 조회 관리", to: "/hr/appointments/history", audience : "manager"} // 관리자용
           ],
         },
-        { label: "평가관리", to: "/hr/performance/manage" },
+        { 
+          label: "평가/포상 관리", 
+          children: [
+            {label: "평가 관리", to: "/hr/performance/manage" },
+            {label: "포상 관리", to: "/hr/rewards/manage" },
+          ],
+        },
+        { label: "학력/자격 관리", to: "/me/hr/education-qualification" },
         {
           label: "경력/교육관리",
           children: [
-            { label: "경력", to: "/hr/career" },
+            { label: "경력 관리", to: "/hr/career" },
             { label: "교육과정 등록", to: "/hr/training/create" },
             { label: "교육과정 승인/조회", to: "/hr/training/approvals" },
-            { label: "교육 이수 현황/신청", to: "/hr/training/status" },
+            {label: "교육 이수 현황", to: "/me/hr/training/completions" },
           ],
         },
-        {
-          label: "증명서",
+        { 
+          label: "증명서 관리", 
           children: [
-            { label: "발급 승인/반려", to: "/hr/certificates/issue" },
-            { label: "발급 신청/조회", to: "/hr/certificates/request" },
+            {label: "증명서 신청", to: "/me/hr/certificates/request"},
+            {label: "증명서 발급", to: "/hr/certificates" },
           ],
         },
       ],
@@ -76,16 +86,55 @@ const MENU_BY_ROLE = {
       children: [
         { label: "근태현황 및 리스크 관리", to: "/attendance/status-risk" },
         { label: "출퇴근 기록 관리", to: "/attendance/records" },
-        { label: "연차 및 휴가관리", to: "/attendance/leave" },
+        { 
+          label: "연차 및 휴가관리", 
+          children: [
+            {label: "연차/휴가 현황", to: "/me/attendance/leave/status"},
+            { label: "부서 연차/휴가 현황", to: "/attendance/leave/status" , audience : "manager"}, // 관리자용
+            {label: "연차/휴가 관리", to: "/attendance/leave"},
+          ],
+        },
+        { label: "근무/휴가 현황", to: "/me/attendance/work-leave/status", audience: "employee" }, // 사원용
+        { label: "부서 근무/휴가 현황", to: "/attendance/work-leave/status" , audience : "manager"}, // 관리자용
+        // { label: "파견/출장 관리", to: "/me/attendance/dispatch-travel", audience: "employee" }, // 사원용
+        { label: "파견/출장 관리", to: "/attendance/dispatch-travel" , audience : "manager"}, // 관리자용
+        // { label: "근태 통계", to: "/me/attendance/stats", audience: "employee" }, // 사원용
+        { label: "근태 통계", to: "/attendance/stats", audience : "manager" }, // 관리자용
       ],
     },
     {
       label: "급여",
       children: [
-        { label: "급여정산 및 확정", to: "/payroll/settlement" },
-        { label: "연말정산 관리", to: "/payroll/year-end" },
-        { label: "퇴직금 정산 및 관리", to: "/payroll/severance" },
-        { label: "급여 및 보상기준 설정", to: "/payroll/settings" },
+        { 
+          label: "급여 관리",
+          children: [
+            { label: "급여 명세서", to: "/me/payroll/payslips", audience: "employee" }, // 사원용
+            { label: "급여 증명서 관리", to: "/payroll/certificates" , audience : "manager"}, // 관리자용
+            { label: "급여 및 보상기준 설정", to: "/payroll/settings" },
+            { label: "급여정산 및 확정", to: "/payroll/settlement" },
+          ],
+        },
+        {
+          label: "수당/상여 관리",
+          children: [
+            { label: "수당/상여 신청", to: "/me/payroll/allowances-bonus/apply" }, // 사원용
+            { label: "수당/상여 관리", to: "/payroll/allowances-bonus", audience : "manager" }, // 관리자용
+          ],
+        },
+        { 
+          label: "연말정산 관리", 
+          children: [
+            { label: "연말정산 현황", to: "/me/payroll/year-end"}, // 사원용
+            { label: "연말정산 관리", to: "/payroll/year-end"},
+          ],
+        },
+        { 
+          label: "퇴직금 정산 및 관리", 
+          children: [
+            { label : "퇴직금 관리", to: "/payroll/severance"},
+            { label : "퇴직금 정산 현황", to: "payroll/severance/status", audience: "manager"} // 관리자용
+          ],
+        },
       ],
     },
   ],
@@ -169,8 +218,8 @@ const MENU_BY_ROLE = {
         { label: "급여 명세서", to: "/me/payroll/payslips" },
         { label: "수당/상여 신청", to: "/me/payroll/allowances-bonus/apply" },
         { label: "연말정산", to: "/me/payroll/year-end" },
-        { label: "퇴직금 예상 조회", to: "/me/payroll/severance/estimate" },
-        { label: "재직 급여 확인서", to: "/me/payroll/employment-income-cert" },
+        // { label: "퇴직금 예상 조회", to: "/me/payroll/severance/estimate" },
+        // { label: "재직 급여 확인서", to: "/me/payroll/employment-income-cert" },
       ],
     },
   ],

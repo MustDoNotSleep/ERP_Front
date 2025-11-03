@@ -13,7 +13,7 @@ const eventDates = [
 ];
 
 function MyCalendar() {
-  const [date, setDate] = useState(new Date(2025, 9, 1)); 
+  const [date, setDate] = useState(new Date(2025, 10, 1)); 
 
   const hasEvent = (date) => {
     return eventDates.some(
