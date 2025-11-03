@@ -1,0 +1,19 @@
+ection {
+    margin-top: 24px;
+}
+
+/* 이수 상태 스타일 */
+.status-completed {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.status-in_progress {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.status-not_started {
+    color: #dc3545;
+    font-weight: 500;
+}

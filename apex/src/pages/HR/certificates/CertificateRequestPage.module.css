@@ -1,0 +1,28 @@
+
+.filterSection {
+    margin-bottom: 24px;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    margin-top: 24px;
+    padding: 16px 0;
+}
+
+/* 상태별 스타일 */
+.statusApproved {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.statusPending {
+    color: #ffc107;
+    font-weight: 500;
+}
+
+.statusRejected {
+    color: #dc3545;
+    font-weight: 500;
+}
