@@ -70,7 +70,7 @@ function App() {
             <Route path="people/search" element={<PeopleSearchPage />} />
             <Route path="people/new" element={<PeopleNewPage />} />
             <Route path="appointments/apply" element={<AppointmentApplyPage />} />
-            <Route path="appointments/approve" element={<AppointmentApprovePage />} />
+            <Route path="appointments/approve" element={<AppointmentApprovePage />} />            
             
           </Route>
 

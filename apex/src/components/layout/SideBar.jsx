@@ -69,14 +69,14 @@ const MENU_BY_ROLE = {
             { label: "경력 관리", to: "/hr/career" },
             { label: "교육과정 등록", to: "/hr/training/create" },
             { label: "교육과정 승인/조회", to: "/hr/training/approvals" },
-            {label: "교육 이수 현황", to: "/me/hr/training/completions" },
+            {label: "교육 이수 현황", to: "/hr/training/status" },
           ],
         },
         { 
           label: "증명서 관리", 
           children: [
-            {label: "증명서 신청", to: "/me/hr/certificates/request"},
-            {label: "증명서 발급", to: "/hr/certificates" },
+            {label: "증명서 신청", to: "/hr/certificates/request"},
+            {label: "증명서 발급", to: "/hr/certificates/issue" },
           ],
         },
       ],
