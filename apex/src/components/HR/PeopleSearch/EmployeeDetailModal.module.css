@@ -1,0 +1,73 @@
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+}
+
+.modalContent {
+    min-height: 400px;
+}
+
+.tabMenu {
+    display: flex;
+    gap: 8px;
+    border-bottom: 2px solid #e0e0e0;
+    margin-bottom: 24px;
+}
+
+.tab,
+.activeTab {
+    padding: 12px 20px;
+    border: none;
+    background: none;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 500;
+    color: #666;
+    border-bottom: 3px solid transparent;
+    transition: all 0.2s;
+}
+
+.activeTab {
+    color: #007bff;
+    border-bottom-color: #007bff;
+}
+
+.tab:hover {
+    color: #007bff;
+    background-color: #f8f9fa;
+}
+
+.tabContent {
+    padding: 20px 0;
+}
+
+.basicInfo {
+    padding: 20px;
+}
+
+.infoGrid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 20px;
+}
+
+.infoField {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.infoField label {
+    font-size: 13px;
+    font-weight: 600;
+    color: #666;
+}
+
+.infoField span {
+    font-size: 14px;
+    color: #333;
+    padding: 8px 12px;
+    background-color: #f8f9fa;
+    border-radius: 4px;
+}

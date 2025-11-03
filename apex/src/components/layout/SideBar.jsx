@@ -42,17 +42,13 @@ const MENU_BY_ROLE = {
           label: "직원 조회",
           children: [
             { label: "직원 조회", to: "/hr/people/search" },
-            { label: "신규직원등록", to: "/hr/people/new" },
-            { label: "부서 인사 정보 조회", to: "/hr/dept/info", audience : "manager" }, //관리자용
-          ],
+            { label: "신규직원등록", to: "/hr/people/new" },          ],
         },
         {
-          label: "인사발령관리", // 인사, 관리자랑 동일 구성이므로 통합해야 함
+          label: "인사발령관리",
           children: [
             { label: "인사 발령 신청", to: "/hr/appointments/apply" }, 
             { label: "인사 발령 승인", to: "/hr/appointments/approve" },
-            { label: "인사 발령 조회", to: "/me/hr/appointments/history" }, // 사원용
-            {label : "인사발령 조회 관리", to: "/hr/appointments/history", audience : "manager"} // 관리자용
           ],
         },
         { 
@@ -62,7 +58,7 @@ const MENU_BY_ROLE = {
             {label: "포상 관리", to: "/hr/rewards/manage" },
           ],
         },
-        { label: "학력/자격 관리", to: "/me/hr/education-qualification" },
+        // { label: "학력/자격 관리", to: "/me/hr/education-qualification" },
         {
           label: "경력/교육관리",
           children: [

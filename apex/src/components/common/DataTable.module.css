@@ -62,9 +62,17 @@ th:last-child, td:last-child {border-right: none;}
     background-color: white;
 }
 
-/* 마우스를 올렸을 때 스타일 (선택 사항: 원본 이미지에서는 확인 불가) */
+/* 마우스를 올렸을 때 스타일 - 행 전체에만 적용 */
+.genericTable tbody tr {
+    transition: background-color 0.2s ease;
+}
+
 .genericTable tbody tr:hover {
-    background-color: #f0f0f0;
+    background-color: #f0e6dc;
+}
+
+/* 행에 커서 포인터 적용 */
+.genericTable tbody tr {
     cursor: pointer;
 }
 

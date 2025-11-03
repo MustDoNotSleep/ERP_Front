@@ -6,6 +6,7 @@ import tableStyles from "../../../../components/common/DataTable.module.css";
 // 공통 컴포넌트
 import DataTable from '../../../../components/common/DataTable';
 import PeopleSearchFilter from '../../../../components/HR/PeopleSearch/PeopleSearchFilter.jsx';
+import EmployeeDetailModal from '../../../../components/HR/PeopleSearch/EmployeeDetailModal.jsx';
 
 // API 모듈 - employee, department, position 사용
 import { searchEmployees, fetchEmployees } from '../../../../api/employee';
@@ -49,6 +50,10 @@ const PeopleSearchPage = () => {
         positionName: '',
         departmentName: '',
     });
+
+    // 직원 상세 모달 상태
+    const [selectedEmployeeId, setSelectedEmployeeId] = useState(null);
+    const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
     // --- 초기 데이터 로드 (unique-names API 사용) ---
     useEffect(() => {
@@ -335,21 +340,79 @@ const PeopleSearchPage = () => {
     
     // 4. ✨ (핵심) 테이블 행 렌더링 함수 - API 응답 구조에 맞게 수정
     const renderEmployeeRow = (employee) => { 
+        const rowStyle = {
+            cursor: 'pointer',
+            transition: 'background-color 0.2s'
+        };
+
+        const handleClick = () => {
+            handleRowClick(employee);
+        };
+
         return (
             <>
                 {/* API 응답: id, name, departmentName, positionName, email, internalNumber */}
-                <td className={tableStyles.tableData}>{employee.id || employee.employeeId}</td>
-                <td className={tableStyles.tableData}>{employee.name}</td>
-                <td className={tableStyles.tableData}>{employee.departmentName || employee.department || '-'}</td>
-                <td className={tableStyles.tableData}>{employee.positionName || employee.position || '-'}</td>
-                <td className={tableStyles.tableData}>{employee.email}</td>
-                <td className={tableStyles.tableData}>{employee.internalNumber || employee.extension || '-'}</td>
+                <td 
+                    className={tableStyles.tableData} 
+                    style={rowStyle}
+                    onClick={handleClick}
+                >
+                    {employee.id || employee.employeeId}
+                </td>
+                <td 
+                    className={tableStyles.tableData}
+                    style={rowStyle}
+                    onClick={handleClick}
+                >
+                    {employee.name}
+                </td>
+                <td 
+                    className={tableStyles.tableData}
+                    style={rowStyle}
+                    onClick={handleClick}
+                >
+                    {employee.departmentName || employee.department || '-'}
+                </td>
+                <td 
+                    className={tableStyles.tableData}
+                    style={rowStyle}
+                    onClick={handleClick}
+                >
+                    {employee.positionName || employee.position || '-'}
+                </td>
+                <td 
+                    className={tableStyles.tableData}
+                    style={rowStyle}
+                    onClick={handleClick}
+                >
+                    {employee.email}
+                </td>
+                <td 
+                    className={tableStyles.tableData}
+                    style={rowStyle}
+                    onClick={handleClick}
+                >
+                    {employee.internalNumber || employee.extension || '-'}
+                </td>
             </>
         );
     };
 
+    // 행 클릭 핸들러
+    const handleRowClick = (employee) => {
+        setSelectedEmployeeId(employee.id || employee.employeeId);
+        setIsDetailModalOpen(true);
+    };
+
     return (
         <div className={styles.pageContainer}>
+            
+            {/* 직원 상세 정보 모달 */}
+            <EmployeeDetailModal
+                isOpen={isDetailModalOpen}
+                onClose={() => setIsDetailModalOpen(false)}
+                employeeId={selectedEmployeeId}
+            />
             
             <div className={styles.filterSection}>
                 <PeopleSearchFilter

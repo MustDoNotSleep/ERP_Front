@@ -266,7 +266,13 @@ const AppointmentApprovePage = () => {
             const results = await Promise.all(promises);
             console.log('✅ 처리 결과:', results);
 
-            alert(`선택된 항목이 ${action} 처리되었습니다.`);
+            // 승인 시 발령일자 안내 메시지 추가
+            if (action === '최종승인') {
+                alert(`선택된 항목이 ${action} 처리되었습니다.\n\n발령일자가 되면 직원의 부서, 직급, 팀 정보가 자동으로 업데이트됩니다.\n직원 조회, HrCard, Profile 페이지에서 변경된 정보를 확인하실 수 있습니다.`);
+            } else {
+                alert(`선택된 항목이 ${action} 처리되었습니다.`);
+            }
+            
             setSelectedRows([]); // 선택 해제
             fetchData(); // 목록을 새로고침해서 변경사항을 반영
 
