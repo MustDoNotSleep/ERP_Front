@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { Card, FilterCard, FilterGroup, Select } from '../../../components/common';
+import { Card, Button } from '../../../components/common';
 import api from '../../../api/axios';
+import AttendanceDetailModal from './AttendanceDetailModal';
 import styles from './AttendanceStatus.module.css';
 
 export default function AttendanceStatus() {
@@ -27,47 +28,42 @@ export default function AttendanceStatus() {
   ]);
 
   const [loading, setLoading] = useState(false);
-
-  // 필터 상태
-  const [filters, setFilters] = useState({
-    year: new Date().getFullYear().toString(),
-    month: (new Date().getMonth() + 1).toString()
-  });
+  const [isDetailModalOpen, setIsDetailModalOpen] = useState(false);
 
   // 데이터 로드
   useEffect(() => {
     loadStatistics();
-  }, [filters.year, filters.month]);
-
-  // 필터 변경
-  const handleFilterChange = (field, value) => {
-    setFilters(prev => ({ ...prev, [field]: value }));
-  };
-
-  // 검색
-  const handleSearch = () => {
-    loadStatistics();
-  };
-
-  // 초기화
-  const handleReset = () => {
-    const today = new Date();
-    setFilters({
-      year: today.getFullYear().toString(),
-      month: (today.getMonth() + 1).toString()
-    });
-  };
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   const loadStatistics = async () => {
     try {
       setLoading(true);
       
-      // 선택된 연도 기준으로 통계 조회
-      const year = parseInt(filters.year);
+      // localStorage에서 사용자 정보 가져오기
+      const userStr = localStorage.getItem('user');
+      if (!userStr) {
+        console.error('로그인 정보가 없습니다.');
+        return;
+      }
+      
+      const user = JSON.parse(userStr);
+      const employeeId = user.employeeId;
+      
+      if (!employeeId) {
+        console.error('사원 ID를 찾을 수 없습니다.');
+        return;
+      }
+      
+      // 올해 데이터 기준으로 통계 조회
+      const today = new Date();
+      const year = today.getFullYear();
+      const month = today.getMonth(); // 0-based
       const startOfYear = new Date(year, 0, 1);
       const endOfYear = new Date(year, 11, 31);
       
-      const response = await api.get('/attendances/period', {
+      // 개인 근태 조회 API 사용
+      const response = await api.get(`/attendances/employee/${employeeId}/period`, {
         params: {
           startDate: startOfYear.toISOString().split('T')[0],
           endDate: endOfYear.toISOString().split('T')[0]
@@ -76,10 +72,9 @@ export default function AttendanceStatus() {
 
       const attendancesData = response.data?.data || [];
       
-      // 선택된 월의 통계 계산
-      const selectedMonth = parseInt(filters.month) - 1; // 0-based
-      const firstDayOfMonth = new Date(year, selectedMonth, 1);
-      const lastDayOfMonth = new Date(year, selectedMonth + 1, 0);
+      // 이번 달의 통계 계산
+      const firstDayOfMonth = new Date(year, month, 1);
+      const lastDayOfMonth = new Date(year, month + 1, 0);
       
       const monthAttendances = attendancesData.filter(item => {
         if (!item.checkIn) return false;
@@ -127,74 +122,44 @@ export default function AttendanceStatus() {
     10 // 최소값 10
   );
 
-  // 차트 막대 높이 계산 (최대 높이 200px 기준)
+  // Y축 눈금 계산 (maxValue부터 0까지, 위에서 아래로)
+  const yAxisLabels = Array.from({ length: 6 }, (_, i) => {
+    const step = maxValue / 5;
+    const value = Math.round(step * i);
+    return value;
+  }).reverse(); // [maxValue, x, x, x, x, 0]
+
+  // 차트 막대 높이 계산 (최대 높이 340px 기준으로 여유있게)
   const getBarHeight = (value) => {
-    return (value / maxValue) * 200;
+    return (value / maxValue) * 340;
   };
-
-  // 연도 옵션 (최근 5년)
-  const currentYear = new Date().getFullYear();
-  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
-    value: (currentYear - i).toString(),
-    label: `${currentYear - i}년`
-  }));
-
-  // 월 옵션
-  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
-    value: (i + 1).toString(),
-    label: `${i + 1}월`
-  }));
 
   return (
     <div className={styles.container}>
-      {/* 필터 카드 */}
-      <FilterCard 
-        title="근태 통계"
-        description="월별 근태 현황을 조회하고 통계를 확인합니다."
-        onSearch={handleSearch}
-        onReset={handleReset}
-      >
-        <FilterGroup label="연도">
-          <Select
-            name="year"
-            value={filters.year}
-            onChange={(e) => handleFilterChange('year', e.target.value)}
-            options={yearOptions}
-          />
-        </FilterGroup>
-
-        <FilterGroup label="월">
-          <Select
-            name="month"
-            value={filters.month}
-            onChange={(e) => handleFilterChange('month', e.target.value)}
-            options={monthOptions}
-          />
-        </FilterGroup>
-      </FilterCard>
-
       {/* 근태 통계 섹션 */}
       <div className={styles.statsSection}>
         <div className={styles.statsCard}>
-          <h2 className={styles.sectionTitle}>근태 통계(월)</h2>
+          <div className={styles.statsHeader}>
+            <h2 className={styles.sectionTitle}>근태 통계(월)</h2>
+          </div>
           
           <div className={styles.statsGrid}>
-            <Card>
+            <Card className={styles.statCards}>
               <div className={styles.statValue}>{statistics.present}</div>
               <div className={styles.statLabel}>출석</div>
             </Card>
 
-            <Card>
+            <Card className={styles.statCards}>
               <div className={styles.statValue}>{statistics.late}</div>
               <div className={styles.statLabel}>지각</div>
             </Card>
 
-            <Card>
+            <Card className={styles.statCards}>
               <div className={styles.statValue}>{statistics.absent}</div>
               <div className={styles.statLabel}>결근</div>
             </Card>
 
-            <Card>
+            <Card className={styles.statCards}>
               <div className={styles.statValue}>{statistics.leave}</div>
               <div className={styles.statLabel}>연차</div>
             </Card>
@@ -204,60 +169,57 @@ export default function AttendanceStatus() {
 
       {/* 통계 차트 섹션 */}
       <div className={styles.chartSection}>
-        <Card>
-          <h3 className={styles.chartTitle}>통계</h3>
+        <Card className={styles.statsCards}>
+          <div className={styles.chartHeader}>
+            <h3 className={styles.chartTitle}>통계</h3>
+            <Button 
+              variant="primary"
+              onClick={() => setIsDetailModalOpen(true)}
+              className={styles.detailButton}
+            >
+              📊 세부사항 보기
+            </Button>
+          </div>
           
           {loading ? (
             <div className={styles.loadingMessage}>데이터를 불러오는 중...</div>
           ) : (
-            <div className={styles.chartContainer}>
+            <div className={styles.chartWrapper}>
               {/* Y축 레이블 */}
               <div className={styles.yAxis}>
-                <div className={styles.yLabel}>10</div>
-                <div className={styles.yLabel}>8</div>
-                <div className={styles.yLabel}>6</div>
-                <div className={styles.yLabel}>4</div>
-                <div className={styles.yLabel}>2</div>
-                <div className={styles.yLabel}>0</div>
+                {yAxisLabels.map((label, i) => (
+                  <div key={i} className={styles.yLabel}>{label}</div>
+                ))}
               </div>
 
               {/* 차트 영역 */}
-              <div className={styles.chart}>
-                {/* 그리드 라인 */}
-                <div className={styles.gridLines}>
-                  {[0, 1, 2, 3, 4, 5].map(i => (
-                    <div key={i} className={styles.gridLine} />
-                  ))}
-                </div>
-
+              <div className={styles.chartArea}>
                 {/* 월별 막대 */}
-                <div className={styles.bars}>
-                  {monthlyData.map((data, index) => (
-                    <div key={index} className={styles.barGroup}>
-                      <div className={styles.barContainer}>
-                        {/* 출석 */}
-                        <div 
-                          className={`${styles.bar} ${styles.barPresent}`}
-                          style={{ height: `${getBarHeight(data.present)}px` }}
-                          title={`출석: ${data.present}명`}
-                        />
-                        {/* 지각 */}
-                        <div 
-                          className={`${styles.bar} ${styles.barLate}`}
-                          style={{ height: `${getBarHeight(data.late)}px` }}
-                          title={`지각: ${data.late}명`}
-                        />
-                        {/* 연차 */}
-                        <div 
-                          className={`${styles.bar} ${styles.barLeave}`}
-                          style={{ height: `${getBarHeight(data.leave)}px` }}
-                          title={`연차: ${data.leave}명`}
-                        />
-                      </div>
-                      <div className={styles.monthLabel}>{data.month}</div>
+                {monthlyData.map((data, index) => (
+                  <div key={index} className={styles.monthColumn}>
+                    <div className={styles.barsWrapper}>
+                      {/* 출석 */}
+                      <div 
+                        className={`${styles.bar} ${styles.barPresent}`}
+                        style={{ height: `${getBarHeight(data.present)}px` }}
+                        title={`출석: ${data.present}회`}
+                      />
+                      {/* 지각 */}
+                      <div 
+                        className={`${styles.bar} ${styles.barLate}`}
+                        style={{ height: `${getBarHeight(data.late)}px` }}
+                        title={`지각: ${data.late}회`}
+                      />
+                      {/* 연차 */}
+                      <div 
+                        className={`${styles.bar} ${styles.barLeave}`}
+                        style={{ height: `${getBarHeight(data.leave)}px` }}
+                        title={`연차: ${data.leave}회`}
+                      />
                     </div>
-                  ))}
-                </div>
+                    <div className={styles.monthLabel}>{data.month}</div>
+                  </div>
+                ))}
               </div>
             </div>
           )}
@@ -279,6 +241,12 @@ export default function AttendanceStatus() {
           </div>
         </Card>
       </div>
+
+      {/* 세부사항 모달 */}
+      <AttendanceDetailModal 
+        isOpen={isDetailModalOpen}
+        onClose={() => setIsDetailModalOpen(false)}
+      />
     </div>
   );
 }
