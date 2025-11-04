@@ -24,6 +24,8 @@ import PeopleNewPage from './pages/HR/PeopleSearch/New/PeopleNewPage.jsx';
 import AppointmentApplyPage from './pages/HR/appointments/Apply/AppointmentApplyPage.jsx';
 import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentApprovePage.jsx';
 import AttendanceStatusRisk from './pages/attendance/status/AttendanceStatus.jsx';
+import AttendanceRecords from './pages/attendance/records/AttendanceRecords.jsx';
+
 import { isAuthenticated, logout } from './api/auth';
 
 function App() {
@@ -78,6 +80,7 @@ function App() {
           {/* 근태부분 */}  
           <Route path="/attendance">
             <Route path="status-risk" element={<AttendanceStatusRisk />} />
+            <Route path="records" element={<AttendanceRecords />} />
           </Route>
 
           {/* 급여부분 */}  

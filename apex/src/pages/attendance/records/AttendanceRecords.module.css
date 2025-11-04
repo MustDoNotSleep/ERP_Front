@@ -1,0 +1,190 @@
+/* 근태 현황 페이지 스타일 */
+
+.container {
+  padding: 1.5rem;
+}
+
+/* 검색 버튼 */
+.searchButton {
+  padding: 0.625rem 1rem;
+  background-color: #875c4e;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: background-color 0.2s;
+  white-space: nowrap;
+}
+
+.searchButton:hover {
+  background-color: #6d4a3e;
+}
+
+/* 기간 선택 전체 래퍼 */
+.dateRangeWrapper {
+  grid-column: 1 / -1;
+  margin-top: 1rem;
+  padding-top: 1rem;
+  border-top: 1px solid #e9ecef;
+}
+
+.dateLabel {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: 600;
+  color: #495057;
+  margin-bottom: 0.5rem;
+}
+
+/* 날짜 범위 선택 */
+.dateRangeContainer {
+  display: flex;
+  gap: 1.5rem;
+  align-items: center;
+  flex-wrap: wrap;
+}
+
+.quickButtons {
+  display: flex;
+  gap: 0.5rem;
+}
+
+.quickButton {
+  padding: 0.5rem 1rem;
+  background-color: #f8f9fa;
+  color: #495057;
+  border: 1px solid #dee2e6;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: all 0.2s;
+  white-space: nowrap;
+}
+
+.quickButton:hover {
+  background-color: #875c4e;
+  color: white;
+  border-color: #875c4e;
+}
+
+.dateInputs {
+  display: flex;
+  gap: 0.75rem;
+  align-items: center;
+}
+
+.dateSeparator {
+  color: #6c757d;
+  font-weight: 500;
+  font-size: 1rem;
+}
+
+/* 직원 검색 드롭다운 */
+.searchDropdown {
+  position: relative;
+}
+
+.employeeList {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  right: 0;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  max-height: 200px;
+  overflow-y: auto;
+  z-index: 1000;
+  margin-top: 4px;
+  box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+}
+
+.employeeItem {
+  padding: 0.75rem;
+  cursor: pointer;
+  border-bottom: 1px solid #f0f0f0;
+}
+
+.employeeItem:hover {
+  background-color: #f5f5f5;
+}
+
+.employeeName {
+  font-weight: bold;
+}
+
+.employeeInfo {
+  font-size: 0.875rem;
+  color: #666;
+}
+
+/* 통계 카드 그리드 */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 1rem;
+  margin-bottom: 1.5rem;
+}
+
+.statCard {
+  text-align: center;
+  padding: 1rem;
+}
+
+.statLabel {
+  font-size: 0.875rem;
+  color: #666;
+  margin-bottom: 0.5rem;
+}
+
+.statValue {
+  font-size: 1.75rem;
+  font-weight: bold;
+}
+
+.statValueTotal {
+  color: #333;
+}
+
+.statValueNormal {
+  color: #4caf50;
+}
+
+.statValueWarning {
+  color: #ff9800;
+}
+
+.statValueDanger {
+  color: #f44336;
+}
+
+/* 에러 메시지 */
+.errorMessage {
+  padding: 1rem;
+  background-color: #fee;
+  color: #c33;
+  border-radius: 4px;
+  margin-bottom: 1rem;
+}
+
+/* 로딩 메시지 */
+.loadingMessage {
+  padding: 3rem;
+  text-align: center;
+  color: #666;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 1.5rem;
+}
+
+.pageInfo {
+  padding: 0 1rem;
+  font-size: 0.875rem;
+}

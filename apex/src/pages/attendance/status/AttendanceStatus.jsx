@@ -1,139 +1,43 @@
 import React, { useState, useEffect } from 'react';
-import { updateAttendance } from '../../../api/attendance';
-import { FilterCard, FilterGroup, Input, Select, DataTable, Card } from '../../../components/common';
-import EmployeeSearchModal from '../../../components/common/EmployeeSearchModal';
-import AttendanceEditModal from '../../../components/attendance/AttendanceEditModal';
+import { Card, FilterCard, FilterGroup, Select } from '../../../components/common';
 import api from '../../../api/axios';
 import styles from './AttendanceStatus.module.css';
-import tableStyles from '../../../components/common/DataTable.module.css';
 
-export default function AttendanceStatusRisk() {
-  const [attendances, setAttendances] = useState([]);
-  const [loading, setLoading] = useState(false);
-  const [error, setError] = useState(null);
-  
-  // 직원 검색 모달
-  const [isEmployeeSearchOpen, setIsEmployeeSearchOpen] = useState(false);
-  
-  // 수정 모달 관련
-  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
-  const [selectedRecord, setSelectedRecord] = useState(null);
-  const [editForm, setEditForm] = useState({
-    checkInTime: '',
-    checkOutTime: '',
-    status: '',
-    remarks: ''
+export default function AttendanceStatus() {
+  const [statistics, setStatistics] = useState({
+    present: 0,    // 출석
+    late: 0,       // 지각
+    absent: 0,     // 결근
+    leave: 0       // 연차
   });
-  
+
+  const [monthlyData, setMonthlyData] = useState([
+    { month: '1월', present: 0, late: 0, leave: 0 },
+    { month: '2월', present: 0, late: 0, leave: 0 },
+    { month: '3월', present: 0, late: 0, leave: 0 },
+    { month: '4월', present: 0, late: 0, leave: 0 },
+    { month: '5월', present: 0, late: 0, leave: 0 },
+    { month: '6월', present: 0, late: 0, leave: 0 },
+    { month: '7월', present: 0, late: 0, leave: 0 },
+    { month: '8월', present: 0, late: 0, leave: 0 },
+    { month: '9월', present: 0, late: 0, leave: 0 },
+    { month: '10월', present: 0, late: 0, leave: 0 },
+    { month: '11월', present: 0, late: 0, leave: 0 },
+    { month: '12월', present: 0, late: 0, leave: 0 }
+  ]);
+
+  const [loading, setLoading] = useState(false);
+
   // 필터 상태
   const [filters, setFilters] = useState({
-    employeeName: '',
-    employeeId: '',
-    department: '',
-    startDate: '',
-    endDate: '',
-    status: ''
+    year: new Date().getFullYear().toString(),
+    month: (new Date().getMonth() + 1).toString()
   });
 
-  // 페이지네이션
-  const [currentPage, setCurrentPage] = useState(0);
-  const [totalPages, setTotalPages] = useState(0);
-  const pageSize = 10;
-
   // 데이터 로드
-  const loadAttendances = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-      
-      let response;
-      
-      // 날짜 범위가 설정되어 있으면 해당 범위로 조회, 없으면 최근 30일
-      if (filters.startDate && filters.endDate) {
-        response = await api.get('/attendances/period', {
-          params: {
-            startDate: filters.startDate,
-            endDate: filters.endDate
-          }
-        });
-      } else {
-        // 기본적으로 최근 30일 데이터 조회
-        const endDate = new Date();
-        const startDate = new Date();
-        startDate.setDate(startDate.getDate() - 30);
-        
-        response = await api.get('/attendances/period', {
-          params: {
-            startDate: startDate.toISOString().split('T')[0],
-            endDate: endDate.toISOString().split('T')[0]
-          }
-        });
-      }
-      
-      // API 응답 구조에 맞게 데이터 설정 및 필드 매핑
-      const attendancesData = response.data?.data || [];
-      const mappedData = attendancesData.map(item => ({
-        id: item.id,
-        employeeId: item.employeeId,
-        employeeName: item.employeeName,
-        departmentName: item.departmentName,
-        // 날짜/시간 필드 매핑
-        attendanceDate: item.checkIn ? item.checkIn.split('T')[0] : null,
-        checkInTime: item.checkIn ? item.checkIn.split('T')[1]?.substring(0, 5) : null,
-        checkOutTime: item.checkOut ? item.checkOut.split('T')[1]?.substring(0, 5) : null,
-        // 근태 타입 및 기타 필드 매핑
-        attendanceStatus: item.attendanceType,
-        attendanceType: item.attendanceType,
-        workingHours: item.workHours,
-        workHours: item.workHours,
-        overtimeHours: item.overtimeHours,
-        remarks: item.note,
-        note: item.note,
-        createdAt: item.createdAt
-      }));
-      
-      setAttendances(mappedData);
-      
-      // 페이지네이션 처리 (백엔드가 배열만 반환하므로 클라이언트에서 처리)
-      const totalItems = mappedData.length;
-      setTotalPages(Math.ceil(totalItems / pageSize));
-      
-    } catch (err) {
-      console.error('근태 데이터 조회 실패:', err);
-      setError('근태 데이터를 불러오는데 실패했습니다.');
-      setAttendances([]);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   useEffect(() => {
-    loadAttendances();
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [currentPage, filters.startDate, filters.endDate]);
-
-  // 직원 선택 핸들러
-  const handleEmployeeSelect = (employee) => {
-    setFilters(prev => ({
-      ...prev,
-      employeeName: employee.name || '',
-      employeeId: employee.id?.toString() || '',
-      department: employee.departmentName || ''
-    }));
-  };
-
-  // 빠른 날짜 선택
-  const handleQuickDateSelect = (days) => {
-    const endDate = new Date();
-    const startDate = new Date();
-    startDate.setDate(startDate.getDate() - days);
-    
-    setFilters(prev => ({
-      ...prev,
-      startDate: startDate.toISOString().split('T')[0],
-      endDate: endDate.toISOString().split('T')[0]
-    }));
-  };
+    loadStatistics();
+  }, [filters.year, filters.month]);
 
   // 필터 변경
   const handleFilterChange = (field, value) => {
@@ -142,315 +46,239 @@ export default function AttendanceStatusRisk() {
 
   // 검색
   const handleSearch = () => {
-    setCurrentPage(0);
-    loadAttendances();
+    loadStatistics();
   };
 
   // 초기화
   const handleReset = () => {
+    const today = new Date();
     setFilters({
-      employeeName: '',
-      employeeId: '',
-      department: '',
-      startDate: '',
-      endDate: '',
-      status: ''
+      year: today.getFullYear().toString(),
+      month: (today.getMonth() + 1).toString()
     });
-    setCurrentPage(0);
   };
 
-  // 행 클릭 - 수정 모달 열기
-  const handleRowClick = (record) => {
-    setSelectedRecord(record);
-    setEditForm({
-      checkInTime: record.checkInTime || '',
-      checkOutTime: record.checkOutTime || '',
-      status: record.attendanceType || '',
-      remarks: record.note || ''
-    });
-    setIsEditModalOpen(true);
-  };
-
-  // 수정 폼 변경
-  const handleEditFormChange = (field, value) => {
-    setEditForm(prev => ({ ...prev, [field]: value }));
-  };
-
-  // 수정 저장
-  const handleEditSave = async () => {
+  const loadStatistics = async () => {
     try {
-      if (!selectedRecord?.id) {
-        alert('근태 기록 ID가 없습니다.');
-        return;
-      }
+      setLoading(true);
+      
+      // 선택된 연도 기준으로 통계 조회
+      const year = parseInt(filters.year);
+      const startOfYear = new Date(year, 0, 1);
+      const endOfYear = new Date(year, 11, 31);
+      
+      const response = await api.get('/attendances/period', {
+        params: {
+          startDate: startOfYear.toISOString().split('T')[0],
+          endDate: endOfYear.toISOString().split('T')[0]
+        }
+      });
 
-      // API 요청 데이터 구조 맞추기
-      const updateData = {
-        checkInTime: editForm.checkInTime,
-        checkOutTime: editForm.checkOutTime,
-        status: editForm.status,
-        remarks: editForm.remarks
+      const attendancesData = response.data?.data || [];
+      
+      // 선택된 월의 통계 계산
+      const selectedMonth = parseInt(filters.month) - 1; // 0-based
+      const firstDayOfMonth = new Date(year, selectedMonth, 1);
+      const lastDayOfMonth = new Date(year, selectedMonth + 1, 0);
+      
+      const monthAttendances = attendancesData.filter(item => {
+        if (!item.checkIn) return false;
+        const itemDate = new Date(item.checkIn);
+        return itemDate >= firstDayOfMonth && itemDate <= lastDayOfMonth;
+      });
+
+      const stats = {
+        present: monthAttendances.filter(a => a.attendanceType === '정상출근').length,
+        late: monthAttendances.filter(a => a.attendanceType === '지각').length,
+        absent: monthAttendances.filter(a => a.attendanceType === '결근').length,
+        leave: monthAttendances.filter(a => a.attendanceType === '연차').length
       };
 
-      await updateAttendance(selectedRecord.id, updateData);
-      alert('근태 기록이 수정되었습니다.');
-      setIsEditModalOpen(false);
-      loadAttendances(); // 목록 새로고침
+      setStatistics(stats);
+
+      // 월별 데이터 계산
+      const monthlyStats = Array.from({ length: 12 }, (_, i) => {
+        const monthData = attendancesData.filter(item => {
+          if (!item.checkIn) return false;
+          const itemMonth = new Date(item.checkIn).getMonth();
+          return itemMonth === i;
+        });
+
+        return {
+          month: `${i + 1}월`,
+          present: monthData.filter(a => a.attendanceType === '정상출근').length,
+          late: monthData.filter(a => a.attendanceType === '지각').length,
+          leave: monthData.filter(a => a.attendanceType === '연차').length
+        };
+      });
+
+      setMonthlyData(monthlyStats);
+
     } catch (err) {
-      console.error('근태 수정 실패:', err);
-      const errorMessage = err.response?.data?.message || '근태 기록 수정에 실패했습니다.';
-      alert(errorMessage);
+      console.error('통계 데이터 조회 실패:', err);
+    } finally {
+      setLoading(false);
     }
   };
 
-  // 필터링된 데이터 (클라이언트 측 필터링 + 페이지네이션)
-  const filteredAttendances = attendances.filter(record => {
-    if (filters.employeeName && !record.employeeName?.includes(filters.employeeName)) return false;
-    if (filters.employeeId && !record.employeeId?.toString().includes(filters.employeeId)) return false;
-    if (filters.department && !record.departmentName?.includes(filters.department)) return false;
-    if (filters.status && record.attendanceType !== filters.status) return false;
-    return true;
-  });
+  // 차트의 최대값 계산 (Y축 스케일용)
+  const maxValue = Math.max(
+    ...monthlyData.flatMap(d => [d.present, d.late, d.leave]),
+    10 // 최소값 10
+  );
 
-  // 페이지네이션 적용
-  const startIndex = currentPage * pageSize;
-  const endIndex = startIndex + pageSize;
-  const paginatedAttendances = filteredAttendances.slice(startIndex, endIndex);
-
-  // 실제 페이지 수 업데이트
-  useEffect(() => {
-    setTotalPages(Math.ceil(filteredAttendances.length / pageSize));
-  }, [filteredAttendances.length]);
-
-  // 테이블 헤더 정의
-  const tableHeaders = [
-    { label: '선택' },
-    { label: '근태일자' },
-    { label: '근태일시' },
-    { label: '사번' },
-    { label: '이름' },
-    { label: '소속' },
-    { label: '결과' },
-    { label: '총 근무시간' }
-  ];
-
-  // 테이블 행 렌더링
-  const renderTableRow = (record) => {
-    // 날짜 포맷팅 (YYYY-MM-DD를 YYYY/MM/DD로)
-    const formattedDate = record.attendanceDate 
-      ? record.attendanceDate.replace(/-/g, '/')
-      : 'YYYY/MM/DD';
-    
-    return (
-      <>
-        <td className={tableStyles.tableData}>
-          <input type="checkbox" />
-        </td>
-        <td className={tableStyles.tableData}>{formattedDate}</td>
-        <td className={tableStyles.tableData}>
-          {record.checkInTime && record.checkOutTime 
-            ? `${record.checkInTime} - ${record.checkOutTime}` 
-            : record.checkInTime 
-              ? `${record.checkInTime} - 미퇴근`
-              : '-'}
-        </td>
-        <td className={tableStyles.tableData}>{record.employeeId || '-'}</td>
-        <td className={tableStyles.tableData}>{record.employeeName || '-'}</td>
-        <td className={tableStyles.tableData}>{record.departmentName || '-'}</td>
-        <td className={tableStyles.tableData}>{record.attendanceType || '-'}</td>
-        <td className={tableStyles.tableData}>{record.workHours ? `${record.workHours}시간` : '-'}</td>
-      </>
-    );
+  // 차트 막대 높이 계산 (최대 높이 200px 기준)
+  const getBarHeight = (value) => {
+    return (value / maxValue) * 200;
   };
 
-  // 근태 구분 옵션
-  const statusOptions = [
-    { value: '', label: '전체' },
-    { value: '정상출근', label: '정상출근' },
-    { value: '지각', label: '지각' },
-    { value: '조퇴', label: '조퇴' },
-    { value: '결근', label: '결근' },
-    { value: '재택근무', label: '재택근무' },
-    { value: '야근', label: '야근' },
-    { value: '주말근무', label: '주말근무' }
-  ];
+  // 연도 옵션 (최근 5년)
+  const currentYear = new Date().getFullYear();
+  const yearOptions = Array.from({ length: 5 }, (_, i) => ({
+    value: (currentYear - i).toString(),
+    label: `${currentYear - i}년`
+  }));
+
+  // 월 옵션
+  const monthOptions = Array.from({ length: 12 }, (_, i) => ({
+    value: (i + 1).toString(),
+    label: `${i + 1}월`
+  }));
 
   return (
     <div className={styles.container}>
       {/* 필터 카드 */}
       <FilterCard 
-        title="근태 현황 및 리스크 관리"
-        description="직원들의 출퇴근 현황을 조회하고 근태 리스크를 관리합니다."
+        title="근태 통계"
+        description="월별 근태 현황을 조회하고 통계를 확인합니다."
         onSearch={handleSearch}
         onReset={handleReset}
       >
-        {/* 첫 번째 줄: 직원 정보 필터 */}
-        <FilterGroup label="사번">
-          <div style={{ display: 'flex', gap: '0.5rem' }}>
-            <Input
-              type="text"
-              name="employeeId"
-              value={filters.employeeId}
-              onChange={(e) => handleFilterChange('employeeId', e.target.value)}
-              placeholder="사번 입력"
-              style={{ flex: 1 }}
-            />
-            <button
-              type="button"
-              onClick={() => setIsEmployeeSearchOpen(true)}
-              className={styles.searchButton}
-            >
-              직원 검색
-            </button>
-          </div>
-        </FilterGroup>
-
-        <FilterGroup label="이름">
-          <Input
-            type="text"
-            name="employeeName"
-            value={filters.employeeName}
-            onChange={(e) => handleFilterChange('employeeName', e.target.value)}
-            placeholder="이름 입력"
-          />
-        </FilterGroup>
-
-        <FilterGroup label="부서">
-          <Input
-            type="text"
-            name="department"
-            value={filters.department}
-            onChange={(e) => handleFilterChange('department', e.target.value)}
-            placeholder="부서 입력"
-          />
-        </FilterGroup>
-
-        <FilterGroup label="근태 구분">
+        <FilterGroup label="연도">
           <Select
-            name="status"
-            value={filters.status}
-            onChange={(e) => handleFilterChange('status', e.target.value)}
-            options={statusOptions}
+            name="year"
+            value={filters.year}
+            onChange={(e) => handleFilterChange('year', e.target.value)}
+            options={yearOptions}
           />
         </FilterGroup>
 
-        {/* 두 번째 줄: 기간 선택 */}
-        <div className={styles.dateRangeWrapper}>
-          <label className={styles.dateLabel}>기간 선택</label>
-          <div className={styles.dateRangeContainer}>
-            <div className={styles.quickButtons}>
-              <button
-                type="button"
-                onClick={() => handleQuickDateSelect(30)}
-                className={styles.quickButton}
-              >
-                1개월
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDateSelect(90)}
-                className={styles.quickButton}
-              >
-                3개월
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDateSelect(180)}
-                className={styles.quickButton}
-              >
-                6개월
-              </button>
-              <button
-                type="button"
-                onClick={() => handleQuickDateSelect(365)}
-                className={styles.quickButton}
-              >
-                1년
-              </button>
-            </div>
-            <div className={styles.dateInputs}>
-              <Input
-                type="date"
-                name="startDate"
-                value={filters.startDate}
-                onChange={(e) => handleFilterChange('startDate', e.target.value)}
-              />
-              <span className={styles.dateSeparator}>~</span>
-              <Input
-                type="date"
-                name="endDate"
-                value={filters.endDate}
-                onChange={(e) => handleFilterChange('endDate', e.target.value)}
-              />
-            </div>
-          </div>
-        </div>
+        <FilterGroup label="월">
+          <Select
+            name="month"
+            value={filters.month}
+            onChange={(e) => handleFilterChange('month', e.target.value)}
+            options={monthOptions}
+          />
+        </FilterGroup>
       </FilterCard>
 
-      {/* 에러 메시지 */}
-      {error && (
-        <div className={styles.errorMessage}>
-          {error}
-        </div>
-      )}
+      {/* 근태 통계 섹션 */}
+      <div className={styles.statsSection}>
+        <div className={styles.statsCard}>
+          <h2 className={styles.sectionTitle}>근태 통계(월)</h2>
+          
+          <div className={styles.statsGrid}>
+            <Card>
+              <div className={styles.statValue}>{statistics.present}</div>
+              <div className={styles.statLabel}>출석</div>
+            </Card>
 
-      {/* 테이블 */}
-      {loading ? (
+            <Card>
+              <div className={styles.statValue}>{statistics.late}</div>
+              <div className={styles.statLabel}>지각</div>
+            </Card>
+
+            <Card>
+              <div className={styles.statValue}>{statistics.absent}</div>
+              <div className={styles.statLabel}>결근</div>
+            </Card>
+
+            <Card>
+              <div className={styles.statValue}>{statistics.leave}</div>
+              <div className={styles.statLabel}>연차</div>
+            </Card>
+          </div>
+        </div>
+      </div>
+
+      {/* 통계 차트 섹션 */}
+      <div className={styles.chartSection}>
         <Card>
-          <div className={styles.loadingMessage}>
-            데이터를 불러오는 중...
+          <h3 className={styles.chartTitle}>통계</h3>
+          
+          {loading ? (
+            <div className={styles.loadingMessage}>데이터를 불러오는 중...</div>
+          ) : (
+            <div className={styles.chartContainer}>
+              {/* Y축 레이블 */}
+              <div className={styles.yAxis}>
+                <div className={styles.yLabel}>10</div>
+                <div className={styles.yLabel}>8</div>
+                <div className={styles.yLabel}>6</div>
+                <div className={styles.yLabel}>4</div>
+                <div className={styles.yLabel}>2</div>
+                <div className={styles.yLabel}>0</div>
+              </div>
+
+              {/* 차트 영역 */}
+              <div className={styles.chart}>
+                {/* 그리드 라인 */}
+                <div className={styles.gridLines}>
+                  {[0, 1, 2, 3, 4, 5].map(i => (
+                    <div key={i} className={styles.gridLine} />
+                  ))}
+                </div>
+
+                {/* 월별 막대 */}
+                <div className={styles.bars}>
+                  {monthlyData.map((data, index) => (
+                    <div key={index} className={styles.barGroup}>
+                      <div className={styles.barContainer}>
+                        {/* 출석 */}
+                        <div 
+                          className={`${styles.bar} ${styles.barPresent}`}
+                          style={{ height: `${getBarHeight(data.present)}px` }}
+                          title={`출석: ${data.present}명`}
+                        />
+                        {/* 지각 */}
+                        <div 
+                          className={`${styles.bar} ${styles.barLate}`}
+                          style={{ height: `${getBarHeight(data.late)}px` }}
+                          title={`지각: ${data.late}명`}
+                        />
+                        {/* 연차 */}
+                        <div 
+                          className={`${styles.bar} ${styles.barLeave}`}
+                          style={{ height: `${getBarHeight(data.leave)}px` }}
+                          title={`연차: ${data.leave}명`}
+                        />
+                      </div>
+                      <div className={styles.monthLabel}>{data.month}</div>
+                    </div>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* 범례 */}
+          <div className={styles.legend}>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendColor} ${styles.legendPresent}`} />
+              <span>출석</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendColor} ${styles.legendLate}`} />
+              <span>지각</span>
+            </div>
+            <div className={styles.legendItem}>
+              <div className={`${styles.legendColor} ${styles.legendLeave}`} />
+              <span>연차</span>
+            </div>
           </div>
         </Card>
-      ) : (
-        <DataTable
-          headers={tableHeaders}
-          data={paginatedAttendances}
-          renderRow={renderTableRow}
-          onRowClick={handleRowClick}
-          emptyMessage="조회된 근태 기록이 없습니다."
-        />
-      )}
-
-      {/* 페이지네이션 */}
-      {totalPages > 0 && (
-        <div className={styles.pagination}>
-          <button
-            className="btn btn-light btn-sm"
-            onClick={() => setCurrentPage(prev => Math.max(0, prev - 1))}
-            disabled={currentPage === 0}
-          >
-            ◀
-          </button>
-          <span className={styles.pageInfo}>
-            {currentPage + 1} / {totalPages}
-          </span>
-          <button
-            className="btn btn-light btn-sm"
-            onClick={() => setCurrentPage(prev => Math.min(totalPages - 1, prev + 1))}
-            disabled={currentPage >= totalPages - 1}
-          >
-            ▶
-          </button>
-        </div>
-      )}
-
-      {/* 근태 기록 수정 모달 */}
-      <AttendanceEditModal
-        isOpen={isEditModalOpen}
-        onClose={() => setIsEditModalOpen(false)}
-        selectedRecord={selectedRecord}
-        editForm={editForm}
-        onFormChange={handleEditFormChange}
-        onSave={handleEditSave}
-        statusOptions={statusOptions}
-      />
-
-      {/* 직원 검색 모달 */}
-      <EmployeeSearchModal
-        isOpen={isEmployeeSearchOpen}
-        onClose={() => setIsEmployeeSearchOpen(false)}
-        onSelectEmployee={handleEmployeeSelect}
-      />
+      </div>
     </div>
   );
 }
