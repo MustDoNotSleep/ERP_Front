@@ -21,12 +21,9 @@ api.interceptors.request.use(config => {
   
   if (token) {
     config.headers.Authorization = `Bearer ${token}`;
-    console.log('🔐 토큰 발견, Authorization 헤더 추가:', token.substring(0, 20) + '...');
   } else if (!isLoginRequest) {
     console.warn('⚠️ localStorage에 토큰이 없습니다. 로그인이 필요합니다.');
   }
-  
-  console.log('📤 API 요청:', config.method?.toUpperCase(), config.url);
   return config;
 }, error => {
   return Promise.reject(error);
@@ -35,7 +32,6 @@ api.interceptors.request.use(config => {
 // 응답 인터셉터 추가 (에러 처리)
 api.interceptors.response.use(
   response => {
-    console.log('✅ API 성공:', response.config.url, response.status);
     return response;
   },
   error => {

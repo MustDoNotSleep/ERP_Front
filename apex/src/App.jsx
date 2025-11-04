@@ -25,6 +25,7 @@ import AppointmentApplyPage from './pages/HR/appointments/Apply/AppointmentApply
 import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentApprovePage.jsx';
 import AttendanceStatusRisk from './pages/attendance/status/AttendanceStatus.jsx';
 import AttendanceRecords from './pages/attendance/records/AttendanceRecords.jsx';
+import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
 
 import { isAuthenticated, logout } from './api/auth';
 
@@ -32,7 +33,6 @@ function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
   const [isLoggedIn, setIsLoggedIn] = useState(() => {
     const hasToken = isAuthenticated();
-    console.log('🔍 App 초기화 - 토큰 존재 여부:', hasToken);
     return hasToken;
   });
   
@@ -41,12 +41,10 @@ function App() {
   // 컴포넌트 마운트 시 토큰 확인
   useEffect(() => {
     const hasToken = isAuthenticated();
-    console.log('🔍 App useEffect - 토큰 확인:', hasToken);
     setIsLoggedIn(hasToken);
   }, []);
   
   const handleLogout = () => {
-    console.log('🚪 로그아웃 처리');
     logout(); // localStorage 토큰 삭제
     setIsLoggedIn(false);
   };
@@ -79,8 +77,9 @@ function App() {
 
           {/* 근태부분 */}  
           <Route path="/attendance">
-            <Route path="status-risk" element={<AttendanceStatusRisk />} />
-            <Route path="records" element={<AttendanceRecords />} />
+            <Route path="commute/me" element={<AttendanceStatusRisk />} />
+            <Route path="manage" element={<AttendanceRecords />} />
+            <Route path="leave/status/me" element={<LeaveStatus />} />
           </Route>
 
           {/* 급여부분 */}  

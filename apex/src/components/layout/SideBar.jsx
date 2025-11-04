@@ -80,21 +80,17 @@ const MENU_BY_ROLE = {
     {
       label: "근태",
       children: [
-        { label: "근태현황", to: "/attendance/status-risk" },
-        { label: "출퇴근 기록 관리", to: "/attendance/records" },
+        { label: "근태현황", to: "/attendance/commute/me" },
+        { label: "출퇴근 기록 관리", to: "/attendance/manage", audience : "manager" },
         { 
-          label: "연차 및 휴가관리", 
+          label: "연차 및 휴가신청", 
           children: [
-            {label: "연차/휴가 현황", to: "/me/attendance/leave/status"},
-            { label: "부서 연차/휴가 현황", to: "/attendance/leave/status" , audience : "manager"}, // 관리자용
-            {label: "연차/휴가 관리", to: "/attendance/leave"},
+            {label: "연차/휴가 신청", to: "/attendance/leave/application"},
+            {label: "연차/휴가 현황", to: "/attendance/leave/status/me"},
           ],
         },
-        { label: "근무/휴가 현황", to: "/me/attendance/work-leave/status", audience: "employee" }, // 사원용
-        { label: "부서 근무/휴가 현황", to: "/attendance/work-leave/status" , audience : "manager"}, // 관리자용
-        // { label: "파견/출장 관리", to: "/me/attendance/dispatch-travel", audience: "employee" }, // 사원용
+        {label: "연차 관리", to: "/attendance/leave/manage", audience : "manager"},
         { label: "파견/출장 관리", to: "/attendance/dispatch-travel" , audience : "manager"}, // 관리자용
-        // { label: "근태 통계", to: "/me/attendance/stats", audience: "employee" }, // 사원용
         { label: "근태 통계", to: "/attendance/stats", audience : "manager" }, // 관리자용
       ],
     },
@@ -128,7 +124,7 @@ const MENU_BY_ROLE = {
           label: "퇴직금 정산 및 관리", 
           children: [
             { label : "퇴직금 관리", to: "/payroll/severance"},
-            { label : "퇴직금 정산 현황", to: "payroll/severance/status", audience: "manager"} // 관리자용
+            { label : "퇴직금 정산 현황", to: "/payroll/severance/status", audience: "manager"} // 관리자용
           ],
         },
       ],

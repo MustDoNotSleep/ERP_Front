@@ -34,7 +34,7 @@ const DataTable = ({ headers, data, onRowClick, renderRow, emptyMessage = '데�
                                 onClick={() => onRowClick && onRowClick(item)} // 행 클릭 이벤트 추가
                             >
                                 {/* 핵심: 각 행의 내용을 외부에서 정의한 함수로 렌더링 */}
-                                {renderRow(item)} 
+                                {renderRow(item, index)} 
                             </tr>
                         ))
                     )}

@@ -155,3 +155,22 @@ export const fetchLeaveBalance = async (employeeId) => {
         throw error;
     }
 };
+
+/**
+ * 특정 직원의 연도별 휴가 통계
+ * GET /leaves/employee/{employeeId}/statistics
+ * @param {number} employeeId - 직원 ID
+ * @param {number} year - 조회 년도
+ * @returns {Promise<object>} 휴가 통계
+ */
+export const fetchLeaveStatistics = async (employeeId, year) => {
+    try {
+        const response = await api.get(`/leaves/employee/${employeeId}/statistics`, {
+            params: { year }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching leave statistics:', error);
+        throw error;
+    }
+};
