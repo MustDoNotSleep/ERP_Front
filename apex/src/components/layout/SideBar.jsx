@@ -45,10 +45,10 @@ const MENU_BY_ROLE = {
             { label: "신규직원등록", to: "/hr/people/new" },          ],
         },
         {
-          label: "인사발령관리",
+          label: "인사발령",
           children: [
             { label: "인사 발령 신청", to: "/hr/appointments/apply" }, 
-            { label: "인사 발령 승인", to: "/hr/appointments/approve" },
+            { label: "인사 발령 관리", to: "/hr/appointments/approve" },
           ],
         },
         { 
@@ -143,7 +143,7 @@ const MENU_BY_ROLE = {
           label: "인사발령관리",
           children: [
             { label: "인사 발령 신청", to: "/hr/appointments/apply" },
-            { label: "인사 발령 승인", to: "/hr/appointments/approve-only" },
+            { label: "인사 발령 관리", to: "/hr/appointments/approve-only" },
             { label: "인사 발령 조회", to: "/hr/appointments/history" },
           ],
         },

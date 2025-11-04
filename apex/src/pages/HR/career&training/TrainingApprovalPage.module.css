@@ -76,7 +76,3 @@
     color: var(--color-text-light);
     font-size: var(--font-size-sm);
 }
-
-.pageContainer {
-    padding: var(--spacing-xl);
-}
