@@ -54,6 +54,7 @@ CardTitle.propTypes = {
  */
 export const FilterCard = ({
   title,
+  description,
   onSearch,
   onReset,
   children,
@@ -67,6 +68,7 @@ export const FilterCard = ({
   return (
     <div className={cardClasses}>
       {title && <div className={styles['filter-title']}>{title}</div>}
+      {description && <div className={styles['filter-description']}>{description}</div>}
       <div className={styles['filter-content']}>
         {children}
         <div className={styles['filter-actions']}>
@@ -96,6 +98,7 @@ export const FilterCard = ({
 
 FilterCard.propTypes = {
   title: PropTypes.string,
+  description: PropTypes.string,
   onSearch: PropTypes.func,
   onReset: PropTypes.func,
   children: PropTypes.node.isRequired,
