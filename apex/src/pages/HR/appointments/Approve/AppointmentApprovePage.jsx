@@ -3,7 +3,7 @@ import styles from "./AppointmentApprovePage.module.css";
 import tableStyles from "../../../../components/common/DataTable.module.css";
 import DataTable from '../../../../components/common/DataTable';
 import AppointmentApproveFilter from '../../../../components/HR/AppointmentApprove/AppointmentApproveFilter';
-import EmployeeSearchModal from '../../../../components/HR/AppointmentApply/EmployeeSearchModal';
+import EmployeeSearchModal from '../../../../components/common/EmployeeSearchModal';
 import { Button } from '../../../../components/common';
 import { 
     fetchAppointmentRequests, 

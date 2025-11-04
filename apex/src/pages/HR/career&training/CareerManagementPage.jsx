@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import styles from "./CareerManagementPage.module.css"
 import CareerSearchFilter from '../../../components/HR/career&edu/CareerSearchFilter.jsx';
-import EmployeeSearchModal from '../../../components/HR/AppointmentApply/EmployeeSearchModal';
+import EmployeeSearchModal from '../../../components/common/EmployeeSearchModal.jsx';
 import CareerDetailModal from '../../../components/HR/career&edu/CareerDetailModal';
 import DataTable from '../../../components/common/DataTable.jsx';
 import tableStyles from '../../../components/common/DataTable.module.css'; 

@@ -5,6 +5,7 @@ import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
 import './MainPage.css';
 import { Link } from 'react-router-dom';
+import { checkIn, checkOut } from '../../api/attendance';
 
 const fetchRecommendedEmployees = () => {
   return new Promise((resolve) => {
@@ -25,7 +26,12 @@ const fetchRecommendedEmployees = () => {
 
 function MainPage() {
   // --- 모든 State와 Effect를 MainPage 최상단으로 통합 ---
-  const [userInfo, setUserInfo] = useState({ name: '비회원', employmentType: '정보 없음', team: '정보 없음' });
+  const [userInfo, setUserInfo] = useState({ 
+    name: '비회원', 
+    employmentType: '정보 없음', 
+    team: '정보 없음',
+    employeeId: null 
+  });
 
   // 1. 출퇴근 상태 관리 (변수명 컨벤션에 맞게 수정: SetIsOn -> setIsOn)
   const [isOn, setIsOn] = useState(false);
@@ -46,13 +52,18 @@ function MainPage() {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
+        
+        console.log('📦 localStorage user 객체:', user); // 디버깅 추가
 
         // 🚨 중요: teamName (API key)을 team (state key)으로 매핑하여 저장
         setUserInfo({
           name: user.name || '알 수 없음',
           positionName: user.positionName || '직책정보 없음',
           team: user.teamName || '팀 정보 없음', // 👈 API 응답의 teamName 키 사용
+          employeeId: user.employeeId || null // 직원 ID 추가
         });
+        
+        console.log('✅ userInfo 설정 완료:', { employeeId: user.employeeId, name: user.name }); // 디버깅 추가
       } catch (e) {
         console.error('로컬 스토리지 사용자 정보 파싱 오류:', e);
       }
@@ -99,6 +110,86 @@ function MainPage() {
     })
   }
 
+  // 출근 처리 핸들러
+  const handleCheckIn = async () => {
+    console.log('🔵 출근 버튼 클릭, userInfo:', userInfo); // 디버깅 추가
+    
+    if (!userInfo.employeeId) {
+      console.error('❌ userInfo.employeeId가 없음:', userInfo); // 디버깅 추가
+      toast.error('사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+      return;
+    }
+
+    try {
+      console.log('📤 출근 API 요청 시작, employeeId:', userInfo.employeeId); // 디버깅 추가
+      const response = await checkIn(userInfo.employeeId);
+      
+      // 성공 응답 처리
+      if (response.success || response.data) {
+        setIsOn(true);
+        toast.success(
+          <div style={{ textAlign: 'center', width: '100%' }}>
+            <div>{`[${formatTime(currentTime)}]`}</div>
+            <div>{response.message || '정상적으로 출근 처리되었습니다.'}</div>
+          </div>
+        );
+        console.log('출근 처리 성공:', response);
+      }
+    } catch (error) {
+      console.error('출근 처리 실패:', error);
+      console.error('에러 응답 상세:', error.response?.data);
+      
+      // 백엔드 에러 메시지 확인
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || '출근 처리에 실패했습니다.';
+      
+      // 이미 출근 처리된 경우 특별 처리
+      if (errorMessage.includes('이미 출근') || errorMessage.includes('already checked in')) {
+        toast.warning('이미 출근 처리되었습니다.');
+      } else {
+        toast.error(errorMessage);
+      }
+    }
+  };
+
+  // 퇴근 처리 핸들러
+  const handleCheckOut = async () => {
+    if (!userInfo.employeeId) {
+      toast.error('사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+      return;
+    }
+
+    try {
+      const response = await checkOut(userInfo.employeeId);
+      
+      // 성공 응답 처리
+      if (response.success || response.data) {
+        setIsOn(false);
+        toast.info(
+          <div style={{ textAlign: 'center', width: '100%' }}>
+            <div>{`[${formatTime(currentTime)}]`}</div>
+            <div>{response.message || '정상적으로 퇴근 처리되었습니다.'}</div>
+          </div>
+        );
+        console.log('퇴근 처리 성공:', response);
+      }
+    } catch (error) {
+      console.error('퇴근 처리 실패:', error);
+      console.error('에러 응답 상세:', error.response?.data);
+      
+      // 백엔드 에러 메시지 확인
+      const errorMessage = error.response?.data?.message || error.response?.data?.error || '퇴근 처리에 실패했습니다.';
+      
+      // 이미 퇴근 처리된 경우 또는 출근 기록이 없는 경우 특별 처리
+      if (errorMessage.includes('이미 퇴근') || errorMessage.includes('already checked out')) {
+        toast.warning('이미 퇴근 처리되었습니다.');
+      } else if (errorMessage.includes('출근 기록') || errorMessage.includes('check-in record')) {
+        toast.error('출근 기록이 없습니다. 먼저 출근 처리를 해주세요.');
+      } else {
+        toast.error(errorMessage);
+      }
+    }
+  };
+
   return (
     <div className="common-wrap">
       <div className="dashboard-container">
@@ -134,23 +225,20 @@ function MainPage() {
               {formatTime(currentTime)}
             </div>
             <div className='onoff-btn'>
-              {/* ❗ setIsOn으로 수정 */}
-              <button className='on-btn' onClick={() => {
-                setIsOn(true); toast.success(
-                  <div style={{ textAlign: 'center', width : '100%' }}>
-                    <div>{`[${formatTime(currentTime)}]`}</div>
-                    <div>정상적으로 출근 처리되었습니다.</div>
-                  </div>
-                );
-              }}>ON</button>
-              <button className='off-btn' onClick={() => {
-                setIsOn(false); toast.info(
-                  <div style={{ textAlign: 'center', width : '100%' }}>
-                    <div>{`[${formatTime(currentTime)}]`}</div>
-                    <div>정상적으로 퇴근 처리되었습니다.</div>
-                  </div>
-                );
-              }}>OFF</button>
+              <button 
+                className='on-btn' 
+                onClick={handleCheckIn}
+                disabled={isOn}
+              >
+                ON
+              </button>
+              <button 
+                className='off-btn' 
+                onClick={handleCheckOut}
+                disabled={!isOn}
+              >
+                OFF
+              </button>
             </div>
           </div>
         </div>

@@ -66,12 +66,13 @@ export const fetchAttendanceById = async (attendanceId) => {
 /**
  * 출근 처리
  * POST /attendances/check-in
- * @param {number} employeeId - 직원 ID
+ * @param {number} employeeId - 직원 ID (사용하지 않음, 토큰에서 추출)
  * @returns {Promise<object>} 출근 기록
  */
 export const checkIn = async (employeeId) => {
     try {
-        const response = await api.post('/attendances/check-in', { employeeId });
+        // 빈 객체로 전송 (백엔드가 JWT 토큰에서 employeeId 추출)
+        const response = await api.post('/attendances/check-in', {});
         return response.data;
     } catch (error) {
         console.error('Error checking in:', error);
@@ -82,12 +83,13 @@ export const checkIn = async (employeeId) => {
 /**
  * 퇴근 처리
  * POST /attendances/check-out
- * @param {number} employeeId - 직원 ID
+ * @param {number} employeeId - 직원 ID (사용하지 않음, 토큰에서 추출)
  * @returns {Promise<object>} 퇴근 기록
  */
 export const checkOut = async (employeeId) => {
     try {
-        const response = await api.post('/attendances/check-out', { employeeId });
+        // 빈 객체로 전송 (백엔드가 JWT 토큰에서 employeeId 추출)
+        const response = await api.post('/attendances/check-out', {});
         return response.data;
     } catch (error) {
         console.error('Error checking out:', error);

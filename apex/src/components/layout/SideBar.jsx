@@ -80,7 +80,7 @@ const MENU_BY_ROLE = {
     {
       label: "근태",
       children: [
-        { label: "근태현황 및 리스크 관리", to: "/attendance/status-risk" },
+        { label: "근태현황", to: "/attendance/status-risk" },
         { label: "출퇴근 기록 관리", to: "/attendance/records" },
         { 
           label: "연차 및 휴가관리", 

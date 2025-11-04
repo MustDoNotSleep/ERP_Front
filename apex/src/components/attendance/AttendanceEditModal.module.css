@@ -1,0 +1,112 @@
+/* 근태 수정 모달 스타일 */
+
+.modalContent {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+/* 직원 정보 카드 */
+.employeeInfo {
+  padding: 1rem;
+  background: linear-gradient(135deg, #f8f9fa 0%, #e9ecef 100%);
+  border-radius: 8px;
+  border-left: 4px solid #875c4e;
+}
+
+.employeeInfoTitle {
+  margin-bottom: 0.75rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #495057;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
+
+.employeeName {
+  font-size: 1.125rem;
+  font-weight: 700;
+  color: #212529;
+  margin-bottom: 0.5rem;
+}
+
+.employeeDetails {
+  font-size: 0.875rem;
+  color: #6c757d;
+  display: flex;
+  gap: 0.5rem;
+  align-items: center;
+}
+
+.employeeDetails span {
+  display: flex;
+  align-items: center;
+  gap: 0.25rem;
+}
+
+.divider {
+  color: #dee2e6;
+}
+
+/* 폼 그리드 */
+.formGrid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 1.25rem;
+}
+
+.formGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.formGroupFull {
+  grid-column: 1 / -1;
+}
+
+.label {
+  display: block;
+  margin-bottom: 0.5rem;
+  font-weight: 600;
+  font-size: 0.875rem;
+  color: #495057;
+}
+
+.requiredLabel::after {
+  content: '*';
+  color: #dc3545;
+  margin-left: 0.25rem;
+}
+
+/* Textarea 스타일 */
+.textarea {
+  width: 100%;
+  min-height: 100px;
+  padding: 0.75rem;
+  font-size: 0.875rem;
+  font-family: inherit;
+  border: 1px solid #ced4da;
+  border-radius: 6px;
+  resize: vertical;
+  transition: border-color 0.2s, box-shadow 0.2s;
+}
+
+.textarea:focus {
+  outline: none;
+  border-color: #875c4e;
+  box-shadow: 0 0 0 3px rgba(135, 92, 78, 0.1);
+}
+
+.textarea::placeholder {
+  color: #adb5bd;
+}
+
+/* 버튼 그룹 */
+.buttonGroup {
+  display: flex;
+  gap: 0.75rem;
+  justify-content: flex-end;
+  margin-top: 1rem;
+  padding-top: 1.5rem;
+  border-top: 1px solid #e9ecef;
+}

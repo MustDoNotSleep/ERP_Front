@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import styles from './ApplyInputGrid.module.css';
-import EmployeeSearchModal from './EmployeeSearchModal';
+import EmployeeSearchModal from '../../common/EmployeeSearchModal';
 
 const ApplyInputGrid = ({ formData, handleChange, appointmentTypes, departmentNames, positionNames }) => {
     const [isModalOpen, setIsModalOpen] = useState(false);

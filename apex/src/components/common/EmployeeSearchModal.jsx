@@ -1,9 +1,9 @@
 import React, { useState, useEffect } from 'react';
 import styles from './EmployeeSearchModal.module.css';
-import { searchEmployees } from '../../../api/employee';
+import { searchEmployees } from '../../api/employee';
 
 const EmployeeSearchModal = ({ isOpen, onClose, onSelectEmployee }) => {
-    const [searchType, setSearchType] = useState('name'); // name, employeeId, department
+    const [searchType, setSearchType] = useState('name'); // name, id, departmentName
     const [searchKeyword, setSearchKeyword] = useState('');
     const [searchResults, setSearchResults] = useState([]);
     const [loading, setLoading] = useState(false);
@@ -27,16 +27,22 @@ const EmployeeSearchModal = ({ isOpen, onClose, onSelectEmployee }) => {
         try {
             // searchEmployees는 (searchParams, page, size) 형태로 호출해야 함
             const searchParams = {
-                [searchType]: searchKeyword
+                [searchType]: searchKeyword.trim()
             };
             
             console.log('🔍 직원 검색 요청:', { searchType, searchKeyword, searchParams });
             
-            const response = await searchEmployees(searchParams, 0, 20);
+            const response = await searchEmployees(searchParams, 0, 100);
             
             console.log('📦 검색 응답:', response);
             
-            const results = response.data?.content || response.content || response.data || [];
+            let results = response.data?.content || response.content || response.data || [];
+            
+            // 사번 검색일 경우 정확히 일치하는 것만 필터링
+            if (searchType === 'id') {
+                const searchId = searchKeyword.trim();
+                results = results.filter(emp => emp.id?.toString() === searchId);
+            }
             
             setSearchResults(Array.isArray(results) ? results : []);
             
@@ -81,7 +87,7 @@ const EmployeeSearchModal = ({ isOpen, onClose, onSelectEmployee }) => {
                         className={styles.searchTypeSelect}
                     >
                         <option value="name">이름</option>
-                        <option value="employeeId">사번</option>
+                        <option value="id">사번</option>
                         <option value="departmentName">부서</option>
                     </select>
 
@@ -90,7 +96,7 @@ const EmployeeSearchModal = ({ isOpen, onClose, onSelectEmployee }) => {
                         value={searchKeyword}
                         onChange={(e) => setSearchKeyword(e.target.value)}
                         onKeyPress={handleKeyPress}
-                        placeholder={`${searchType === 'name' ? '이름' : searchType === 'employeeId' ? '사번' : '부서명'}을 입력하세요`}
+                        placeholder={`${searchType === 'name' ? '이름' : searchType === 'id' ? '사번' : '부서명'}을 입력하세요`}
                         className={styles.searchInput}
                     />
 
@@ -111,7 +117,6 @@ const EmployeeSearchModal = ({ isOpen, onClose, onSelectEmployee }) => {
                                     <th>사번</th>
                                     <th>이름</th>
                                     <th>부서</th>
-                                    <th>팀</th>
                                     <th>직급</th>
                                     <th>선택</th>
                                 </tr>
@@ -119,10 +124,9 @@ const EmployeeSearchModal = ({ isOpen, onClose, onSelectEmployee }) => {
                             <tbody>
                                 {searchResults.map((employee) => (
                                     <tr key={employee.id}>
-                                        <td>{employee.employeeId}</td>
+                                        <td>{employee.id}</td>
                                         <td>{employee.name}</td>
                                         <td>{employee.departmentName || '-'}</td>
-                                        <td>{employee.teamName || '-'}</td>
                                         <td>{employee.positionName || '-'}</td>
                                         <td>
                                             <button
