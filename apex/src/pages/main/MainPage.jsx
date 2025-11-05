@@ -6,7 +6,7 @@ import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
 import './MainPage.css';
 import { Link } from 'react-router-dom';
-import { checkIn, checkOut } from '../../api/attendance';
+import { checkIn, checkOut, fetchTodayAttendance } from '../../api/attendance';
 
 const fetchRecommendedEmployees = () => {
   return new Promise((resolve) => {
@@ -40,7 +40,7 @@ function MainPage() {
     minutes: 0
   });
 
-  // 1. 출퇴근 상태 관리 (변수명 컨벤션에 맞게 수정: SetIsOn -> setIsOn)
+  // 1. 출퇴근 상태 관리 (서버에서 오늘 출근 기록 조회)
   const [isOn, setIsOn] = useState(false);
 
   // 2. 현재 시간 상태 관리
@@ -69,22 +69,28 @@ function MainPage() {
         if (user.employeeId) {
           fetchLeaveBalance(user.employeeId)
             .then(res => {
-              // 실제 응답: { success, data: { remainingAnnualLeave, ... } }
               if (res.success && res.data) {
                 const raw = res.data.remainingAnnualLeave ?? 0;
                 const days = Math.floor(raw);
-                const hours = Math.round((raw - days) * 8); // 1일=8시간 기준
-                setLeaveBalance({
-                  days,
-                  hours,
-                  minutes: 0
-                });
+                const hours = Math.round((raw - days) * 8);
+                setLeaveBalance({ days, hours, minutes: 0 });
               }
             })
             .catch(err => {
               setLeaveBalance({ days: 0, hours: 0, minutes: 0 });
             });
         }
+        // 오늘 출근 기록 조회해서 출근 상태 초기화
+        fetchTodayAttendance()
+          .then(res => {
+            // 출근 기록만 있고 퇴근 기록이 없을 때만 퇴근 버튼 활성화
+            if (res.success && res.data && res.data.checkInTime && !res.data.checkOutTime) {
+              setIsOn(true);
+            } else {
+              setIsOn(false);
+            }
+          })
+          .catch(() => setIsOn(false));
       } catch (e) {
         console.error('로컬 스토리지 사용자 정보 파싱 오류:', e);
       }
