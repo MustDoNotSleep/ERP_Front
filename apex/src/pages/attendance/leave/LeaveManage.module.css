@@ -1,0 +1,48 @@
+.filterSection {
+    margin-bottom: 1.5rem;
+}
+
+.approvalButtonSection {
+    display: flex;
+    justify-content: flex-end;
+    margin-bottom: 1.5rem;
+}
+
+.buttonGroup {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    margin-top: 1.5rem;
+    padding-top: 1.5rem;
+    border-top: 1px solid #dee2e6;
+}
+
+.noDataMessage {
+    text-align: center;
+    padding: 3rem;
+    color: #666;
+    background-color: white;
+    border-radius: 8px;
+    border: 1px solid #dee2e6;
+}
+
+/* 상태별 스타일 */
+.statusPending {
+    color: #f39c12;
+    font-weight: 600;
+}
+
+.statusApproved {
+    color: #27ae60;
+    font-weight: 600;
+}
+
+.statusRejected {
+    color: #e74c3c;
+    font-weight: 600;
+}
+
+.statusCancelled {
+    color: #95a5a6;
+    font-weight: 600;
+}

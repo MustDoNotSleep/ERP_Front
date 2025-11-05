@@ -29,6 +29,7 @@ import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
 import AnnualRequests from './pages/attendance/leave/AnnualRequests.jsx';
 
 import { isAuthenticated, logout } from './api/auth';
+import LeaveManage from './pages/attendance/leave/LeaveManage.jsx';
 
 function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
@@ -82,6 +83,7 @@ function App() {
             <Route path="manage" element={<AttendanceRecords />} />
             <Route path="leave/status/me" element={<LeaveStatus />} />
             <Route path="leave/application" element={<AnnualRequests />} />
+            <Route path="leave/manage" element={<LeaveManage />} />
           </Route>
 
           {/* 급여부분 */}  
