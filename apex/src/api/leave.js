@@ -141,17 +141,20 @@ export const rejectLeave = async (leaveId, approverComment) => {
 };
 
 /**
- * 직원의 휴가 잔여일 조회
- * GET /leaves/employee/{employeeId}/balance
+ * 직원의 연차 잔여 정보 조회 (잔여, 사용, 총 연차)
+ * GET /leaves/employee/{employeeId}/statistics?year=YYYY
  * @param {number} employeeId - 직원 ID
- * @returns {Promise<object>} 휴가 잔여일 정보
+ * @returns {Promise<object>} 연차 통계 정보
  */
 export const fetchLeaveBalance = async (employeeId) => {
     try {
-        const response = await api.get(`/leaves/employee/${employeeId}/balance`);
+        const year = new Date().getFullYear();
+        const response = await api.get(`/leaves/employee/${employeeId}/statistics`, {
+            params: { year }
+        });
         return response.data;
     } catch (error) {
-        console.error(`Error fetching leave balance for employee ${employeeId}:`, error);
+        console.error(`Error fetching leave statistics for employee ${employeeId}:`, error);
         throw error;
     }
 };

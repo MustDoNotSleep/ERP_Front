@@ -1,4 +1,5 @@
 import React, { useState, useEffect } from 'react';
+import { fetchLeaveBalance } from '../../api/leave';
 import { toast } from 'react-toastify';
 import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
@@ -32,6 +33,12 @@ function MainPage() {
     team: '정보 없음',
     employeeId: null 
   });
+  // 남은 연차 정보 상태
+  const [leaveBalance, setLeaveBalance] = useState({
+    days: 0,
+    hours: 0,
+    minutes: 0
+  });
 
   // 1. 출퇴근 상태 관리 (변수명 컨벤션에 맞게 수정: SetIsOn -> setIsOn)
   const [isOn, setIsOn] = useState(false);
@@ -52,25 +59,39 @@ function MainPage() {
     if (storedUser) {
       try {
         const user = JSON.parse(storedUser);
-        
-        console.log('📦 localStorage user 객체:', user); // 디버깅 추가
-
-        // 🚨 중요: teamName (API key)을 team (state key)으로 매핑하여 저장
         setUserInfo({
           name: user.name || '알 수 없음',
           positionName: user.positionName || '직책정보 없음',
-          team: user.teamName || '팀 정보 없음', // 👈 API 응답의 teamName 키 사용
-          employeeId: user.employeeId || null // 직원 ID 추가
+          team: user.teamName || '팀 정보 없음',
+          employeeId: user.employeeId || null
         });
-        
-        console.log('✅ userInfo 설정 완료:', { employeeId: user.employeeId, name: user.name }); // 디버깅 추가
+        // 남은 연차 정보 불러오기
+        if (user.employeeId) {
+          fetchLeaveBalance(user.employeeId)
+            .then(res => {
+              // 실제 응답: { success, data: { remainingAnnualLeave, ... } }
+              if (res.success && res.data) {
+                const raw = res.data.remainingAnnualLeave ?? 0;
+                const days = Math.floor(raw);
+                const hours = Math.round((raw - days) * 8); // 1일=8시간 기준
+                setLeaveBalance({
+                  days,
+                  hours,
+                  minutes: 0
+                });
+              }
+            })
+            .catch(err => {
+              setLeaveBalance({ days: 0, hours: 0, minutes: 0 });
+            });
+        }
       } catch (e) {
         console.error('로컬 스토리지 사용자 정보 파싱 오류:', e);
       }
     } else {
       console.warn('로컬 스토리지에 사용자 정보가 없습니다. (로그인 필요)');
     }
-  }, []); // 컴포넌트 마운트 시 한 번만 실행
+  }, []);
 
   
   // 시간 업데이트를 위한 useEffect
@@ -300,15 +321,15 @@ function MainPage() {
           <div className="leave-content">
             <div className='remain'>
               <div className='re-txt'>
-                <span className='num'>10</span>
+                <span className='num'>{leaveBalance.days}</span>
                 <span className='re-txt'>일</span>
-                <span className='num'>6</span>
+                <span className='num'>{leaveBalance.hours}</span>
                 <span className='re-txt'>시간</span>
-                <span className='num'>30</span>
-                <span className='re-txt'>분</span>
               </div>
             </div>
-            <button className='apply-btn'>연차 신청</button>
+            <button className='apply-btn' onClick={() => window.location.href = '/attendance/leave/annualRequests'}>
+              연차 신청
+            </button>
           </div>    
         </div>
         
