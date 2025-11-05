@@ -26,6 +26,7 @@ import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentA
 import AttendanceStatusRisk from './pages/attendance/status/AttendanceStatus.jsx';
 import AttendanceRecords from './pages/attendance/records/AttendanceRecords.jsx';
 import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
+import AnnualRequests from './pages/attendance/leave/AnnualRequests.jsx';
 
 import { isAuthenticated, logout } from './api/auth';
 
@@ -80,6 +81,7 @@ function App() {
             <Route path="commute/me" element={<AttendanceStatusRisk />} />
             <Route path="manage" element={<AttendanceRecords />} />
             <Route path="leave/status/me" element={<LeaveStatus />} />
+            <Route path="leave/application" element={<AnnualRequests />} />
           </Route>
 
           {/* 급여부분 */}  

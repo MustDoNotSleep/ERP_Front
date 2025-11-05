@@ -18,7 +18,7 @@ html, body, #root {
     grid-template-rows: 5.5rem 1fr; 
     
     /* 열: [사이드바 너비 (21rem)] + [남은 공간 (1fr)] */
-    grid-template-columns: 21rem 1fr;
+    grid-template-columns: 25rem 1fr;
     
     height: 100%;
 }

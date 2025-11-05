@@ -63,7 +63,7 @@
 /* 컨텐츠 섹션 - 테이블과 차트를 나란히 */
 .contentSection {
   display: grid;
-  grid-template-columns: 1fr 450px;
+  grid-template-columns: 1fr 550px;
   gap: 2rem;
 }
 

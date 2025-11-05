@@ -90,9 +90,30 @@ export default function LeaveStatus() {
     }
   };
 
+  const getLeaveTypeLabel = (type) => {
+    const labels = {
+      'ANNUAL': '연차',
+      'SICK': '병가',
+      'SICK_PAID': '유급병가',
+      'MATERNITY': '출산휴가',
+      'PATERNITY': '배우자출산휴가',
+      'CHILDCARE': '육아휴직',
+      'MARRIAGE': '결혼휴가',
+      'FAMILY_MARRIAGE': '가족결혼휴가',
+      'BEREAVEMENT': '경조사',
+      'OFFICIAL': '공가',
+      'UNPAID': '무급휴가'
+    };
+    return labels[type] || type;
+  };
+
   const getLeaveDurationLabel = (duration) => {
     const labels = {
-      'FULL_DAY': '연차',
+      'FULL_DAY': '종일',
+      'HALF_DAY_AM': '오전 반차',
+      'HALF_DAY_PM': '오후 반차',
+      'QUARTER_DAY_AM': '오전 반반차',
+      'QUARTER_DAY_PM': '오후 반반차',
       'HALF_DAY': '반차',
       'QUARTER_DAY': '반반차'
     };
@@ -130,7 +151,8 @@ export default function LeaveStatus() {
   // DataTable 헤더
   const tableHeaders = [
     { label: 'no' },
-    { label: '구분' },
+    { label: '휴가 종류' },
+    { label: '기간 구분' },
     { label: '사용 일수' },
     { label: '기간' },
     { label: '승인 여부' }
@@ -156,6 +178,7 @@ export default function LeaveStatus() {
     return (
       <>
         <td>{index + 1}</td>
+        <td>{getLeaveTypeLabel(item.type)}</td>
         <td>{getLeaveDurationLabel(item.duration)}</td>
         <td>{displayDays}</td>
         <td>{`${startDate}~${endDate}`}</td>
