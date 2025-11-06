@@ -4,11 +4,14 @@ import tableStyles from "../../../components/common/DataTable.module.css";
 import DataTable from '../../../components/common/DataTable';
 import CertificateIssueFilter from '../../../components/HR/certificate/CertificateIssueFilter';
 import { Button } from '../../../components/common';
-//import { fetchCertificates, approveCertificate, rejectCertificate } from '../../../api/certificate';
-// ✅ 변경: certificate → document
 import {fetchDocumentApplications, approveDocumentApplication, rejectDocumentApplication } from '../../../api/document';
+
+// --- 🚨 (수정) MOCK 파일 및 getCurrentUser 임포트 ---
 // ✨ 목 데이터 임포트
-// import { CERTIFICATE_ISSUE_MOCK } from '../../../models/data/CertificateIssueMOCK';
+import { CERTIFICATE_TYPE_LABELS, ISSUE_STATUS_OPTIONS } from '../../../models/data/CertificateIssueMOCK.js';
+
+import { getCurrentUser } from '../../../api/auth'; 
+
 
 // 1. 테이블 헤더 정의
 const TABLE_HEADERS = [
@@ -24,17 +27,25 @@ const CertificateIssuePage = () => {
         applicationDate: '', documentStatus: '',
     });
 
-    //api 호출 함수 (조회)
+    // --- 🚨 (추가) Enum 한글 매핑 함수 ---
+    const getStatusLabel = (status) => {
+        const found = ISSUE_STATUS_OPTIONS.find(opt => opt.value === status);
+        return found ? found.label : status;
+    };
+
+    const getCertificateLabel = (type) => {
+        return CERTIFICATE_TYPE_LABELS[type] || type;
+    };
+
+
     const fetchRequests =  async () => {
         console.log('증명서 조회 시작!', searchParams);
         try {
             // fetchCertificates API 사용 (페이징 포함)
-            const response = await fetchDocumentApplications(0, 100); // 페이지 0, 사이즈 100
-            
-            // 검색 조건에 따라 클라이언트 사이드 필터링
-           // let filteredData = data.content || data;
-            const data = response.data?.data?.content || response.data?.data || [];
-            //const data = response.data?.content || response.data || response; 
+            const response = await fetchDocumentApplications(0, 100); 
+            console.log('📦 백엔드 응답:', response);
+            const data = response.data?.content || [];
+            //const data = response.data?.data?.content || response.data?.data || [];
             let filteredData = Array.isArray(data) ? data : [];
             
             if (searchParams.employeeName) {
@@ -44,19 +55,11 @@ const CertificateIssuePage = () => {
             }
             if (searchParams.employeeId) {
                 filteredData = filteredData.filter(item => 
+                    // (수정) 백엔드 DTO의 employeeId 타입(Long)에 맞춰 String 변환
                     String(item.employee?.employeeId).includes(searchParams.employeeId)
                 );
             }
-            // if (searchParams.certificateType) {
-            //     filteredData = filteredData.filter(item => 
-            //         item.certificateType === searchParams.certificateType
-            //     );
-            // } 
-            // if (searchParams.issueStatus) {
-            //     filteredData = filteredData.filter(item => 
-            //         item.status === searchParams.issueStatus
-            //     );
-            // }
+
             if(searchParams.documentType){
                 filteredData = filteredData.filter
                 (item => item.documentType === searchParams.documentType);
@@ -70,6 +73,8 @@ const CertificateIssuePage = () => {
             setRequests(filteredData);
         } catch (error) {
             console.error('증명서 조회 중 오류 발생 : ', error);
+            // (추가) 데이터 조회 실패 시 빈 배열로 설정
+            setRequests([]); 
             alert('데이터를 불러오는 데 실패했습니다.');
         }
     };
@@ -96,7 +101,7 @@ const CertificateIssuePage = () => {
         setSearchParams({
             employeeName: '', 
             employeeId: '', 
-            documentTypeType: '', 
+            documentType: '',    
             applicationDate: '', 
             documentStatus: ''
         });
@@ -104,9 +109,8 @@ const CertificateIssuePage = () => {
         fetchRequests(); // 전체 목록 다시 로드
     };
 
-    // const handleSearch = () => {
-    //     console.log('🐥 증명서 조회 시작!', searchParams);
-    //     // TODO: API 호출 로직
+    // const handleSearch = () => { // (기존 주석)
+    // ...
     // };
     
     const handleRowSelect = (id) => {
@@ -115,22 +119,55 @@ const CertificateIssuePage = () => {
         );
     };
 
-    // 액션 핸들러 (반려, 승인)
+    // --- 🚨 (수정) 액션 핸들러 (반려, 승인) ---
     const handleAction = async (action) => {
         if (selectedRows.length === 0) {
             alert('선택된 항목이 없습니다.');
             return;
         }
 
+        // (추가) 로그인한 관리자 ID 가져오기
+        const currentUser = getCurrentUser();
+        if (!currentUser || !currentUser.employeeId) {
+            alert('관리자 로그인 정보가 없습니다. 다시 로그인해주세요.');
+            return;
+        }
+        // (주의) 'currentUser.employeeId'는 auth.js에서 저장한 필드명 기준
+        const currentAdminId = currentUser.employeeId; 
+
         console.log(`Action: ${action}, Selected IDs:`, selectedRows);
         
         try {
             // 선택된 각 증명서에 대해 승인/반려 처리
             const promises = selectedRows.map(documentId => {
+                
+                // (수정 전)
+                // if (action === '승인') {
+                //     return approveDocumentApplication(documentId);
+                // } else {
+                //     return rejectDocumentApplication(documentId, '반려 처리되었습니다.');
+                // }
+
+                // (수정 후) 백엔드 DTO(ApprovalRequest)에 맞춰 객체 전송
                 if (action === '승인') {
-                    return approveDocumentApplication(documentId);
+                    const approvalData = {
+                        processorId: currentAdminId,
+                        approved: true,
+                        // (참고) issuedFiles는 프론트가 보내는 게 맞다는 전제
+                        issuedFiles: [`/generated/doc_${documentId}.pdf`] // (임시 경로)
+                    };
+                    // (주의) api/document.js의 approveDocumentApplication 함수가 
+                    //       (id, data) 두 개의 인자를 받도록 수정되어 있어야 함
+                    return approveDocumentApplication(documentId, approvalData); 
                 } else {
-                    return rejectDocumentApplication(documentId, '반려 처리되었습니다.');
+                    const rejectionData = {
+                        processorId: currentAdminId,
+                        approved: false,
+                        rejectionReason: '관리자에 의해 반려 처리되었습니다.'
+                    };
+                    // (주의) api/document.js의 rejectDocumentApplication 함수가 
+                    //       (id, data) 두 개의 인자를 받도록 수정되어 있어야 함
+                    return rejectDocumentApplication(documentId, rejectionData);
                 }
             });
             
@@ -150,6 +187,14 @@ const CertificateIssuePage = () => {
 
     // 3. 테이블 행 렌더링 로직
     const renderRequestRow = (item) => { 
+        // (추가) 날짜 포맷팅 (YYYY-MM-DD)
+        const formattedApplicationDate = item.applicationDate 
+            ? item.applicationDate.split('T')[0] 
+            : '-';
+        const formattedIssueDate = item.issueDate 
+            ? item.issueDate.split('T')[0] 
+            : '-';
+
         return (
             <>
                 <td className={tableStyles.tableData}>
@@ -159,20 +204,27 @@ const CertificateIssuePage = () => {
                         onChange={() => handleRowSelect(item.documentId)}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{item.applicationDate || '-'}</td>
+                
+                <td className={tableStyles.tableData}>{formattedApplicationDate}</td>
+                
                 <td className={tableStyles.tableData}>{item.employee?.employeeId || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.name || '-'}</td>
-                <td className={tableStyles.tableData}>{item.documentType|| '-'}</td>
+                
+                {/* --- 🚨 (수정) 한글 변환 함수 적용 --- */}
+                <td className={tableStyles.tableData}>{getCertificateLabel(item.documentType) || '-'}</td>
+
                 <td className={tableStyles.tableData}>{item.copies || 1}</td>
-                <td className={tableStyles.tableData}>{item.issueDate || '-'}</td>
-                <td className={tableStyles.tableData}>{item.documentStatus|| '-'}</td>
+
+                <td className={tableStyles.tableData}>{formattedIssueDate}</td>
+
+                <td className={tableStyles.tableData}>{getStatusLabel(item.documentStatus) || '-'}</td>
             </>
         );
     };
 
 
     return (
-        <div className={styles.pageContainer}>            
+        <div className={styles.pageContainer}> 
             {/* --- A. 검색 필터 영역 --- */}
             <div className={styles.filterSection}>
                 <CertificateIssueFilter
@@ -188,6 +240,8 @@ const CertificateIssuePage = () => {
                 headers={TABLE_HEADERS}
                 data={requests}
                 renderRow={renderRequestRow}
+                // (추가) 데이터가 없을 때 메시지
+                emptyMessage="조회된 데이터가 없습니다."
             />
 
             {/* --- C. 액션 버튼 영역 --- */}
