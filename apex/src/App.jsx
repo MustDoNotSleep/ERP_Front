@@ -27,6 +27,8 @@ import AttendanceStatusRisk from './pages/attendance/status/AttendanceStatus.jsx
 import AttendanceRecords from './pages/attendance/records/AttendanceRecords.jsx';
 import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
 import AnnualRequests from './pages/attendance/leave/AnnualRequests.jsx';
+import DispatchTravel from './pages/attendance/DispatchTravel.jsx';
+import AttendanceStats from './pages/attendance/AttendanceStats.jsx';
 
 import { isAuthenticated, logout } from './api/auth';
 import LeaveManage from './pages/attendance/leave/LeaveManage.jsx';
@@ -84,6 +86,8 @@ function App() {
             <Route path="leave/status/me" element={<LeaveStatus />} />
             <Route path="leave/application" element={<AnnualRequests />} />
             <Route path="leave/manage" element={<LeaveManage />} />
+            <Route path="dispatch-travel" element={<DispatchTravel />} />
+            <Route path="stats" element={<AttendanceStats />} />
           </Route>
 
           {/* 급여부분 */}  

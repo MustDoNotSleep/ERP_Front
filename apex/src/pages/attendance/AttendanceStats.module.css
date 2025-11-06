@@ -1,0 +1,221 @@
+/* AttendanceStats.module.css */
+
+.container {
+  padding: 2rem;
+  background-color: #f8f9fa;
+}
+
+.header {
+  margin-bottom: 2rem;
+}
+
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+}
+
+/* 검색 섹션 */
+.searchSection {
+  display: flex;
+  gap: 1rem;
+  align-items: flex-end;
+  margin-bottom: 3rem;
+  padding: 1.5rem;
+  background-color: #f0f0f0;
+  border-radius: 8px;
+}
+
+.searchGroup {
+  display: flex;
+  flex-direction: column;
+}
+
+.searchGroup label {
+  font-size: 0.9rem;
+  color: #555;
+  margin-bottom: 0.5rem;
+}
+
+/* Select 컴포넌트 스타일은 공용 컴포넌트의 CSS를 따르지만, 여기서는 컨테이너 역할을 함 */
+.searchGroup select {
+  min-width: 120px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+.searchButton {
+  /* 이미지 색상에 맞춤 */
+  background-color: #7b4d3f;
+  color: white;
+  border: none;
+  padding: 0.75rem 1.5rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  height: 38px; /* Select 높이에 맞춤 */
+}
+
+.searchButton:hover {
+  background-color: #6a4136;
+}
+
+/* 통계 카드 섹션 */
+.statsGrid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 1.5rem;
+  margin-bottom: 3rem;
+}
+
+.statsCard {
+  background-color: #f0f0f0 !important;
+  padding: 1.5rem !important;
+  border-radius: 8px;
+  text-align: center;
+  min-height: 150px; /* 빈 데이터에도 레이아웃 유지 */
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+}
+
+.statsCard:nth-child(1) {
+  /* 평균 근무시간 */
+  grid-column: 1 / span 1;
+}
+.statsCard:nth-child(2) {
+  /* 연장근로 통합 */
+  grid-column: 2 / span 1;
+}
+.statsCard:nth-child(3) {
+  /* 휴가 사용률 */
+  grid-column: 3 / span 1;
+}
+.statsCard:nth-child(4) {
+  /* 근무시간 분포 */
+  grid-column: 4 / span 1;
+}
+
+
+.statsLabel {
+  font-size: 0.9rem;
+  color: #666;
+  font-weight: 500;
+  margin-bottom: 1rem;
+}
+
+.statsValue {
+  font-size: 2rem;
+  font-weight: 700;
+  color: #333;
+}
+
+.largeValue {
+  font-size: 3rem;
+  color: #333;
+}
+
+/* 휴가 사용률 도넛 차트 */
+.chartWrapper {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  height: 80px;
+}
+
+.donutChart {
+  width: 70px;
+  height: 70px;
+  transform: rotate(-90deg); /* 시작점을 위로 조정 */
+}
+
+.chartBackground {
+  fill: none;
+  stroke: #ccc;
+  stroke-width: 5;
+}
+
+.chartForeground {
+  fill: none;
+  stroke: #4A5D54; /* 이미지의 진한 녹색 */
+  stroke-width: 5;
+  stroke-linecap: round;
+  transition: stroke-dashoffset 0.5s ease;
+}
+
+.chartText {
+  transform: rotate(90deg); /* 텍스트 다시 똑바로 */
+  text-anchor: middle;
+  fill: #333;
+  font-size: 14px;
+  font-weight: 600;
+}
+
+/* 근무시간 분포 바 차트 */
+.barChartContainer {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+  padding: 0.5rem 0;
+}
+
+.barChartItem {
+  display: flex;
+  align-items: center;
+  gap: 1rem;
+}
+
+.distributionLabel {
+  font-size: 0.9rem;
+  color: #333;
+  width: 50px; /* 라벨 너비 고정 */
+  text-align: right;
+}
+
+.barBackground {
+  flex-grow: 1;
+  height: 8px;
+  background-color: #ddd;
+  border-radius: 4px;
+  overflow: hidden;
+}
+
+.barFill {
+  height: 100%;
+  border-radius: 4px;
+  transition: width 0.5s ease-in-out;
+}
+
+/* 직원 목록 테이블 */
+.tableSection {
+  padding: 1.5rem 0;
+}
+
+.tableTitle {
+  font-size: 1.25rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 1rem;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+}
+
+/* 상태별 색상 */
+.statusWarning {
+  color: #d9534f; /* 빨간색 (주의) */
+  font-weight: 600;
+}
+
+.statusNormal {
+  color: #5cb85c; /* 녹색 (정상) */
+}
+
+/* 테이블의 체크박스 셀 너비 조정 */
+.tableSection th:first-child, .tableSection td:first-child {
+  width: 40px; 
+  text-align: center;
+}
