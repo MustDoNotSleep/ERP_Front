@@ -1,6 +1,9 @@
 import React from 'react';
 import { FilterCard, FilterGroup, Select } from '../../../components/common';
-import { ISSUE_STATUS_OPTIONS, CERTIFICATE_TYPES } from '../../../models/data/CertificateIssueMOCK.js';
+// 👈 (수정) CERTIFICATE_TYPES -> CERTIFICATE_TYPE_LABELS 로 변경
+// import { ISSUE_STATUS_OPTIONS, CERTIFICATE_TYPES } from '../../../models/data/CertificateIssueMOCK.js';
+import { ISSUE_STATUS_OPTIONS, CERTIFICATE_TYPE_LABELS } from '../../../models/data/CertificateIssueMOCK.js';
+
 
 const CertificateRequestFilter = ({ 
     searchParams, 
@@ -9,9 +12,11 @@ const CertificateRequestFilter = ({
     onReset 
 }) => {
     // 증명서 타입 옵션 준비
+    // 👈 (수정) MOCK에서 가져온 새 객체(CERTIFICATE_TYPE_LABELS)를 사용합니다.
     const certificateOptions = [
         { value: '', label: '전체' },
-        ...Object.entries(CERTIFICATE_TYPES).map(([key, value]) => ({
+        // ...Object.entries(CERTIFICATE_TYPES).map(([key, value]) => ({ // 👈 (수정 전)
+        ...Object.entries(CERTIFICATE_TYPE_LABELS).map(([key, value]) => ({ // 👈 (수정 후)
             value: key,
             label: value
         }))
@@ -38,18 +43,22 @@ const CertificateRequestFilter = ({
         >
             <FilterGroup label="증명서">
                 <Select 
-                    name="certificateType" 
-                    value={searchParams.certificateType} 
+                    // name="certificateType"                 // (DB와 맞도록 이전에 수정함)
+                    name="documentType"                    
+                    // value={searchParams.certificateType}  // (DB와 맞도록 이전에 수정함)
+                    value={searchParams.documentType}     
                     onChange={onSearchChange}
-                    options={certificateOptions}
+                    options={certificateOptions} // 👈 수정된 'certificateOptions' 사용
                     placeholder="전체"
                 />
             </FilterGroup>
             
             <FilterGroup label="처리상태">
                 <Select 
-                    name="issueStatus" 
-                    value={searchParams.issueStatus} 
+                    // name="issueStatus"                   // (DB와 맞도록 이전에 수정함)
+                    name="documentStatus"                 
+                    // value={searchParams.issueStatus}    // (DB와 맞도록 이전에 수정함)
+                    value={searchParams.documentStatus}  
                     onChange={onSearchChange}
                     options={statusOptions}
                     placeholder="전체"

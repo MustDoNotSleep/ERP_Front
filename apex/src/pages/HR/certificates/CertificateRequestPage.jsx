@@ -1,3 +1,5 @@
+// 👈 (수정) 1. useContext 임포트 제거
+// import React, { useState, useEffect, useContext } from 'react';
 import React, { useState, useEffect } from 'react';
 import styles from "./CertificateRequestPage.module.css";
 import tableStyles from "../../../components/common/DataTable.module.css"; 
@@ -6,7 +8,16 @@ import CertificateRequestFilter from '../../../components/HR/certificate/Certifi
 import CertificateRequestModal from '../../../components/HR/certificate/CertificateRequestModal';
 import { Button } from '../../../components/common';
 import { fetchDocumentApplications, createDocumentApplication } from '../../../api/document';
-import { CERTIFICATE_TYPES, ISSUE_STATUS_OPTIONS } from '../../../models/data/CertificateIssueMOCK.js';
+
+// 👈 (수정) 2. MOCK 데이터 임포트 변경
+// import { CERTIFICATE_TYPES, ISSUE_STATUS_OPTIONS } from '../../../models/data/CertificateIssueMOCK.js';
+import { CERTIFICATE_TYPE_LABELS, ISSUE_STATUS_OPTIONS } from '../../../models/data/CertificateIssueMOCK.js';
+
+// 👈 (수정) 3. AuthContext 임포트 -> getCurrentUser 임포트로 변경
+// import { AuthContext } from '../../../contexts/AuthContext';
+// (참고: './api/auth' 경로는 실제 auth.js 파일 위치에 맞게 수정해주세요!)
+import { getCurrentUser } from '../../../api/auth';
+
 
 // 테이블 헤더 정의
 const TABLE_HEADERS = [
@@ -16,11 +27,19 @@ const TABLE_HEADERS = [
 const CertificateRequestPage = () => {
     const [requests, setRequests] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+
+    // 👈 (수정) 4. searchParams 필드명 변경 (DB와 일치)
     const [searchParams, setSearchParams] = useState({
-        certificateType: '', 
+        // certificateType: '', // (수정 전)
+        // issueStatus: '',     // (수정 전)
+        documentType: '', 
         applicationDate: '', 
-        issueStatus: '',
+        documentStatus: '',
     });
+
+    // 👈 (수정) 5. AuthContext -> getCurrentUser() 호출로 변경
+    // const { currentUser } = useContext(AuthContext);
+    const currentUser = getCurrentUser();
 
     // 🧭 Enum 한글 매핑 함수
     const getStatusLabel = (status) => {
@@ -28,8 +47,10 @@ const CertificateRequestPage = () => {
         return found ? found.label : status;
     };
 
+    // 👈 (수정) 6. MOCK 변경에 따라 함수 수정
     const getCertificateLabel = (type) => {
-        return CERTIFICATE_TYPES[type] || type;
+        // return CERTIFICATE_TYPES[type] || type; // (수정 전)
+        return CERTIFICATE_TYPE_LABELS[type] || type; // (수정 후)
     };
 
     // API 호출 함수 (조회)
@@ -38,20 +59,24 @@ const CertificateRequestPage = () => {
         try {
             const response = await fetchDocumentApplications(0, 100);
             console.log("📦 백엔드 응답:", response);
-
-            // ✅ 백엔드 구조: { success, data: { content: [...] } }
-            const data = response.data?.data?.content || response.data?.data || response.data || [];
-
+            const data = response.data?.content || [];
+            //const data = response.data?.data?.content || response.data?.data || response.data || [];
             let filteredData = Array.isArray(data) ? data : [];
 
-            if (searchParams.certificateType) {
+            // 👈 (수정) 7. 필터 로직 수정 (searchParams.documentType)
+            // if (searchParams.certificateType) { // (수정 전)
+            if (searchParams.documentType) { // (수정 후)
                 filteredData = filteredData.filter(item => 
-                    item.documentType === searchParams.certificateType
+                    // item.documentType === searchParams.certificateType // (수정 전)
+                    item.documentType === searchParams.documentType // (수정 후)
                 );
             }
-            if (searchParams.issueStatus) {
+            // 👈 (수정) 7. 필터 로직 수정 (searchParams.documentStatus)
+            // if (searchParams.issueStatus) { // (수정 전)
+            if (searchParams.documentStatus) { // (수정 후)
                 filteredData = filteredData.filter(item => 
-                    item.documentStatus === searchParams.issueStatus
+                    // item.documentStatus === searchParams.issueStatus // (수정 전)
+                    item.documentStatus === searchParams.documentStatus // (수정 후)
                 );
             }
 
@@ -76,11 +101,14 @@ const CertificateRequestPage = () => {
         fetchRequests();
     };
 
+    // 👈 (수정) 8. reset 로직 수정
     const handleReset = () => {
         setSearchParams({
-            certificateType: '', 
+            // certificateType: '', // (수정 전)
+            // issueStatus: ''      // (수정 전)
+            documentType: '', 
             applicationDate: '', 
-            issueStatus: ''
+            documentStatus: ''
         });
         fetchRequests();
     };
@@ -93,14 +121,51 @@ const CertificateRequestPage = () => {
         setIsModalOpen(false);
     };
 
+    // 👈 (수정) 9. HTTP 500 오류 해결 (ID/Language 전송)
     const handleSubmitRequest = async (requestData) => {
-        console.log('📨 증명서 신청 요청:', requestData);
+        // requestData = { documentSelection: '{"type":..., "lang":...}', copies: 1, ... }
+        console.log('📨 증명서 신청 요청 (모달에서 받음):', requestData);
+        
         try {
-            const result = await createDocumentApplication(requestData);
+            // 1. 로그인한 사용자 ID 확인 (localStorage에서 가져온 정보 사용)
+            // 👈 (수정) 10. ID 필드명을 'employeeId'로 변경
+            // if (!currentUser || !currentUser.id) { // (수정 전)
+            if (!currentUser || !currentUser.employeeId) { // (수정 후)
+                alert("로그인 정보가 없습니다. 다시 로그인해주세요.");
+                return;
+            }
+            // const currentEmployeeId = currentUser.id; // 👈 (수정 전)
+            const currentEmployeeId = currentUser.employeeId; // 👈 (수정 후) 실제 ID 사용
+
+            // 2. 모달에서 받은 JSON 문자열을 파싱하여 type과 lang 분리
+            const { documentSelection, copies, purpose, deliveryAddress } = requestData;
+            // (만약 documentSelection이 없으면 오류가 날 수 있으니 방어 코드 추가)
+            if (!documentSelection) {
+                alert("증명서를 선택해주세요.");
+                return;
+            }
+            const { type: documentType, lang: language } = JSON.parse(documentSelection);
+
+            // 3. 백엔드로 보낼 최종 payload 조립
+            const payload = {
+                employeeId: currentEmployeeId,
+                documentType, // "CERTIFICATE_OF_EMPLOYMENT"
+                language,     // "KOREAN"
+                copies,
+                purpose,
+                deliveryAddress
+            };
+            
+            console.log('📡 백엔드로 보낼 최종 데이터:', payload);
+
+            // const result = await createDocumentApplication(requestData); // (수정 전)
+            const result = await createDocumentApplication(payload); // (수정 후)
+            
             console.log('✅ 신청 완료:', result);
             alert('증명서 신청이 완료되었습니다.');
             handleCloseModal();
             fetchRequests(); // 목록 새로고침
+
         } catch (error) {
             console.error('❌ 증명서 신청 중 오류 발생:', error);
             alert('증명서 신청 중 오류가 발생했습니다.');
@@ -131,6 +196,7 @@ const CertificateRequestPage = () => {
                 <td className={tableStyles.tableData}>{item.applicationDate || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.employeeId || '-'}</td>
                 <td className={tableStyles.tableData}>{item.employee?.name || '-'}</td>
+                {/* 👈 (수정) 11. MOCK 변경에 따라 getCertificateLabel 함수도 수정되었음 */}
                 <td className={tableStyles.tableData}>{getCertificateLabel(item.documentType)}</td>
                 <td className={tableStyles.tableData}>{item.copies || 1}</td>
                 <td className={tableStyles.tableData}>{item.issueDate || '-'}</td>
@@ -144,7 +210,7 @@ const CertificateRequestPage = () => {
     };
 
     return (
-        <div className={styles.pageContainer}>            
+        <div className={styles.pageContainer}> 
             {/* 검색 필터 영역 */}
             <div className={styles.filterSection}>
                 <CertificateRequestFilter

@@ -112,9 +112,9 @@ export const deleteDocumentApplication = async (applicationId) => {
  * @param {number} applicationId - 신청 ID
  * @returns {Promise<object>} 승인된 신청 정보
  */
-export const approveDocumentApplication = async (applicationId) => {
+export const approveDocumentApplication = async (applicationId, data) => {
     try {
-        const response = await api.patch(`/document-applications/${applicationId}/approve`);
+        const response = await api.put(`/document-applications/${applicationId}/approval`, data);
         return response.data;
     } catch (error) {
         console.error('Error approving document application:', error);
@@ -129,9 +129,9 @@ export const approveDocumentApplication = async (applicationId) => {
  * @param {string} reason - 반려 사유
  * @returns {Promise<object>} 반려된 신청 정보
  */
-export const rejectDocumentApplication = async (applicationId, reason) => {
+export const rejectDocumentApplication = async (applicationId, reason, data) => {
     try {
-        const response = await api.patch(`/document-applications/${applicationId}/reject`, { reason });
+        const response = await api.put(`/document-applications/${applicationId}/approval`, reason, data);
         return response.data;
     } catch (error) {
         console.error('Error rejecting document application:', error);
