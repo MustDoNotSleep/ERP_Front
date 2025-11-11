@@ -42,7 +42,8 @@ const MENU_BY_ROLE = {
           label: "직원 조회",
           children: [
             { label: "직원 조회", to: "/hr/people/search" },
-            { label: "신규직원등록", to: "/hr/people/new" },          ],
+            { label: "신규직원 등록", to: "/hr/people/new" },          
+          ],
         },
         {
           label: "인사발령",
@@ -58,7 +59,6 @@ const MENU_BY_ROLE = {
             {label: "포상 관리", to: "/hr/rewards/manage" },
           ],
         },
-        // { label: "학력/자격 관리", to: "/me/hr/education-qualification" },
         {
           label: "경력/교육관리",
           children: [
@@ -75,6 +75,7 @@ const MENU_BY_ROLE = {
             {label: "증명서 발급", to: "/hr/certificates/issue" },
           ],
         },
+        { label: "근무 평가", to: "/hr/work-evaluation"},
       ],
     },
     {
@@ -100,19 +101,13 @@ const MENU_BY_ROLE = {
         { 
           label: "급여 관리",
           children: [
-            { label: "급여 명세서", to: "/me/payroll/payslips", audience: "employee" }, // 사원용
-            { label: "급여 증명서 관리", to: "/payroll/certificates" , audience : "manager"}, // 관리자용
-            { label: "급여 및 보상기준 설정", to: "/payroll/settings" },
-            { label: "급여정산 및 확정", to: "/payroll/settlement" },
+            { label: "급여 정산 및 확정", to: "/payroll/certificates"}, // 관리자용
+            { label: "급여 명세서", to: "/me/payroll/payslips"}, // 사원용
+            { label: "급여 명세서 관리", to: "/payroll/settings" }, // 관리자용
           ],
         },
         {
-          label: "수당/상여 관리",
-          children: [
-            { label: "수당/상여 신청", to: "/me/payroll/allowances-bonus/apply" }, // 사원용
-            { label: "수당/상여 관리", to: "/payroll/allowances-bonus", audience : "manager" }, // 관리자용
-          ],
-        },
+          label: "수당/상여 관리", to: "/payroll/allowances-bonus"},
         { 
           label: "연말정산 관리", 
           children: [
@@ -123,7 +118,7 @@ const MENU_BY_ROLE = {
         { 
           label: "퇴직금 정산 및 관리", 
           children: [
-            { label : "퇴직금 관리", to: "/payroll/severance"},
+            { label : "퇴직금 정산 관리", to: "/payroll/severance"},
             { label : "퇴직금 정산 현황", to: "/payroll/severance/status", audience: "manager"} // 관리자용
           ],
         },
