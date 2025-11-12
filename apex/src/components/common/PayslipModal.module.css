@@ -1,0 +1,221 @@
+/* src/components/common/PayslipModal.module.css */
+
+.modalOverlay {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.7);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
+}
+
+.modalContent {
+  background-color: white;
+  padding: 1.5rem;
+  border-radius: 8px;
+  max-width: 800px;
+  width: 90%;
+  max-height: 90vh;
+  overflow-y: auto;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding-bottom: 1rem;
+  border-bottom: 1px solid #ddd;
+  margin-bottom: 1rem;
+}
+
+.printBtn {
+  background-color: #007bff;
+  color: white;
+  border: none;
+  padding: 0.5rem 1rem;
+  border-radius: 4px;
+  cursor: pointer;
+  font-size: 0.9rem;
+}
+
+.closeBtn {
+  background: none;
+  border: none;
+  font-size: 1.5rem;
+  cursor: pointer;
+  color: #333;
+}
+
+/* Payslip Content Styling */
+
+.payslipContainer {
+  font-family: 'Malgun Gothic', 'Dotum', sans-serif;
+  padding: 1.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+  @media print {
+    border: none;
+    padding: 0;
+  }
+}
+
+.payslipTitle {
+  font-size: 1.75rem;
+  font-weight: 700;
+  text-align: center;
+  margin-bottom: 2rem;
+  color: #333;
+}
+
+.infoTable {
+  border-top: 2px solid #333;
+  border-bottom: 1px solid #333;
+  margin-bottom: 2rem;
+}
+
+.infoRow {
+  display: flex;
+  border-bottom: 1px solid #ddd;
+}
+
+.infoRow:last-child {
+  border-bottom: none;
+}
+
+.infoLabel {
+  width: 15%;
+  min-width: 80px;
+  padding: 0.75rem;
+  background-color: #f8f8f8;
+  font-weight: 600;
+  border-right: 1px solid #ddd;
+  text-align: center;
+}
+
+.infoValue {
+  width: 35%;
+  padding: 0.75rem 1rem;
+  border-right: 1px solid #ddd;
+}
+
+.infoValue:last-child {
+  border-right: none;
+}
+
+/* Detail Tables (Payments & Deductions) */
+.detailTables {
+  display: flex;
+  gap: 2rem;
+  margin-bottom: 1rem; 
+}
+
+.paymentSection, .deductionSection {
+  flex: 1;
+}
+
+.sectionTitle {
+  font-size: 1.2rem;
+  font-weight: 600;
+  color: #333;
+  margin-bottom: 0.5rem;
+  border-bottom: 2px solid #333; 
+  padding-bottom: 0.25rem;
+}
+
+.detailTable {
+  width: 100%;
+  border-collapse: collapse;
+}
+
+.detailTable tr {
+  border-bottom: 1px solid #eee;
+}
+
+.detailItem {
+  width: 50%;
+  padding: 0.5rem 0;
+  font-weight: 500;
+  padding-left: 0.5rem; 
+}
+
+.detailAmount {
+  width: 50%;
+  padding: 0.5rem 0;
+  text-align: right;
+  padding-right: 0.5rem; 
+}
+
+/* Summary Section (서명 + 합계 테이블 배치) */
+.summarySection {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  padding-top: 0;
+}
+
+.signatureBox {
+    width: 55%; 
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    padding-top: 1rem;
+}
+
+/* 🚨 로고 이미지 스타일 */
+.companyLogo {
+    width: 60px; /* 로고 크기 조정 */
+    height: auto;
+    margin-bottom: 0.5rem;
+    padding-left: 0.5rem; /* 텍스트와 비슷하게 왼쪽 여백 */
+}
+
+.issuerInfo {
+    text-align: left;
+    font-size: 0.85rem;
+    padding-left: 0.5rem;
+}
+
+.issuerName {
+    font-weight: 700;
+    color: #333;
+}
+
+.issuerCeo {
+    font-size: 0.8rem;
+    color: #666;
+}
+
+
+.summaryTable {
+  width: 45%; 
+  border-collapse: collapse;
+  margin-left: auto; 
+  border: 1px solid #333; 
+}
+
+.summaryTable td {
+    padding: 0.75rem 1rem;
+    font-size: 0.95rem;
+    text-align: right;
+    border: none; 
+}
+
+.summaryLabel {
+  font-weight: 600;
+  color: #333;
+  text-align: center;
+  border-right: 1px solid #333; 
+  background-color: #f8f8f8;
+}
+
+.summaryTable tr:last-child .summaryLabel,
+.summaryTable tr:last-child .summaryValue {
+  font-weight: 700;
+  font-size: 1.1rem;
+  color: #b22735bc;
+}

@@ -29,6 +29,7 @@ import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
 import AnnualRequests from './pages/attendance/leave/AnnualRequests.jsx';
 import DispatchTravel from './pages/attendance/DispatchTravel.jsx';
 import AttendanceStats from './pages/attendance/AttendanceStats.jsx';
+import PayslipView from './pages/payroll/PayslipView.jsx';
 
 import { isAuthenticated, logout } from './api/auth';
 import LeaveManage from './pages/attendance/leave/LeaveManage.jsx';
@@ -93,8 +94,8 @@ function App() {
 
           {/* 급여부분 */}  
           <Route path="/payroll">
-            {<Route path="certificates" element={<PayrollSettlement />} />
-            /*< Route path="education/regist" element={<CareerManagementPage />} /> */}
+            <Route path="certificates" element={<PayrollSettlement />} />
+            <Route path="payslips" element={<PayslipView />} />
           </Route>
           
           {/* myinfo 폴더의 파일 사용 */}

@@ -102,7 +102,8 @@ const MENU_BY_ROLE = {
           label: "급여 관리",
           children: [
             { label: "급여 정산 및 확정", to: "/payroll/certificates"}, // 관리자용
-            { label: "급여 명세서", to: "/me/payroll/payslips"}, // 사원용
+            { label: "급여 명세서", to: "/payroll/payslips"}, // 사원용
+            { label: "급여 명세서 관리", to: "/payroll/settings" }, // 관리자용
           ],
         },
         {
