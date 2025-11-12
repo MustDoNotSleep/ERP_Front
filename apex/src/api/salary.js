@@ -160,3 +160,51 @@ export const updateSalaryInfo = async (salaryInfoId, salaryInfoData) => {
         throw error;
     }
 };
+
+/**
+ * 월별 급여 목록 조회
+ * GET /salary/month/{yearMonth}
+ * @param {string} yearMonth - 연월 (YYYY-MM)
+ * @returns {Promise<object>} 월별 급여 목록
+ */
+export const fetchMonthlySalaries = async (yearMonth) => {
+    try {
+        const response = await api.get(`/salary/month/${yearMonth}`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching monthly salaries for ${yearMonth}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * 급여 확정
+ * PUT /salary/{id}/confirm
+ * @param {number} salaryId - 급여 ID
+ * @returns {Promise<object>} 확정 결과
+ */
+export const confirmSalary = async (salaryId) => {
+    try {
+        const response = await api.put(`/salary/${salaryId}/confirm`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error confirming salary ${salaryId}:`, error);
+        throw error;
+    }
+};
+
+/**
+ * 급여 지급 처리
+ * PUT /salary/{id}/pay
+ * @param {number} salaryId - 급여 ID
+ * @returns {Promise<object>} 지급 결과
+ */
+export const markSalaryAsPaid = async (salaryId) => {
+    try {
+        const response = await api.put(`/salary/${salaryId}/pay`);
+        return response.data;
+    } catch (error) {
+        console.error(`Error marking salary ${salaryId} as paid:`, error);
+        throw error;
+    }
+};

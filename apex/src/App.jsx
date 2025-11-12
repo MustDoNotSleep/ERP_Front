@@ -32,6 +32,7 @@ import AttendanceStats from './pages/attendance/AttendanceStats.jsx';
 
 import { isAuthenticated, logout } from './api/auth';
 import LeaveManage from './pages/attendance/leave/LeaveManage.jsx';
+import PayrollSettlement from './pages/payroll/PayrollSettlement.jsx';
 
 function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
@@ -92,8 +93,8 @@ function App() {
 
           {/* 급여부분 */}  
           <Route path="/payroll">
-            {/* <Route path="career" element={<CareerManagementPage />} />
-            <Route path="education/regist" element={<CareerManagementPage />} /> */}
+            {<Route path="certificates" element={<PayrollSettlement />} />
+            /*< Route path="education/regist" element={<CareerManagementPage />} /> */}
           </Route>
           
           {/* myinfo 폴더의 파일 사용 */}
