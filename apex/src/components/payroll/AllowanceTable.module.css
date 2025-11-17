@@ -1,0 +1,474 @@
+.contentWrapper {
+  display: grid;
+  grid-template-columns: 500px 1fr;
+  gap: var(--spacing-2xl);
+  align-items: start;
+}
+
+/* ===== 왼쪽: 수당 추가 폼 ===== */
+.formSection {
+  background-color: #E3E3E1;
+  border-radius: 8px;
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-md);
+  position: sticky;
+  top: var(--spacing-2xl);
+}
+
+.formTitle {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-xl);
+}
+
+.formGroup {
+  margin-bottom: var(--spacing-lg);
+}
+
+.label {
+  display: block;
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-sm);
+}
+
+.input,
+.select,
+.textarea {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid #ddd; 
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  background-color: white;
+  transition: var(--transition-base);
+}
+
+.input:focus,
+.select:focus,
+.textarea:focus {
+  outline: none;
+  border-color: var(--color-primary);
+}
+
+.textarea {
+  resize: vertical;
+  min-height: 200px;
+}
+
+.fileInputWrapper {
+  display: flex;
+  align-items: center;
+  gap: var(--spacing-sm);
+}
+
+.fileInput {
+  display: none;
+}
+
+.fileLabel {
+  flex: 1;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid #999;
+  border-radius: var(--radius-sm);
+  background-color: white;
+  font-size: 0.875rem;
+  color: #666;
+  cursor: pointer;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.fileButton {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: white;
+  border: 1px solid #999;
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 1rem;
+  transition: var(--transition-base);
+}
+
+.fileButton:hover {
+  background-color: var(--color-bg-light);
+}
+
+.submitButton {
+  width: 100%;
+  padding: var(--spacing-md);
+  background-color: var(--color-primary);
+  color: white;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-semibold);
+  cursor: pointer;
+  transition: var(--transition-base);
+  margin-top: var(--spacing-lg);
+}
+
+.submitButton:hover {
+  background-color: var(--color-primary-dark);
+}
+
+.submitButton:disabled {
+  background-color: #999;
+  cursor: not-allowed;
+}
+
+/* 금액 빠른 추가 버튼 */
+.amountButtons {
+  display: flex;
+  gap: var(--spacing-sm);
+  margin-top: var(--spacing-sm);
+}
+
+.amountBtn {
+  flex: 1;
+  padding: var(--spacing-sm);
+  background-color: white;
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-base);
+  color: var(--color-text-secondary);
+}
+
+.amountBtn:hover {
+  background-color: var(--color-primary);
+  color: white;
+  border-color: var(--color-primary);
+}
+
+/* ===== 오른쪽: 테이블 섹션 ===== */
+/* .tableSection {
+  background-color: white;
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-2xl);
+  box-shadow: var(--shadow-md);
+} */
+
+.tableHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: var(--spacing-xl);
+}
+
+.tableTitle {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+}
+
+.tableActions {
+  display: flex;
+  gap: var(--spacing-md);
+}
+
+.btnPrimary,
+.btnSecondary,
+.btnDanger {
+  padding: var(--spacing-sm) var(--spacing-xl);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-base);
+}
+
+.btnPrimary {
+  background-color: #007bff;
+  color: white;
+}
+
+.btnPrimary:hover {
+  background-color: #0056b3;
+}
+
+.btnSecondary {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.btnSecondary:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+.btnDanger {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.btnDanger:hover {
+  background-color: #c82333;
+}
+
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 0.875rem;
+}
+
+.table thead {
+  background-color: var(--color-bg-gray);
+  border-bottom: 2px solid var(--color-border-light);
+}
+
+.table th {
+  padding: var(--spacing-md);
+  text-align: center;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+  white-space: nowrap;
+}
+
+.table td {
+  padding: var(--spacing-md);
+  text-align: center;
+  border-bottom: 1px solid var(--color-border-light);
+  color: var(--color-text-primary);
+}
+
+.table tbody tr:hover {
+  background-color: var(--color-bg-light);
+}
+
+.checkbox {
+  width: 18px;
+  height: 18px;
+  cursor: pointer;
+}
+
+.editableInput {
+  width: 100%;
+  padding: 0.25rem 0.5rem;
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  text-align: center;
+}
+
+.editableInput:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.actionBtn {
+  padding: 0.25rem 0.5rem;
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  cursor: pointer;
+  transition: var(--transition-base);
+  margin: 0 0.25rem;
+}
+
+.viewBtn {
+  background-color: #007bff;
+  color: white;
+}
+
+.viewBtn:hover {
+  background-color: #0056b3;
+}
+
+.deleteBtn {
+  background-color: var(--color-error);
+  color: white;
+}
+
+.deleteBtn:hover {
+  background-color: #c82333;
+}
+
+.emptyState,
+.loadingState {
+  text-align: center;
+  padding: var(--spacing-4xl);
+}
+
+.emptyState {
+  color: var(--color-text-light);
+}
+
+.loadingState {
+  color: #007bff;
+}
+
+/* ===== 배지 스타일 (페이지 특화) ===== */
+.categoryBadge {
+  display: inline-block;
+  padding: 0.25rem 0.75rem;
+  border-radius: var(--radius-full);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+}
+
+.categoryIncentive {
+  background-color: #d1ecf1;
+  color: #0c5460;
+}
+
+.categoryBonus {
+  background-color: #d4edda;
+  color: #155724;
+}
+
+.categoryHoliday {
+  background-color: #fff3cd;
+  color: #856404;
+}
+
+.categoryOvertime {
+  background-color: #f8d7da;
+  color: #721c24;
+}
+
+.categorySpecial {
+  background-color: #e2e3e5;
+  color: #383d41;
+}
+
+.categoryOther {
+  background-color: #d6d8db;
+  color: #1b1e21;
+}
+
+.typeBadge {
+  display: inline-block;
+  padding: 0.25rem 0.5rem;
+  border-radius: var(--radius-sm);
+  font-size: var(--font-size-xs);
+  font-weight: var(--font-weight-semibold);
+  text-transform: uppercase;
+}
+
+.typeAll {
+  background-color: #667eea;
+  color: white;
+}
+
+.typeDepartment {
+  background-color: #f093fb;
+  color: white;
+}
+
+.typeIndividual {
+  background-color: #4facfe;
+  color: white;
+}
+
+/* ===== 필터 섹션 ===== */
+.filterSection {
+  background-color: var(--color-bg-filter);
+  border: 1px solid var(--color-border-light);
+  border-radius: var(--radius-lg);
+  padding: var(--spacing-xl) var(--spacing-2xl);
+  margin-bottom: var(--spacing-xl);
+}
+
+.filterTitle {
+  font-size: 1.25rem;
+  font-weight: var(--font-weight-bold);
+  color: var(--color-text-primary);
+  margin-bottom: var(--spacing-lg);
+}
+
+.filterRow {
+  display: flex;
+  gap: var(--spacing-lg);
+  align-items: flex-end;
+}
+
+.filterGroup {
+  display: flex;
+  flex-direction: column;
+  gap: var(--spacing-xs);
+  flex: 1;
+}
+
+.filterLabel {
+  font-size: 0.75rem;
+  font-weight: var(--font-weight-semibold);
+  color: var(--color-text-secondary);
+}
+
+.filterInput,
+.filterSelect {
+  width: 100%;
+  padding: var(--spacing-sm) var(--spacing-md);
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  background-color: white;
+  transition: var(--transition-base);
+}
+
+.filterInput:focus,
+.filterSelect:focus {
+  outline: none;
+  border-color: #007bff;
+  box-shadow: 0 0 0 2px rgba(0, 123, 255, 0.1);
+}
+
+.filterInput:disabled {
+  background-color: var(--color-bg-gray);
+  cursor: not-allowed;
+}
+
+.searchButton {
+  padding: var(--spacing-sm) var(--spacing-md);
+  background-color: white;
+  border: 1px solid var(--color-border-gray);
+  border-radius: var(--radius-sm);
+  cursor: pointer;
+  font-size: 0.875rem;
+  transition: var(--transition-base);
+}
+
+.searchButton:hover {
+  background-color: var(--color-bg-light);
+  border-color: #007bff;
+}
+
+.filterActions {
+  display: flex;
+  gap: var(--spacing-sm);
+}
+
+.filterActions button {
+  padding: var(--spacing-sm) var(--spacing-lg);
+  border: none;
+  border-radius: var(--radius-sm);
+  font-size: 0.875rem;
+  font-weight: var(--font-weight-medium);
+  cursor: pointer;
+  transition: var(--transition-base);
+  white-space: nowrap;
+}
+
+.filterActions button:first-child {
+  background-color: var(--color-secondary);
+  color: white;
+}
+
+.filterActions button:first-child:hover {
+  background-color: var(--color-secondary-dark);
+}
+
+.filterActions button:last-child {
+  background-color: #007bff;
+  color: white;
+}
+
+.filterActions button:last-child:hover {
+  background-color: #0056b3;
+}

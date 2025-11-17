@@ -8,7 +8,7 @@ import { RiAttachmentLine } from "react-icons/ri";
 import styles from './PayslipView.module.css';
 
 // 🚨 API 함수 이름 수정: 가능한 exports 목록에서 적절한 함수를 가져옵니다.
-import { fetchEmployeeSalaries, fetchSalaryById } from '../../api/salary'; 
+import { fetchEmployeesalary, fetchSalaryById } from '../../api/salary'; 
 
 const CURRENT_YEAR = new Date().getFullYear();
 const YEARS = [CURRENT_YEAR, CURRENT_YEAR - 1, CURRENT_YEAR - 2]; 
@@ -49,12 +49,12 @@ export default function PayslipView() {
     const loadPayslips = useCallback(async () => {
         setLoading(true);
         try {
-            // 🚨 API 호출 함수 이름 수정 적용: fetchEmployeeSalaries
+            // 🚨 API 호출 함수 이름 수정 적용: fetchEmployeesalary
             const monthParam = selectedMonth === '전체' ? null : parseInt(selectedMonth);
             // API는 년도와 월을 문자열로 요구할 수 있으므로, 해당 형식에 맞게 전달해야 합니다.
             const yearMonth = monthParam ? `${selectedYear}-${String(monthParam).padStart(2, '0')}` : `${selectedYear}`;
             
-            const response = await fetchEmployeeSalaries(yearMonth); 
+            const response = await fetchEmployeesalary(yearMonth); 
             
             const payslipData = response.data || []; 
             

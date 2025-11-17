@@ -14,21 +14,17 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
     baseSalary: 0,
     
     // 수당
-    positionAllowance: 0,
-    mealAllowance: 0,
-    transportAllowance: 0,
-    overtimeAllowance: 0,
-    nightAllowance: 0,
-    holidayAllowance: 0,
-    otherAllowance: 0,
+    overtimeAllowance: 0,    // 야근수당
+    nightAllowance: 0,       // 야간수당
+    bonus: 0,                // 보너스
     
     // 공제
-    nationalPension: 0,
-    healthInsurance: 0,
-    employmentInsurance: 0,
-    incomeTax: 0,
-    localIncomeTax: 0,
-    otherDeductions: 0
+    incomeTax: 0,            // 소득세
+    localIncomeTax: 0,       // 지방소득세
+    nationalPension: 0,      // 국민연금
+    healthInsurance: 0,      // 건강보험
+    employmentInsurance: 0,  // 고용보험
+    otherDeductions: 0       // 기타공제
   });
 
   useEffect(() => {
@@ -39,18 +35,14 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
         positionName: salary.positionName || '',
         departmentName: salary.departmentName || '',
         baseSalary: salary.baseSalary || 0,
-        positionAllowance: salary.positionAllowance || 0,
-        mealAllowance: salary.mealAllowance || 0,
-        transportAllowance: salary.transportAllowance || 0,
         overtimeAllowance: salary.overtimeAllowance || 0,
         nightAllowance: salary.nightAllowance || 0,
-        holidayAllowance: salary.holidayAllowance || 0,
-        otherAllowance: salary.otherAllowance || 0,
+        bonus: salary.bonus || 0,
+        incomeTax: salary.incomeTax || 0,
+        localIncomeTax: salary.localIncomeTax || 0,
         nationalPension: salary.nationalPension || 0,
         healthInsurance: salary.healthInsurance || 0,
         employmentInsurance: salary.employmentInsurance || 0,
-        incomeTax: salary.incomeTax || 0,
-        localIncomeTax: salary.localIncomeTax || 0,
         otherDeductions: salary.otherDeductions || 0
       });
     }
@@ -66,21 +58,17 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
 
   const calculateTotalSalary = () => {
     return formData.baseSalary +
-           formData.positionAllowance +
-           formData.mealAllowance +
-           formData.transportAllowance +
            formData.overtimeAllowance +
            formData.nightAllowance +
-           formData.holidayAllowance +
-           formData.otherAllowance;
+           formData.bonus;
   };
 
   const calculateTotalDeductions = () => {
-    return formData.nationalPension +
+    return formData.incomeTax +
+           formData.localIncomeTax +
+           formData.nationalPension +
            formData.healthInsurance +
            formData.employmentInsurance +
-           formData.incomeTax +
-           formData.localIncomeTax +
            formData.otherDeductions;
   };
 
@@ -168,28 +156,6 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>수당</h3>
             <div className={styles.grid}>
-              {/* <div className={styles.formGroup}>
-                <label className={styles.label}>직책수당</label>
-                <input
-                  type="number"
-                  name="positionAllowance"
-                  value={formData.positionAllowance}
-                  onChange={handleChange}
-                  className={styles.input}
-                  step="1000"
-                />
-              </div> */}
-              {/* <div className={styles.formGroup}>
-                <label className={styles.label}>교통비</label>
-                <input
-                  type="number"
-                  name="transportAllowance"
-                  value={formData.transportAllowance}
-                  onChange={handleChange}
-                  className={styles.input}
-                  step="1000"
-                />
-              </div> */}
               <div className={styles.formGroup}>
                 <label className={styles.label}>야근수당</label>
                 <input
@@ -213,22 +179,11 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
                 />
               </div>
               <div className={styles.formGroup}>
-                <label className={styles.label}>(공)휴일수당</label>
-                <input
-                  type="number"
-                  name="holidayAllowance"
-                  value={formData.holidayAllowance}
-                  onChange={handleChange}
-                  className={styles.input}
-                  step="1000"
-                />
-              </div>
-              <div className={styles.formGroup}>
                 <label className={styles.label}>기타수당</label>
                 <input
                   type="number"
-                  name="otherAllowance"
-                  value={formData.otherAllowance}
+                  name="bonus"
+                  value={formData.bonus}
                   onChange={handleChange}
                   className={styles.input}
                   step="1000"
@@ -241,6 +196,28 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
           <div className={styles.section}>
             <h3 className={styles.sectionTitle}>공제</h3>
             <div className={styles.grid}>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>소득세</label>
+                <input
+                  type="number"
+                  name="incomeTax"
+                  value={formData.incomeTax}
+                  onChange={handleChange}
+                  className={styles.input}
+                  step="1000"
+                />
+              </div>
+              <div className={styles.formGroup}>
+                <label className={styles.label}>지방소득세</label>
+                <input
+                  type="number"
+                  name="localIncomeTax"
+                  value={formData.localIncomeTax}
+                  onChange={handleChange}
+                  className={styles.input}
+                  step="1000"
+                />
+              </div>
               <div className={styles.formGroup}>
                 <label className={styles.label}>국민연금</label>
                 <input
@@ -269,28 +246,6 @@ const PayslipDetailModal = ({ isOpen, onClose, salary, onUpdate }) => {
                   type="number"
                   name="employmentInsurance"
                   value={formData.employmentInsurance}
-                  onChange={handleChange}
-                  className={styles.input}
-                  step="1000"
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>소득세</label>
-                <input
-                  type="number"
-                  name="incomeTax"
-                  value={formData.incomeTax}
-                  onChange={handleChange}
-                  className={styles.input}
-                  step="1000"
-                />
-              </div>
-              <div className={styles.formGroup}>
-                <label className={styles.label}>지방소득세</label>
-                <input
-                  type="number"
-                  name="localIncomeTax"
-                  value={formData.localIncomeTax}
                   onChange={handleChange}
                   className={styles.input}
                   step="1000"

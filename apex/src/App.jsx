@@ -34,6 +34,7 @@ import PayslipView from './pages/payroll/PayslipView.jsx';
 import { isAuthenticated, logout } from './api/auth';
 import LeaveManage from './pages/attendance/leave/LeaveManage.jsx';
 import PayrollSettlement from './pages/payroll/PayrollSettlement.jsx';
+import AllowanceBonusManage from './pages/payroll/AllowanceBonusManage.jsx';
 
 function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
@@ -96,6 +97,7 @@ function App() {
           <Route path="/payroll">
             <Route path="certificates" element={<PayrollSettlement />} />
             <Route path="payslips" element={<PayslipView />} />
+            <Route path="allowances-bonus" element={<AllowanceBonusManage />} />
           </Route>
           
           {/* myinfo 폴더의 파일 사용 */}

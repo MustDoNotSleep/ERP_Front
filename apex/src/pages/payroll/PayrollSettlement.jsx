@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMonthlySalaries, confirmSalary, markSalaryAsPaid } from '../../api/salary';
+import { fetchMonthlysalary, confirmSalary, markSalaryAsPaid, updateSalary, downloadPayslip } from '../../api/salary';
 import { fetchUniqueDepartmentNames } from '../../api/department';
 import { toast } from 'react-toastify';
 import EmployeeSearchModal from '../../components/common/EmployeeSearchModal';
@@ -16,13 +16,14 @@ export default function PayrollSettlement() {
   const [department, setDepartment] = useState('전체');
   const [departments, setDepartments] = useState([]);
   
-  const [salaries, setSalaries] = useState([]);
-  const [allSalaries, setAllSalaries] = useState([]); // 전체 데이터 저장
+  const [salary, setsalary] = useState([]);
+  const [allsalary, setAllsalary] = useState([]); // 전체 데이터 저장
   const [loading, setLoading] = useState(false);
   const [selectedIds, setSelectedIds] = useState([]);
   const [isEmployeeSearchOpen, setIsEmployeeSearchOpen] = useState(false);
   const [isPayslipDetailOpen, setIsPayslipDetailOpen] = useState(false);
   const [selectedSalary, setSelectedSalary] = useState(null);
+  const [downloadingId, setDownloadingId] = useState(null); // 다운로드 중인 급여 ID
 
   // 요약 데이터
   const [summary, setSummary] = useState({
@@ -32,7 +33,7 @@ export default function PayrollSettlement() {
   });
 
   useEffect(() => {
-    loadSalaries();
+    loadsalary();
     loadDepartments();
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
@@ -40,7 +41,7 @@ export default function PayrollSettlement() {
   // 년도/월 변경 시 자동 재조회
   useEffect(() => {
     if (year && month) {
-      loadSalaries();
+      loadsalary();
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [year, month]);
@@ -65,11 +66,11 @@ export default function PayrollSettlement() {
     }
   };
 
-  const loadSalaries = async () => {
+  const loadsalary = async () => {
     setLoading(true);
     try {
       const yearMonth = `${year}-${String(month).padStart(2, '0')}`;
-      const response = await fetchMonthlySalaries(yearMonth);
+      const response = await fetchMonthlysalary(yearMonth);
       
       console.log('급여 API 응답:', response);
       
@@ -82,13 +83,13 @@ export default function PayrollSettlement() {
       }
       
       console.log('급여 데이터:', salaryData);
-      setAllSalaries(salaryData); // 전체 데이터 저장
+      setAllsalary(salaryData); // 전체 데이터 저장
       applyFilters(salaryData); // 필터 적용
     } catch (error) {
       console.error('급여 목록 조회 실패:', error);
       toast.error('급여 목록을 불러오는데 실패했습니다.');
-      setAllSalaries([]);
-      setSalaries([]);
+      setAllsalary([]);
+      setsalary([]);
       calculateSummary([]);
     } finally {
       setLoading(false);
@@ -119,7 +120,7 @@ export default function PayrollSettlement() {
       );
     }
 
-    setSalaries(filtered);
+    setsalary(filtered);
     calculateSummary(filtered);
   };
 
@@ -152,7 +153,7 @@ export default function PayrollSettlement() {
   };
 
   const handleSearch = () => {
-    applyFilters(allSalaries);
+    applyFilters(allsalary);
   };
 
   const handleReset = () => {
@@ -163,8 +164,8 @@ export default function PayrollSettlement() {
     setDepartment('전체');
     setSelectedIds([]);
     // 리셋 후 전체 데이터로 다시 표시
-    setSalaries(allSalaries);
-    calculateSummary(allSalaries);
+    setsalary(allsalary);
+    calculateSummary(allsalary);
   };
 
   const handleOpenEmployeeSearch = () => {
@@ -179,7 +180,7 @@ export default function PayrollSettlement() {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
-      setSelectedIds(salaries.map(s => s.id));
+      setSelectedIds(salary.map(s => s.id));
     } else {
       setSelectedIds([]);
     }
@@ -203,7 +204,7 @@ export default function PayrollSettlement() {
       await Promise.all(selectedIds.map(id => confirmSalary(id)));
       toast.success(`${selectedIds.length}건의 급여가 확정되었습니다.`);
       setSelectedIds([]);
-      loadSalaries();
+      loadsalary();
     } catch (error) {
       console.error('급여 확정 실패:', error);
       toast.error('급여 확정에 실패했습니다.');
@@ -220,7 +221,7 @@ export default function PayrollSettlement() {
       await Promise.all(selectedIds.map(id => markSalaryAsPaid(id)));
       toast.success(`${selectedIds.length}건의 급여가 지급 처리되었습니다.`);
       setSelectedIds([]);
-      loadSalaries();
+      loadsalary();
     } catch (error) {
       console.error('급여 지급 처리 실패:', error);
       toast.error('급여 지급 처리에 실패했습니다.');
@@ -250,30 +251,55 @@ export default function PayrollSettlement() {
     setIsPayslipDetailOpen(true);
   };
 
-  const handleDownloadPayslip = (salary, e) => {
+  const handleDownloadPayslip = async (salary, e) => {
     e.stopPropagation(); // 행 클릭 이벤트 방지
     
-    // TODO: 급여명세서 PDF 다운로드 API 연결
-    console.log('급여명세서 다운로드:', salary);
-    toast.info(`${salary.employeeName}님의 급여명세서를 다운로드합니다.`);
+    if (downloadingId === salary.id) {
+      return; // 이미 다운로드 중이면 중복 실행 방지
+    }
     
-    // 실제 구현 시:
-    // const response = await downloadPayslipPDF(salary.id);
-    // const blob = new Blob([response.data], { type: 'application/pdf' });
-    // const url = window.URL.createObjectURL(blob);
-    // const link = document.createElement('a');
-    // link.href = url;
-    // link.download = `급여명세서_${salary.employeeName}_${year}-${month}.pdf`;
-    // link.click();
+    try {
+      setDownloadingId(salary.id);
+      toast.info(`${salary.employeeName}님의 급여명세서를 다운로드합니다.`);
+      
+      // API 호출
+      const blob = await downloadPayslip(salary.id);
+      
+      // Blob을 파일로 다운로드
+      const url = window.URL.createObjectURL(blob);
+      const link = document.createElement('a');
+      link.href = url;
+      link.download = `급여명세서_${salary.employeeName}_${year}-${String(month).padStart(2, '0')}.pdf`;
+      document.body.appendChild(link);
+      link.click();
+      document.body.removeChild(link);
+      window.URL.revokeObjectURL(url);
+      
+      toast.success('급여명세서 다운로드가 완료되었습니다.');
+    } catch (error) {
+      console.error('급여명세서 다운로드 실패:', error);
+      toast.error('급여명세서 다운로드에 실패했습니다.');
+    } finally {
+      setDownloadingId(null);
+    }
   };
 
   const handlePayslipUpdate = async (salaryId, updateData) => {
-    console.log('급여 수정 데이터:', salaryId, updateData);
-    // TODO: API 연결 필요
-    // await updateSalary(salaryId, updateData);
-    
-    // 성공 후 급여 목록 재조회
-    loadSalaries();
+    try {
+      console.log('급여 수정 데이터:', salaryId, updateData);
+      
+      // API 호출
+      await updateSalary(salaryId, updateData);
+      
+      toast.success('급여 정보가 수정되었습니다.');
+      
+      // 성공 후 급여 목록 재조회
+      await loadsalary();
+    } catch (error) {
+      console.error('급여 수정 실패:', error);
+      toast.error('급여 수정에 실패했습니다.');
+      throw error; // 모달에서 에러 처리를 위해 다시 throw
+    }
   };
 
   return (
@@ -399,7 +425,7 @@ export default function PayrollSettlement() {
 
         {loading ? (
           <div className={styles.loadingState}>데이터를 불러오는 중...</div>
-        ) : salaries.length === 0 ? (
+        ) : salary.length === 0 ? (
           <div className={styles.emptyState}>조회된 급여 내역이 없습니다.</div>
         ) : (
           <table className={styles.table}>
@@ -409,7 +435,7 @@ export default function PayrollSettlement() {
                   <input
                     type="checkbox"
                     className={styles.checkbox}
-                    checked={selectedIds.length === salaries.length && salaries.length > 0}
+                    checked={selectedIds.length === salary.length && salary.length > 0}
                     onChange={handleSelectAll}
                   />
                 </th>
@@ -426,7 +452,7 @@ export default function PayrollSettlement() {
               </tr>
             </thead>
             <tbody>
-              {salaries.map((salary) => (
+              {salary.map((salary) => (
                 <tr 
                   key={salary.id} 
                   onClick={() => handleRowClick(salary)}
@@ -460,8 +486,13 @@ export default function PayrollSettlement() {
                       className={styles.downloadBtn}
                       onClick={(e) => handleDownloadPayslip(salary, e)}
                       title="급여명세서 다운로드"
+                      disabled={downloadingId === salary.id}
                     >
-                      <IoIosDownload />
+                      {downloadingId === salary.id ? (
+                        <span className={styles.spinner}>⏳</span>
+                      ) : (
+                        <IoIosDownload />
+                      )}
                     </button>
                   </td>
                 </tr>
