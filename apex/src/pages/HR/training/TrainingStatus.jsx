@@ -5,7 +5,7 @@ import tableStyles from '../../../components/common/DataTable.module.css';
 import styles from './TrainingStatus.module.css';
 
 /**
- * 교육 이수 현황/신청 페이지
+ * 교육 이수 현황 페이지
  * 인사팀용 - 전체 직원의 교육 이수 현황을 조회하고 관리
  */
 const TrainingStatus = () => {

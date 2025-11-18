@@ -8,52 +8,78 @@ import companyLogo from '../../img/logo.svg';
 
 // 컴포넌트 내부에서 사용할 PayslipContent (forwardRef를 통해 Ref를 받음)
 const PayslipContent = React.forwardRef(({ payslipData }, ref) => {
-  if (!payslipData || !payslipData.details) return <div>급여명세서 데이터가 유효하지 않습니다.</div>;
+  if (!payslipData || !payslipData.id) {
+    return <div className={styles.errorMessage}>급여명세서 데이터가 유효하지 않습니다.</div>;
+  }
 
   const formatCurrency = (amount) => {
     return new Intl.NumberFormat('ko-KR').format(amount || 0);
   };
-  
-  // 이미지에 표시된 값으로 하드코딩된 데이터 사용 (Mockup)
-  const employeeName = "최인사";
-  const departmentName = "경영기획본부";
-  const positionName = "부장";
-  const paymentDate = "2025년 11월";
-  const attributionPeriod = "2025년 10월(2025.10.01~2025.10.31)";
-  const totalSalary = 5300000;
-  const totalDeductions = 867510;
-  const netSalary = 4432490;
-  const issuer = { company: 'APEX 금융보안', ceo: '김원장' };
 
-  // 이미지에 보이는 모든 항목과 값을 그대로 재현합니다.
+  // API에서 받은 실제 데이터 사용
+  const employeeName = payslipData.employeeName || payslipData.employee?.name || "-";
+  const departmentName = payslipData.departmentName || payslipData.employee?.department?.name || "-";
+  const positionName = payslipData.positionName || payslipData.employee?.position?.name || "-";
+  
+  // 날짜 포맷팅 (YYYY-MM -> YYYY년 MM월)
+  let paymentDate = "-";
+  let attributionPeriod = "-";
+  
+  if (payslipData.paymentDate) {
+    paymentDate = payslipData.paymentDate.replace(/^(\d{4})-(\d{2})$/, '$1년 $2월');
+    attributionPeriod = payslipData.paymentDate.replace(/^(\d{4})-(\d{2})$/, '$1년 $2월');
+  }
+  
+  // 급여 상세 정보 - API 응답 구조에 맞게 직접 접근
+  // details 객체가 없고 payslipData에 직접 필드가 있음
+  
+  // 지급 항목
   const allPayments = [
-    { item: '기본급', amount: 4500000 },
-    { item: '식대', amount: 100000 },
-    { item: '차량유지비', amount: 50000 },
-    { item: '직책수당', amount: 30000 },
-    { item: '근속수당', amount: 120000 },
-    { item: '연장수당', amount: null }, 
-    { item: '당직수당', amount: null },
-    { item: '상여금', amount: 500000 },
-    { item: '기타', amount: null },
+    { item: '기본급', amount: payslipData.baseSalary || 0 },
+    { item: '식대', amount: payslipData.mealAllowance || null },
+    { item: '차량유지비', amount: payslipData.vehicleAllowance || null },
+    { item: '직책수당', amount: payslipData.positionAllowance || null },
+    { item: '근속수당', amount: payslipData.longevityAllowance || null },
+    { item: '연장수당', amount: payslipData.overtimeAllowance || null },
+    { item: '당직수당', amount: payslipData.nightAllowance || null },
+    { item: '상여금', amount: payslipData.bonus || null },
+    { item: '기타', amount: payslipData.otherPayments || null },
   ];
   
+  // 공제 항목
   const allDeductions = [
-    { item: '국민연금', amount: 370100 },
-    { item: '건강보험', amount: 37010 },
-    { item: '노인장기요양보험', amount: 218700 },
-    { item: '고용보험', amount: 166345 },
-    { item: '소득세', amount: 14155 },
-    { item: '지방소득세', amount: 41200 },
-    { item: '상조회비', amount: 20000 },
-    { item: '가불금', amount: null },
+    { item: '국민연금', amount: payslipData.nationalPension || null },
+    { item: '건강보험', amount: payslipData.healthInsurance || null },
+    { item: '노인장기요양보험', amount: payslipData.longTermCare || null },
+    { item: '고용보험', amount: payslipData.employmentInsurance || null },
+    { item: '소득세', amount: payslipData.incomeTax || null },
+    { item: '지방소득세', amount: payslipData.localIncomeTax || null },
+    { item: '상조회비', amount: payslipData.mutualAid || null },
+    { item: '가불금', amount: payslipData.advancePayment || payslipData.otherDeductions || null },
   ];
 
-  // 🚨 데이터 유효성 검사 및 길이 맞추기
-  const paymentList = (allPayments || []).filter(p => p.amount !== undefined);
-  const deductionList = (allDeductions || []).filter(d => d.amount !== undefined);
+  // 합계 금액
+  const totalSalary = payslipData.totalSalary || 0;
+  const totalDeductions = 
+    (payslipData.nationalPension || 0) +
+    (payslipData.healthInsurance || 0) +
+    (payslipData.longTermCare || 0) +
+    (payslipData.employmentInsurance || 0) +
+    (payslipData.incomeTax || 0) +
+    (payslipData.localIncomeTax || 0) +
+    (payslipData.otherDeductions || 0);
+  const netSalary = payslipData.netSalary || (totalSalary - totalDeductions) || 0;
   
-  const maxLength = Math.max(paymentList.length, deductionList.length);
+  const issuer = { 
+    company: 'APEX 금융보안', 
+    ceo: '김원장' 
+  };
+
+  // 데이터 유효성 검사 및 길이 맞추기
+  const paymentList = allPayments.filter(p => p.amount !== null && p.amount !== undefined);
+  const deductionList = allDeductions.filter(d => d.amount !== null && d.amount !== undefined);
+  
+  const maxLength = Math.max(paymentList.length, deductionList.length, 1);
   
   const payments = [...paymentList, ...Array(maxLength - paymentList.length).fill({ item: '', amount: null })];
   const deductions = [...deductionList, ...Array(maxLength - deductionList.length).fill({ item: '', amount: null })];
@@ -88,7 +114,7 @@ const PayslipContent = React.forwardRef(({ payslipData }, ref) => {
                 <tr key={index}>
                   <td className={styles.detailItem}>{p.item}</td>
                   <td className={styles.detailAmount}>
-                    {p.amount !== null ? formatCurrency(p.amount) : ''}
+                    {p.amount !== null && p.amount !== undefined ? formatCurrency(p.amount) : ''}
                   </td>
                 </tr>
               ))}
@@ -104,7 +130,7 @@ const PayslipContent = React.forwardRef(({ payslipData }, ref) => {
                 <tr key={index}>
                   <td className={styles.detailItem}>{d.item}</td>
                   <td className={styles.detailAmount}>
-                    {d.amount !== null ? formatCurrency(d.amount) : ''}
+                    {d.amount !== null && d.amount !== undefined ? formatCurrency(d.amount) : ''}
                   </td>
                 </tr>
               ))}

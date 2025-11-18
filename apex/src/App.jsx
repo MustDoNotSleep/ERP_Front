@@ -8,10 +8,10 @@ import MainPage from './pages/main/MainPage.jsx';
 import Login from './pages/login/login.jsx';
 import Header from './components/layout/Header.jsx';
 import SideBar from './components/layout/SideBar.jsx';
-import CareerManagementPage from "./pages/HR/career&training/CareerManagementPage.jsx";
+import CareerManagementPage from "./pages/HR/career/CareerManagementPage.jsx";
 import ComingSoon from './components/layout/Preparing.jsx'
-import TrainingCreate from './pages/HR/career&training/TrainingCreate.jsx';
-import TrainingApprovalPage from './pages/HR/career&training/TrainingApprovalPage.jsx';
+import TrainingCreate from './pages/HR/training/TrainingCreate.jsx';
+import TrainingApprovalPage from './pages/HR/training/TrainingApprovalPage.jsx';
 import TrainingStatus from './pages/HR/training/TrainingStatus.jsx';
 import CertificateIssuePage from './pages/HR/certificates/CertificateIssuePage.jsx';
 import CertificateRequestPage from './pages/HR/certificates/CertificateRequestPage.jsx';
@@ -23,6 +23,7 @@ import PeopleSearchPage from './pages/HR/PeopleSearch/Search/PeopleSearchPage.js
 import PeopleNewPage from './pages/HR/PeopleSearch/New/PeopleNewPage.jsx';
 import AppointmentApplyPage from './pages/HR/appointments/Apply/AppointmentApplyPage.jsx';
 import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentApprovePage.jsx';
+import MyTraining from './pages/HR/training/MyTraining.jsx';
 import AttendanceStatusRisk from './pages/attendance/status/AttendanceStatus.jsx';
 import AttendanceRecords from './pages/attendance/records/AttendanceRecords.jsx';
 import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
@@ -35,6 +36,8 @@ import { isAuthenticated, logout } from './api/auth';
 import LeaveManage from './pages/attendance/leave/LeaveManage.jsx';
 import PayrollSettlement from './pages/payroll/PayrollSettlement.jsx';
 import AllowanceBonusManage from './pages/payroll/AllowanceBonusManage.jsx';
+import SeveranceManage from './pages/payroll/SeveranceManage.jsx';
+import SeveranceStatus from './pages/payroll/SeveranceStatus.jsx';
 
 function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
@@ -78,7 +81,8 @@ function App() {
             <Route path="people/search" element={<PeopleSearchPage />} />
             <Route path="people/new" element={<PeopleNewPage />} />
             <Route path="appointments/apply" element={<AppointmentApplyPage />} />
-            <Route path="appointments/approve" element={<AppointmentApprovePage />} />            
+            <Route path="appointments/approve" element={<AppointmentApprovePage />} />     
+            <Route path="training/my" element={<MyTraining />} />       
             
           </Route>
 
@@ -98,6 +102,8 @@ function App() {
             <Route path="certificates" element={<PayrollSettlement />} />
             <Route path="payslips" element={<PayslipView />} />
             <Route path="allowances-bonus" element={<AllowanceBonusManage />} />
+            <Route path="severance/status" element={<SeveranceStatus />} />
+            <Route path="severance" element={<SeveranceManage />} />
           </Route>
           
           {/* myinfo 폴더의 파일 사용 */}

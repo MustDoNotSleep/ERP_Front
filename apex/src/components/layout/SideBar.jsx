@@ -60,7 +60,7 @@ const MENU_BY_ROLE = {
           ],
         },
         {
-          label: "경력/교육관리",
+          label: "경력/교육 관리",
           children: [
             { label: "경력 관리", to: "/hr/career" },
             { label: "교육과정 등록", to: "/hr/training/create" },
@@ -68,6 +68,8 @@ const MENU_BY_ROLE = {
             {label: "교육 이수 현황", to: "/hr/training/status" },
           ],
         },
+        {
+          label: "교육 신청", to: "/hr/training/my" },
         { 
           label: "증명서 관리", 
           children: [

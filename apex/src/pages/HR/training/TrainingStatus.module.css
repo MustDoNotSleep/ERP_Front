@@ -1,4 +1,8 @@
-ection {
+.container {
+    padding: 20px;
+}
+
+.tableSection {
     margin-top: 24px;
 }
 

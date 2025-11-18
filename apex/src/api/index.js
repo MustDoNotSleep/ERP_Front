@@ -30,6 +30,9 @@ export * from './appointment';
 // Salary Management
 export * from './salary';
 
+// Severance Management
+export * from './severance';
+
 // Course Management
 export * from './course';
 

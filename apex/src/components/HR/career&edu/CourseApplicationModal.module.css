@@ -1,0 +1,215 @@
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.5);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background: white;
+    border-radius: 8px;
+    width: 90%;
+    max-width: 500px;
+    max-height: 80vh;
+    overflow: hidden;
+    display: flex;
+    flex-direction: column;
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 20px;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.modalHeader h2 {
+    margin: 0;
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+.closeBtn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    color: #666;
+    cursor: pointer;
+    padding: 0;
+    width: 30px;
+    height: 30px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.closeBtn:hover {
+    color: #333;
+}
+
+.modalBody {
+    padding: 20px;
+    overflow-y: auto;
+    flex: 1;
+}
+
+.infoSection {
+    margin-bottom: 24px;
+}
+
+.infoSection h3 {
+    font-size: 1rem;
+    font-weight: 600;
+    color: #333;
+    margin-bottom: 12px;
+}
+
+.courseList {
+    background-color: #f5f5f5;
+    border-radius: 6px;
+    padding: 12px;
+    margin-bottom: 16px;
+}
+
+.courseItem {
+    display: flex;
+    align-items: center;
+    padding: 8px 0;
+    border-bottom: 1px solid #e0e0e0;
+}
+
+.courseItem:last-child {
+    border-bottom: none;
+}
+
+.courseNumber {
+    font-weight: 600;
+    color: #666;
+    margin-right: 8px;
+    min-width: 20px;
+}
+
+.courseName {
+    flex: 1;
+    color: #333;
+}
+
+.courseCost {
+    font-weight: 600;
+    color: #8b6859;
+}
+
+.totalAmount {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 12px;
+    background-color: #fff9f5;
+    border-radius: 6px;
+    border: 2px solid #8b6859;
+}
+
+.totalAmount span:first-child {
+    font-weight: 600;
+    color: #333;
+}
+
+.amount {
+    font-size: 1.25rem;
+    font-weight: 700;
+    color: #8b6859;
+}
+
+.confirmSection {
+    padding: 16px;
+    background-color: #f9f9f9;
+    border-radius: 6px;
+}
+
+.confirmText {
+    text-align: center;
+    color: #555;
+    line-height: 1.6;
+    margin-bottom: 20px;
+}
+
+.signatureSection {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.signatureSection label {
+    font-weight: 600;
+    color: #333;
+    font-size: 0.9rem;
+}
+
+.signatureInput {
+    padding: 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 1rem;
+    transition: border-color 0.2s;
+}
+
+.signatureInput:focus {
+    outline: none;
+    border-color: #8b6859;
+}
+
+.signatureInput:disabled {
+    background-color: #f5f5f5;
+    cursor: not-allowed;
+}
+
+.modalFooter {
+    display: flex;
+    justify-content: flex-end;
+    gap: 12px;
+    padding: 20px;
+    border-top: 1px solid #e0e0e0;
+}
+
+.cancelBtn,
+.submitBtn {
+    padding: 10px 24px;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    font-weight: 500;
+    cursor: pointer;
+    transition: all 0.2s;
+    border: none;
+}
+
+.cancelBtn {
+    background-color: #f5f5f5;
+    color: #666;
+}
+
+.cancelBtn:hover:not(:disabled) {
+    background-color: #e0e0e0;
+}
+
+.submitBtn {
+    background-color: #8b6859;
+    color: white;
+}
+
+.submitBtn:hover:not(:disabled) {
+    background-color: #6d5144;
+}
+
+.cancelBtn:disabled,
+.submitBtn:disabled {
+    opacity: 0.6;
+    cursor: not-allowed;
+}

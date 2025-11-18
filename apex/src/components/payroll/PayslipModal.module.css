@@ -64,6 +64,14 @@
   }
 }
 
+.errorMessage {
+  text-align: center;
+  padding: 3rem 2rem;
+  font-size: 1.1rem;
+  color: #dc3545;
+  font-weight: 500;
+}
+
 .payslipTitle {
   font-size: 1.75rem;
   font-weight: 700;
