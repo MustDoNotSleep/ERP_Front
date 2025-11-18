@@ -296,11 +296,11 @@ function MainPage() {
           <h3>근태 현황 &gt;</h3>
           <div className='attend-wrap'>
             <div className='attend'>
-              <span className='attend-txt'>연차/휴가</span>
+              <span className='attend-txt'>근태 통계</span>
               <span>3</span>
             </div>
             <div className='attend'>
-              <span className='attend-txt'>지각/조퇴</span>
+              <span className='attend-txt'>연차/휴가 현황</span>
               <span>0</span>
             </div>
             <div className='attend'>
@@ -316,7 +316,7 @@ function MainPage() {
               <span>2</span>
             </div>
             <div className='attend'>
-              <span className='attend-txt'>근무 결과</span>
+              <span className='attend-txt'>나의 예상 퇴직금</span>
               <span>1</span>
             </div>
           </div>
@@ -333,7 +333,7 @@ function MainPage() {
                 <span className='re-txt'>시간</span>
               </div>
             </div>
-            <button className='apply-btn' onClick={() => window.location.href = '/attendance/leave/annualRequests'}>
+            <button className='apply-btn' onClick={() => window.location.href = 'attendance/leave/application'}>
               연차 신청
             </button>
           </div>    
