@@ -1,0 +1,215 @@
+/* WorkEvaluation.module.css */
+
+.container {
+  /* 배경색 흰색 유지 */
+  background-color: white; 
+  min-height: 100vh;
+  padding: 1rem; 
+}
+
+/* 평가 관리 제목 스타일 */
+.title {
+  font-size: 1.5rem;
+  font-weight: 600;
+  color: #333;
+  padding-bottom: 1rem; 
+  /* 제목 아래 실선 제거 */
+}
+
+/* 검색 섹션 (AttendanceStats와 동일하게 카드 형태 외곽선 적용) */
+.searchSection {
+  padding: 1.5rem; 
+  background-color: #e6e6e6; /* 이미지 상단 배경색 유지 */
+  
+  /* AttendanceStats 스타일 적용: 외곽선 및 둥근 모서리 */
+  border-radius: 8px;
+  border: 1px solid #e0e0e0;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+  margin-bottom: 3rem; 
+  
+  display: flex;
+  flex-direction: column;
+  gap: 1rem;
+}
+
+/* 필터링이 들어가는 한 줄 */
+.filterRow {
+  display: flex;
+  gap: 2.5rem; /* 년도, 분기, 부서 간 간격 확장 */
+  align-items: flex-end;
+}
+
+.searchGroup {
+  display: flex;
+  align-items: center;
+}
+
+.searchGroup label {
+  font-size: 0.9rem;
+  color: #555;
+  margin-right: 0.5rem;
+  font-weight: 500;
+}
+
+.searchGroup select {
+  min-width: 150px;
+  padding: 0.5rem;
+  border: 1px solid #ccc;
+  border-radius: 4px;
+}
+
+/* 조회 버튼을 오른쪽으로 밀기 위한 빈 공간 */
+.spacer {
+  flex-grow: 1;
+}
+
+.searchButton {
+  background-color: #7b4d3f !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.5rem 2rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+  height: 36px;
+}
+
+.searchButton:hover {
+  background-color: #6a4136 !important;
+}
+
+/* 직원 평가 테이블 섹션 */
+.tableSection {
+  padding: 0; 
+  background-color: white; 
+}
+
+/* HTML Table 스타일 */
+.evaluationTable {
+    width: 100%;
+    border-collapse: collapse;
+    table-layout: fixed;
+    font-size: 0.95rem;
+    border: 1px solid #ccc;
+}
+
+.evaluationTable th, .evaluationTable td {
+    padding: 0.75rem;
+    text-align: center;
+    border: 1px solid #e0e0e0;
+}
+
+.evaluationTable th {
+    background-color: #f0f0f0;
+    font-weight: 600;
+    color: #333;
+}
+
+.evaluationTable tbody tr:hover {
+    background-color: #fafafa;
+}
+
+.emptyCell {
+    text-align: center;
+    padding: 3rem;
+    color: #999;
+}
+
+/* 테이블의 체크박스 헤더/셀 너비 조정 */
+.checkboxHeader {
+    width: 40px; 
+    text-align: center;
+}
+
+/* 아이콘 셀 스타일 */
+.iconCell {
+  text-align: center;
+  width: 50px;
+}
+
+.editIcon, .detailIcon {
+  cursor: pointer;
+  color: #7b4d3f; 
+  font-size: 1rem;
+  transition: color 0.1s;
+}
+
+.editIcon:hover, .detailIcon:hover {
+  color: #5d3a2f;
+}
+
+.loadingMessage {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+}
+
+/* 하단 버튼 및 페이지네이션 섹션 */
+.footerSection {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 1.5rem 0;
+    gap: 1.5rem;
+    background-color: white;
+}
+
+.pagination {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.5rem;
+    padding: 0.5rem 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    background-color: #fff;
+    font-size: 0.9rem;
+}
+
+.pageArrow {
+    cursor: pointer;
+    color: #333;
+    padding: 0 0.5rem;
+}
+
+.pageNumber {
+    font-weight: 600;
+    color: #333;
+    padding: 0 0.5rem;
+}
+
+.actionButtons {
+    display: flex;
+    gap: 1rem;
+    justify-content: center;
+    width: 100%;
+}
+
+.saveButton {
+    /* 임시저장 (흰색 버튼) */
+    background-color: white !important;
+    color: #7b4d3f !important;
+    border: 1px solid #7b4d3f !important;
+    padding: 0.75rem 3rem !important;
+    border-radius: 4px !important;
+    font-weight: 600;
+}
+
+.saveButton:hover {
+    background-color: #f0f0f0 !important;
+}
+
+.submitButton {
+    /* 제출 (갈색 버튼) */
+    background-color: #7b4d3f !important;
+    color: white !important;
+    border: none !important;
+    padding: 0.75rem 3rem !important;
+    border-radius: 4px !important;
+    font-weight: 600;
+}
+
+.submitButton:hover {
+    background-color: #6a4136 !important;
+}

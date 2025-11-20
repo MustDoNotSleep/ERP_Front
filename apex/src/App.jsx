@@ -24,6 +24,7 @@ import PeopleNewPage from './pages/HR/PeopleSearch/New/PeopleNewPage.jsx';
 import AppointmentApplyPage from './pages/HR/appointments/Apply/AppointmentApplyPage.jsx';
 import AppointmentApprovePage from './pages/HR/appointments/Approve/AppointmentApprovePage.jsx';
 import MyTraining from './pages/HR/training/MyTraining.jsx';
+import WorkEvaluation from './pages/HR/evaluation/WorkEvaluation.jsx';
 import AttendanceStatusRisk from './pages/attendance/status/AttendanceStatus.jsx';
 import AttendanceRecords from './pages/attendance/records/AttendanceRecords.jsx';
 import LeaveStatus from './pages/attendance/leave/LeaveStatus.jsx';
@@ -85,7 +86,7 @@ function App() {
             <Route path="appointments/apply" element={<AppointmentApplyPage />} />
             <Route path="appointments/approve" element={<AppointmentApprovePage />} />     
             <Route path="training/my" element={<MyTraining />} />       
-            
+            <Route path="work-evaluation" element={<WorkEvaluation />} />
           </Route>
 
           {/* 근태부분 */}  
