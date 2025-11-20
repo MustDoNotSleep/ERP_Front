@@ -86,6 +86,8 @@ function App() {
             <Route path="appointments/apply" element={<AppointmentApplyPage />} />
             <Route path="appointments/approve" element={<AppointmentApprovePage />} />     
             <Route path="training/my" element={<MyTraining />} />       
+            <Route path="training/my" element={<MyTraining />} />
+            <Route path="appointments/approve" element={<AppointmentApprovePage />} />            
             <Route path="work-evaluation" element={<WorkEvaluation />} />
           </Route>
 
