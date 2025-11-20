@@ -74,10 +74,13 @@ const MENU_BY_ROLE = {
           label: "증명서 관리", 
           children: [
             {label: "증명서 신청", to: "/hr/certificates/request"},
-            {label: "증명서 발급", to: "/hr/certificates/issue" },
+            {label: "증명서 발급", to: "/hr/certificates/issue"},
           ],
         },
-        { label: "근무 평가", to: "/hr/work-evaluation"},
+        { 
+          label: "근무 평가", to: "/hr/work-evaluation"
+
+        },
       ],
     },
     {
@@ -108,12 +111,14 @@ const MENU_BY_ROLE = {
           ],
         },
         {
-          label: "수당/상여 관리", to: "/payroll/allowances-bonus"},
+          label: "수당/상여 관리", to: "/payroll/allowances-bonus"
+        },
         { 
-          label: "퇴직금 정산 및 관리", 
+          label: "퇴직금 관리",
           children: [
+            { label : "퇴직자 관리", to: "/payroll/retirement/manage"}, // 관리자용
             { label : "퇴직금 정산 관리", to: "/payroll/severance"},
-            { label : "퇴직금 정산 현황", to: "/payroll/severance/status", audience: "manager"} // 관리자용
+            { label : "예상 퇴직금 정산", to: "/payroll/severance/status"},
           ],
         },
       ],
@@ -161,6 +166,7 @@ const MENU_BY_ROLE = {
         { label: "급여 명세서", to: "/payroll/payslips" },
         { label: "수당/상여 관리", to: "/payroll/allowances-bonus" },
         { label: "연말정산 현황", to: "/payroll/year-end/status" },
+        // { label: "퇴직 신청", to: "/payroll/retirement/application" },
         { label: "퇴직금/정산 현황", to: "/payroll/severance/status" },
         { label: "급여 증명서 관리", to: "/payroll/certificates" },
       ],
@@ -199,6 +205,7 @@ const MENU_BY_ROLE = {
         { label: "급여 명세서", to: "/me/payroll/payslips" },
         { label: "수당/상여 신청", to: "/me/payroll/allowances-bonus/apply" },
         { label: "연말정산", to: "/me/payroll/year-end" },
+        // { label: "퇴직 신청", to: "/payroll/retirement/application" },
         // { label: "퇴직금 예상 조회", to: "/me/payroll/severance/estimate" },
         // { label: "재직 급여 확인서", to: "/me/payroll/employment-income-cert" },
       ],

@@ -81,7 +81,7 @@ const PeopleSearchFilter = ({
                 />
             </FilterGroup>
 
-            <FilterGroup label="소속">
+            <FilterGroup label="부서">
                 <Select
                     id="departmentName"
                     name="departmentName"

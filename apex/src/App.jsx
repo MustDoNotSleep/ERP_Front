@@ -38,6 +38,8 @@ import PayrollSettlement from './pages/payroll/PayrollSettlement.jsx';
 import AllowanceBonusManage from './pages/payroll/AllowanceBonusManage.jsx';
 import SeveranceManage from './pages/payroll/SeveranceManage.jsx';
 import SeveranceStatus from './pages/payroll/SeveranceStatus.jsx';
+import RetirementManage from './pages/payroll/RetirementManage.jsx';
+import RetirementApplication from './pages/payroll/RetirementApplication.jsx';
 
 function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
@@ -104,12 +106,14 @@ function App() {
             <Route path="allowances-bonus" element={<AllowanceBonusManage />} />
             <Route path="severance/status" element={<SeveranceStatus />} />
             <Route path="severance" element={<SeveranceManage />} />
+            <Route path="retirement/manage" element={<RetirementManage />} />
           </Route>
           
           {/* myinfo 폴더의 파일 사용 */}
           <Route path = "/myinfo" element={<MyInfoPage />}>
               <Route index element = {<Profile />} />
               <Route path ="hrcard" element= {<HrCard />} />
+              <Route path="retirement/application" element={<RetirementApplication />} />
           </Route>
 
 

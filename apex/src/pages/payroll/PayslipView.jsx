@@ -153,13 +153,23 @@ export default function PayslipView() {
                 });
             }
             
-            // 날짜 포맷팅 (YYYY-MM -> YYYY년 MM월)
-            const formattedPayslipData = payslipData.map(item => ({
-                ...item,
-                paymentDate: item.paymentDate ? 
-                    item.paymentDate.replace(/^(\d{4})-(\d{2})$/, '$1년 $2월') : 
-                    '-'
-            }));
+            // 날짜 포맷팅 (YYYY-MM -> YYYY년 MM월) 및 공제합계 계산
+            const formattedPayslipData = payslipData.map(item => {
+                // 공제합계 계산
+                const totalDeductions = (item.employmentInsurance || 0) + 
+                                       (item.healthInsurance || 0) + 
+                                       (item.incomeTax || 0) + 
+                                       (item.nationalPension || 0) + 
+                                       (item.otherDeductions || 0);
+                
+                return {
+                    ...item,
+                    paymentDate: item.paymentDate ? 
+                        item.paymentDate.replace(/^(\d{4})-(\d{2})$/, '$1년 $2월') : 
+                        '-',
+                    totalDeductions: totalDeductions // 계산된 공제합계 추가
+                };
+            });
             
             console.log('파싱 및 필터링된 급여 데이터:', formattedPayslipData);
             setPayslips(formattedPayslipData);

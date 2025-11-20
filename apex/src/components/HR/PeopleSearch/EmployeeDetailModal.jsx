@@ -3,7 +3,7 @@ import { Modal } from '../../common';
 import DataTable from '../../common/DataTable';
 import tableStyles from '../../common/DataTable.module.css';
 import styles from './EmployeeDetailModal.module.css';
-import { fetchEmployeeProfile } from '../../../api/employee';
+import { fetchEmployeeProfile, fetchEmployeeSalaryInfo } from '../../../api/employee';
 import { fetchEducationsByEmployeeId } from '../../../api/education';
 import { fetchMilitaryServiceByEmployeeId } from '../../../api/military';
 import { fetchWorkExperiencesByEmployeeId } from '../../../api/workExperience';
@@ -16,6 +16,7 @@ import { fetchCoursesByEmployeeId } from '../../../api/course';
  */
 const EmployeeDetailModal = ({ isOpen, onClose, employeeId }) => {
     const [employeeData, setEmployeeData] = useState(null);
+    const [salaryInfo, setSalaryInfo] = useState(null);
     const [educationsData, setEducationsData] = useState([]);
     const [militaryData, setMilitaryData] = useState(null);
     const [workExperiencesData, setWorkExperiencesData] = useState([]);
@@ -34,10 +35,29 @@ const EmployeeDetailModal = ({ isOpen, onClose, employeeId }) => {
     const loadEmployeeData = async () => {
         setIsLoading(true);
         try {
+            console.log('🔍 EmployeeDetailModal - employeeId:', employeeId, 'type:', typeof employeeId);
+            
             const response = await fetchEmployeeProfile(employeeId);
             const profileData = response.data || response;
             
+            console.log('📋 프로필 데이터:', profileData);
             setEmployeeData(profileData);
+
+            // 급여 정보 조회 (은행명, 계좌번호)
+            // profileData.id를 사용 (API에서 반환된 실제 ID)
+            const actualEmployeeId = profileData.id || profileData.employeeId || employeeId;
+            console.log('💰 급여 정보 조회할 ID:', actualEmployeeId);
+            
+            let salaryData = null;
+            try {
+                const salaryResponse = await fetchEmployeeSalaryInfo(actualEmployeeId);
+                salaryData = salaryResponse.data || salaryResponse;
+                console.log('💰 급여 정보:', salaryData);
+                setSalaryInfo(salaryData);
+            } catch (salaryError) {
+                console.error('급여 정보 조회 실패:', salaryError);
+                console.warn('급여 정보 조회 실패 (은행명/계좌번호가 표시되지 않을 수 있습니다)');
+            }
 
             // 추가 정보들을 병렬로 로드
             const [educations, military, workExperiences, certificates, courses] = await Promise.allSettled([
@@ -157,11 +177,15 @@ const EmployeeDetailModal = ({ isOpen, onClose, employeeId }) => {
                                     </div>
                                     <div className={styles.infoField}>
                                         <label>은행명</label>
-                                        <span>{employeeData.bankName || '-'}</span>
+                                        <span>{salaryInfo?.bankName || '-'}</span>
                                     </div>
                                     <div className={styles.infoField}>
                                         <label>계좌번호</label>
-                                        <span>{employeeData.accountNumber || '-'}</span>
+                                        <span>{salaryInfo?.accountNumber || '-'}</span>
+                                    </div>
+                                    <div className={styles.infoField}>
+                                        <label>기본급</label>
+                                        <span>{salaryInfo?.monthlyBaseSalary || '-'}</span>
                                     </div>
                                 </div>
                             </div>

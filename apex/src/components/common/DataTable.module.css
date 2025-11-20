@@ -71,6 +71,11 @@ th:last-child, td:last-child {border-right: none;}
     background-color: #f0e6dc;
 }
 
+/* tableAction 칸은 호버 색상 변경 안 함 */
+.genericTable tbody tr:hover .tableAction {
+    background-color: white;
+}
+
 /* 행에 커서 포인터 적용 */
 .genericTable tbody tr {
     cursor: pointer;

@@ -641,7 +641,7 @@ function HrCard() {
             name: profileData.name || '',
             employeeId: profileData.id || profileData.employeeId || '',
             positionName: profileData.positionName || '',
-            teamName: profileData.teamName || profileData.departmentName || '',
+            teamName: profileData.teamName || '',
             departmentName: profileData.departmentName || '',
             birthDate: profileData.birthDate || '',
             internalNumber: profileData.internalNumber || '',
@@ -649,6 +649,7 @@ function HrCard() {
             phoneNumber: profileData.phone || profileData.phoneNumber || '',
             address: profileData.address || '',
             addressDetail: profileData.addressDetail || '',
+            
             
             // 중첩 정보 (테이블에 바인딩)
             // educations: data.educations || [],
@@ -660,6 +661,7 @@ function HrCard() {
             // 급여 정보 (별도 API)
             bankName: salaryData?.bankName || '',
             accountNumber: salaryData?.accountNumber || '',
+            monthlyBaseSalary: salaryData?.monthlyBaseSalary || '',
           });
 
           // 편집 가능한 필드 초기화
@@ -722,7 +724,7 @@ function HrCard() {
               </div>
               {/* --- 3행 --- */}
               <div className="hr-field">
-                <label>소속</label>
+                <label>소속팀</label>
                 <input type="text" value={hrCardData.teamName} readOnly />
               </div>
               <div className="hr-field">
@@ -790,7 +792,13 @@ function HrCard() {
                 <label>계좌번호</label>
                 <input type="text" value={hrCardData.accountNumber} readOnly />
               </div>
+              {/* --- 7행 --- */}
+              <div className="hr-field">
+                <label>기본급</label>
+                <input type="text" value={hrCardData.monthlyBaseSalary} readOnly />
+              </div>
             </div>
+
 
             {/* 프린트 버튼 영역 */}
             <div className="hr-print-area">

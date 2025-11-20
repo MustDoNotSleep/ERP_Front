@@ -1,9 +1,10 @@
 import React, { useState, useEffect } from 'react';
-import { fetchMonthlysalary, confirmSalary, markSalaryAsPaid, updateSalary, downloadPayslip } from '../../api/salary';
+import { fetchMonthlysalary, confirmSalary, markSalaryAsPaid, updateSalary, fetchSalaryById } from '../../api/salary';
 import { fetchUniqueDepartmentNames } from '../../api/department';
 import { toast } from 'react-toastify';
 import EmployeeSearchModal from '../../components/common/EmployeeSearchModal';
 import PayslipDetailModal from '../../components/payroll/PayslipDetailModal';
+import PayslipModal from '../../components/payroll/PayslipModal';
 
 import { IoIosDownload } from "react-icons/io";
 import styles from './PayrollSettlement.module.css';
@@ -23,7 +24,8 @@ export default function PayrollSettlement() {
   const [isEmployeeSearchOpen, setIsEmployeeSearchOpen] = useState(false);
   const [isPayslipDetailOpen, setIsPayslipDetailOpen] = useState(false);
   const [selectedSalary, setSelectedSalary] = useState(null);
-  const [downloadingId, setDownloadingId] = useState(null); // 다운로드 중인 급여 ID
+  const [isPayslipModalOpen, setIsPayslipModalOpen] = useState(false);
+  const [payslipData, setPayslipData] = useState(null);
 
   // 요약 데이터
   const [summary, setSummary] = useState({
@@ -251,36 +253,38 @@ export default function PayrollSettlement() {
     setIsPayslipDetailOpen(true);
   };
 
-  const handleDownloadPayslip = async (salary, e) => {
+  const handleDownloadPayslip = async (salaryItem, e) => {
     e.stopPropagation(); // 행 클릭 이벤트 방지
     
-    if (downloadingId === salary.id) {
-      return; // 이미 다운로드 중이면 중복 실행 방지
-    }
-    
+    // 급여명세서 인쇄용 모달 열기
     try {
-      setDownloadingId(salary.id);
-      toast.info(`${salary.employeeName}님의 급여명세서를 다운로드합니다.`);
+      console.log('급여 상세 조회 요청:', salaryItem.id);
       
-      // API 호출
-      const blob = await downloadPayslip(salary.id);
+      // API 호출: fetchSalaryById(salaryId)
+      const response = await fetchSalaryById(salaryItem.id);
       
-      // Blob을 파일로 다운로드
-      const url = window.URL.createObjectURL(blob);
-      const link = document.createElement('a');
-      link.href = url;
-      link.download = `급여명세서_${salary.employeeName}_${year}-${String(month).padStart(2, '0')}.pdf`;
-      document.body.appendChild(link);
-      link.click();
-      document.body.removeChild(link);
-      window.URL.revokeObjectURL(url);
+      console.log('급여 상세 조회 응답:', response);
       
-      toast.success('급여명세서 다운로드가 완료되었습니다.');
+      // 응답 데이터 파싱
+      let fullPayslipData = null;
+      if (response.data) {
+        fullPayslipData = response.data;
+      } else {
+        fullPayslipData = response;
+      }
+
+      if (!fullPayslipData) {
+        toast.error("상세 급여 정보를 불러오지 못했습니다.");
+        return;
+      }
+
+      // 인쇄용 모달 열기
+      setPayslipData(fullPayslipData);
+      setIsPayslipModalOpen(true);
+      
     } catch (error) {
-      console.error('급여명세서 다운로드 실패:', error);
-      toast.error('급여명세서 다운로드에 실패했습니다.');
-    } finally {
-      setDownloadingId(null);
+      console.error("상세 급여 정보 API 호출 실패:", error);
+      toast.error("급여 명세서 상세 내용을 불러오는데 실패했습니다.");
     }
   };
 
@@ -485,14 +489,9 @@ export default function PayrollSettlement() {
                     <button 
                       className={styles.downloadBtn}
                       onClick={(e) => handleDownloadPayslip(salary, e)}
-                      title="급여명세서 다운로드"
-                      disabled={downloadingId === salary.id}
+                      title="급여명세서 보기"
                     >
-                      {downloadingId === salary.id ? (
-                        <span className={styles.spinner}>⏳</span>
-                      ) : (
-                        <IoIosDownload />
-                      )}
+                      <IoIosDownload />
                     </button>
                   </td>
                 </tr>
@@ -518,6 +517,16 @@ export default function PayrollSettlement() {
         }}
         salary={selectedSalary}
         onUpdate={handlePayslipUpdate}
+      />
+
+      {/* 급여명세서 인쇄용 모달 */}
+      <PayslipModal
+        isOpen={isPayslipModalOpen}
+        onClose={() => {
+          setIsPayslipModalOpen(false);
+          setPayslipData(null);
+        }}
+        payslipData={payslipData}
       />
     </div>
   );

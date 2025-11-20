@@ -45,6 +45,13 @@ const TrainingCourseInputGrid = ({ formData, handleChange }) => {
                     </div>
                 </div>
 
+                {/* 이수기준 */}
+                <div className={styles.inputGroup}>
+                    <label className={styles.label}>가격</label>
+                    <input type="text" name="price" value={formData.price} onChange={handleChange} className={styles.input} placeholder="00000" />
+                </div>
+                
+
                 <div className={styles.dateSeparator}>
                     {/* <input type="date" name="endDate" value={formData.endDate} onChange={handleChange} className={styles.input} placeholder="YYYY/MM/DD" required /> */}
                 </div>

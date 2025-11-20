@@ -9,6 +9,7 @@ const MY_INFO_MENU = {
   children: [
     { label: "내 인사 정보", to: "/myinfo", end: true },
     { label: "인사 카드", to: "/myinfo/hrcard", end: false },
+    { label : "퇴직 신청", to: "/myinfo/retirement/application", end: false},
   ],
 };
 
