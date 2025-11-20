@@ -89,7 +89,9 @@ const MyTraining = () => {
             const formattedData = applications.map(app => ({
                 id: app.id,
                 courseName: app.courseName || '-',
-                period: app.applicationDate ? new Date(app.applicationDate).toLocaleDateString('ko-KR') : '-',
+                period: app.startDate && app.endDate 
+                    ? `${app.startDate} ~ ${app.endDate}` 
+                    : (app.startDate || app.endDate || '-'),
                 organization: '내부교육', // 구분은 무조건 내부교육
                 educationType: 'INTERNAL',
                 completionStatus: app.status || 'PENDING',

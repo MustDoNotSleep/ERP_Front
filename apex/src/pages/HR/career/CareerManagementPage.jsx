@@ -52,12 +52,15 @@ const CareerManagementPage = () => {
             
             // 2. 직원별 경력 개수 맵 생성
             if (Array.isArray(allWorkExperiences)) {
+                console.log('📊 전체 경력 데이터:', allWorkExperiences);
                 allWorkExperiences.forEach(exp => {
                     const empId = exp.employeeId || exp.employee?.id;
+                    console.log('경력 항목:', { exp, empId });
                     if (empId) {
                         workExpCountMap[empId] = (workExpCountMap[empId] || 0) + 1;
                     }
                 });
+                console.log('📈 경력 개수 맵:', workExpCountMap);
             }
 
             // 3. 직원 검색 API 호출
@@ -87,6 +90,7 @@ const CareerManagementPage = () => {
                     try {
                         // 경력 개수는 맵에서 가져오기
                         const careerCount = workExpCountMap[employee.id] || 0;
+                        console.log(`👤 직원 ${employee.id} (${employee.name}): 경력 ${careerCount}개`);
 
                         // 자격증 개수만 API 호출 (실패해도 계속 진행)
                         let certCount = 0;
@@ -110,6 +114,7 @@ const CareerManagementPage = () => {
                 })
             );
 
+            console.log('✅ 최종 직원 데이터:', enrichedEmployees);
             setEmployees(enrichedEmployees);
             setTotalCount(total);
 
@@ -170,7 +175,8 @@ const CareerManagementPage = () => {
         });
         setIsEmployeeSearchOpen(false);
     };
-    // 상세 보기 핸들러
+    
+    // 상세 보기 핸들러 (행 클릭 시 호출)
     const handleViewDetail = (employee) => {
         setSelectedEmployee(employee);
         setIsCareerDetailOpen(true);
@@ -183,8 +189,7 @@ const CareerManagementPage = () => {
 
     // 총 페이지 수 계산
     const totalPages = Math.ceil(totalCount / pageSize);
-    
-    // 테이블 행 렌더링 함수
+
     // 테이블 행 렌더링 함수
     const renderEmployeeRow = (employee) => { 
         return (
@@ -244,7 +249,8 @@ const CareerManagementPage = () => {
                 <DataTable
                     headers={EMPLOYEE_TABLE_HEADERS}
                     data={employees}            
-                    renderRow={renderEmployeeRow} 
+                    renderRow={renderEmployeeRow}
+                    onRowClick={handleViewDetail}
                 />
             )}
 
