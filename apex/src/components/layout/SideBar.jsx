@@ -74,7 +74,7 @@ const MENU_BY_ROLE = {
           label: "증명서 관리", 
           children: [
             {label: "증명서 신청", to: "/hr/certificates/request"},
-            {label: "증명서 발급", to: "/hr/certificates/issue"},
+            {label: "증명서 승인", to: "/hr/certificates/issue"},
           ],
         },
         { 

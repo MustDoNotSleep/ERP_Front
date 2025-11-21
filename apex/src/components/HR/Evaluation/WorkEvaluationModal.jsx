@@ -15,7 +15,7 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
         setInitialLoading(false);
         // isEditing 상태는 모달이 열릴 때마다 false로 초기화하는 것이 일반적이지만,
         // 필요에 따라 초기 모드를 설정할 수 있습니다. 여기서는 false(조회 모드)를 유지합니다.
-        setIsEditing(false); 
+        setIsEditing(false);
     }, [initialData]);
 
     if (initialLoading) {
@@ -111,7 +111,7 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
                 </div>
                 <div className={styles.infoRow}>
                     <div className={styles.infoLabel}>부서/직급</div>
-                    <div className={styles.infoValue}>{evaluationData.department}/{evaluationData.position}</div>
+                    <div className={styles.infoValue}>{evaluationData.teamName}/{evaluationData.positionName}</div>
                     <div className={styles.infoLabel}>평가연월</div>
                     <div className={styles.infoValue}>{evaluationData.year}년 {evaluationData.quarter}</div>
                 </div>

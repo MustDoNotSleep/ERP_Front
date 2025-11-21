@@ -8,50 +8,43 @@ import './MainPage.css';
 import { Link } from 'react-router-dom';
 import { checkIn, checkOut, fetchTodayAttendance } from '../../api/attendance';
 
-const fetchRecommendedEmployees = () => {
-  return new Promise((resolve) => {
-    setTimeout(() => {
-      resolve([
-        // cert 팀
-        // { id: 1, name: '최사원', reason: '침해 경보 조기 식별·오탐 25% 감소' },
-        // { id: 2, name: '윤대리', reason: '신규 위협 5건 탐지, 탐지 스크립트 개발' },
-        // { id: 3, name: '홍선임', reason: '악성코드 분석·IOC 공유로 대응속도 2배 향상' },
-        //인사팀
-        { id: 1, name: '최사원', reason: '원활한 노사 소통 채널 구축 및 갈등 예방 기여' },
-        { id: 2, name: '윤대리', reason: '타 부서 협업 및 프로세스 효율화' },
-        { id: 3, name: '홍선임', reason: '우수 인재 육성 및 채용 브랜딩 기여' },
-      ]);
-    }, 1500);
-  });
+// ✅ [수정 1] 실제 API 호출을 위한 axios 인스턴스 import
+import api from '../../api/axios'; 
+
+// ✅ [수정 2] 가짜 데이터 함수 삭제 -> 실제 API 호출 함수로 변경
+const fetchRecommendedEmployees = async () => {
+  try {
+    // 백엔드 Controller (/hr/ai/recommend) 호출
+    // 파라미터(year, quarter)를 안 보내면 백엔드가 알아서 '오늘 날짜' 기준으로 처리함
+    const response = await api.get('/hr/ai/recommend');
+    
+    // ResponseEntity로 오기 때문에 response.data가 바로 리스트([])임
+    return response.data; 
+  } catch (error) {
+    console.error("AI 추천 데이터 로드 실패:", error);
+    throw error; // 에러를 던져서 버튼 클릭 핸들러에서 잡게 함
+  }
 };
 
 function MainPage() {
-  // --- 모든 State와 Effect를 MainPage 최상단으로 통합 ---
   const [userInfo, setUserInfo] = useState({ 
     name: '비회원', 
     employmentType: '정보 없음', 
     team: '정보 없음',
     employeeId: null 
   });
-  // 남은 연차 정보 상태
+  
   const [leaveBalance, setLeaveBalance] = useState({
     days: 0,
     hours: 0,
     minutes: 0
   });
 
-  // 1. 출퇴근 상태 관리 (서버에서 오늘 출근 기록 조회)
   const [isOn, setIsOn] = useState(false);
-
-  // 2. 현재 시간 상태 관리
   const [currentTime, setCurrentTime] = useState(new Date());
   
-  // 3. 추천 직원 목록 상태 관리 (❗ RecommendationWidget에서 이동)
   const [employees, setEmployees] = useState([]);
-
-  //4. ai 추천 로딩 상태 관리
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
-
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -65,7 +58,7 @@ function MainPage() {
           team: user.teamName || '팀 정보 없음',
           employeeId: user.employeeId || null
         });
-        // 남은 연차 정보 불러오기
+        
         if (user.employeeId) {
           fetchLeaveBalance(user.employeeId)
             .then(res => {
@@ -80,10 +73,9 @@ function MainPage() {
               setLeaveBalance({ days: 0, hours: 0, minutes: 0 });
             });
         }
-        // 오늘 출근 기록 조회해서 출근 상태 초기화
+        
         fetchTodayAttendance()
           .then(res => {
-            // 출근 기록만 있고 퇴근 기록이 없을 때만 퇴근 버튼 활성화
             if (res.success && res.data && res.data.checkInTime && !res.data.checkOutTime) {
               setIsOn(true);
             } else {
@@ -99,8 +91,6 @@ function MainPage() {
     }
   }, []);
 
-  
-  // 시간 업데이트를 위한 useEffect
   useEffect(() => {
     const timerId = setInterval(() => {
       setCurrentTime(new Date());
@@ -108,14 +98,6 @@ function MainPage() {
     return () => clearInterval(timerId);
   }, []);
 
-  // 추천 직원 데이터를 불러오기 위한 useEffect (❗ RecommendationWidget에서 이동)
-  // useEffect(() => {
-  //   fetchRecommendedEmployees().then(data => {
-  //     setEmployees(data);
-  //   });
-  // }, []);
-
-  // 시간을 포맷팅하는 함수
   const formatTime = (date) => {
     const hours = String(date.getHours()).padStart(2, '0');
     const minutes = String(date.getMinutes()).padStart(2, '0');
@@ -123,35 +105,32 @@ function MainPage() {
     return `${hours}:${minutes}:${seconds}`;
   };
 
-  // ai 포상추천 버튼 클릭 핸들러
+  // ✅ [수정 3] AI 포상추천 버튼 클릭 핸들러 (에러 처리 강화)
   const handleAiRecommandClick = () => {
-    setIsLoadingRecommendations(true); //로딩 시작
-    setEmployees([]); // 이전 목록 초기화
+    setIsLoadingRecommendations(true); 
+    setEmployees([]); 
     
     fetchRecommendedEmployees()
     .then(data => {
-      setEmployees(data); //데이터 설정
+      setEmployees(data); 
+      toast.success("AI가 우수 사원을 추천했습니다!");
+    })
+    .catch((err) => {
+        toast.error("AI 서버 연결에 실패했습니다.");
     })
     .finally(()=> {
-      setIsLoadingRecommendations(false); // 로딩 종료
+      setIsLoadingRecommendations(false); 
     })
   }
 
-  // 출근 처리 핸들러
   const handleCheckIn = async () => {
-    console.log('🔵 출근 버튼 클릭, userInfo:', userInfo); // 디버깅 추가
-    
     if (!userInfo.employeeId) {
-      console.error('❌ userInfo.employeeId가 없음:', userInfo); // 디버깅 추가
       toast.error('사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
       return;
     }
 
     try {
-      console.log('📤 출근 API 요청 시작, employeeId:', userInfo.employeeId); // 디버깅 추가
       const response = await checkIn(userInfo.employeeId);
-      
-      // 성공 응답 처리
       if (response.success || response.data) {
         setIsOn(true);
         toast.success(
@@ -160,16 +139,9 @@ function MainPage() {
             <div>{response.message || '정상적으로 출근 처리되었습니다.'}</div>
           </div>
         );
-        console.log('출근 처리 성공:', response);
       }
     } catch (error) {
-      console.error('출근 처리 실패:', error);
-      console.error('에러 응답 상세:', error.response?.data);
-      
-      // 백엔드 에러 메시지 확인
       const errorMessage = error.response?.data?.message || error.response?.data?.error || '출근 처리에 실패했습니다.';
-      
-      // 이미 출근 처리된 경우 특별 처리
       if (errorMessage.includes('이미 출근') || errorMessage.includes('already checked in')) {
         toast.warning('이미 출근 처리되었습니다.');
       } else {
@@ -178,7 +150,6 @@ function MainPage() {
     }
   };
 
-  // 퇴근 처리 핸들러
   const handleCheckOut = async () => {
     if (!userInfo.employeeId) {
       toast.error('사용자 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
@@ -187,8 +158,6 @@ function MainPage() {
 
     try {
       const response = await checkOut(userInfo.employeeId);
-      
-      // 성공 응답 처리
       if (response.success || response.data) {
         setIsOn(false);
         toast.info(
@@ -197,16 +166,9 @@ function MainPage() {
             <div>{response.message || '정상적으로 퇴근 처리되었습니다.'}</div>
           </div>
         );
-        console.log('퇴근 처리 성공:', response);
       }
     } catch (error) {
-      console.error('퇴근 처리 실패:', error);
-      console.error('에러 응답 상세:', error.response?.data);
-      
-      // 백엔드 에러 메시지 확인
       const errorMessage = error.response?.data?.message || error.response?.data?.error || '퇴근 처리에 실패했습니다.';
-      
-      // 이미 퇴근 처리된 경우 또는 출근 기록이 없는 경우 특별 처리
       if (errorMessage.includes('이미 퇴근') || errorMessage.includes('already checked out')) {
         toast.warning('이미 퇴근 처리되었습니다.');
       } else if (errorMessage.includes('출근 기록') || errorMessage.includes('check-in record')) {
@@ -220,7 +182,7 @@ function MainPage() {
   return (
     <div className="common-wrap">
       <div className="dashboard-container">
-        {/* ... user-profile, calendar 위젯 ... */}
+        {/* 좌측 컬럼 (프로필, 달력) */}
         <div className="left-column-wrapper">
           <div className="widget user-profile">
             <img src={User} alt="user profile" className="profile-image" />
@@ -241,6 +203,7 @@ function MainPage() {
           </div>
         </div>
 
+        {/* 출퇴근 위젯 */}
         <div className="widget clock">
           <h3>출퇴근 &gt;</h3>
           <div className='clock-cont'>
@@ -252,76 +215,37 @@ function MainPage() {
               {formatTime(currentTime)}
             </div>
             <div className='onoff-btn'>
-              <button 
-                className='on-btn' 
-                onClick={handleCheckIn}
-                disabled={isOn}
-              >
-                ON
-              </button>
-              <button 
-                className='off-btn' 
-                onClick={handleCheckOut}
-                disabled={!isOn}
-              >
-                OFF
-              </button>
+              <button className='on-btn' onClick={handleCheckIn} disabled={isOn}>ON</button>
+              <button className='off-btn' onClick={handleCheckOut} disabled={!isOn}>OFF</button>
             </div>
           </div>
         </div>
         
+        {/* 결재 문서 위젯 */}
         <div className="widget approval">
           <h3>결재 문서 &gt;</h3>
           <div className='document-wrap'>
-            <div className='approv'>
-              <span>대기 문서</span>
-              <h2>3</h2>
-            </div>
-            <div className='approv'>
-              <span>예정 문서</span>
-              <h2>4</h2>
-            </div>
-            <div className='approv'>
-              <span>공유 문서</span>
-              <h2>1</h2>
-            </div>
-            <div className='approv'>
-              <span>수신 문서</span>
-              <h2>2</h2>
-            </div>  
+            <div className='approv'><span>대기 문서</span><h2>3</h2></div>
+            <div className='approv'><span>예정 문서</span><h2>4</h2></div>
+            <div className='approv'><span>공유 문서</span><h2>1</h2></div>
+            <div className='approv'><span>수신 문서</span><h2>2</h2></div>  
           </div>
         </div>
 
+        {/* 근태 현황 위젯 */}
         <div className="widget attendance-status">
           <h3>근태 현황 &gt;</h3>
           <div className='attend-wrap'>
-            <div className='attend'>
-              <span className='attend-txt'>근태 통계</span>
-              <span>3</span>
-            </div>
-            <div className='attend'>
-              <span className='attend-txt'>연차/휴가 현황</span>
-              <span>0</span>
-            </div>
-            <div className='attend'>
-              <span className='attend-txt'>부재</span>
-              <span>2</span>
-            </div>
-            <div className='attend'>
-              <span className='attend-txt'>시간외 근무</span>
-              <span>1</span>
-            </div>
-            <div className='attend'>
-              <span className='attend-txt'>근무 계획</span>
-              <span>2</span>
-            </div>
-            <div className='attend'>
-              <span className='attend-txt'>나의 예상 퇴직금</span>
-              <span>1</span>
-            </div>
+            <div className='attend'><span className='attend-txt'>근태 통계</span><span>3</span></div>
+            <div className='attend'><span className='attend-txt'>연차/휴가 현황</span><span>0</span></div>
+            <div className='attend'><span className='attend-txt'>부재</span><span>2</span></div>
+            <div className='attend'><span className='attend-txt'>시간외 근무</span><span>1</span></div>
+            <div className='attend'><span className='attend-txt'>근무 계획</span><span>2</span></div>
+            <div className='attend'><span className='attend-txt'>나의 예상 퇴직금</span><span>1</span></div>
           </div>
         </div>
 
+        {/* 남은 연차 위젯 */}
         <div className="widget remaining-leave">
           <h3>남은 연차 &gt;</h3>
           <div className="leave-content">
@@ -339,40 +263,37 @@ function MainPage() {
           </div>    
         </div>
         
+        {/* 공지사항 위젯 */}
         <div className="widget notice">
           <h3>공지사항 &gt;</h3>
             <ul className="notice-list">
-              <li>
-                2025.09.30&nbsp;&nbsp; 긴급 서버 점검 안내 <span className="new-badge">[N]</span>
-              </li>
-              <li>
-                2025.10.03&nbsp;&nbsp; 추석 연휴 기간 안내
-              </li>
-              <li>
-                2025.10.03&nbsp;&nbsp; AI 기능 도입 예정 안내
-              </li>
+              <li>2025.09.30&nbsp;&nbsp; 긴급 서버 점검 안내 <span className="new-badge">[N]</span></li>
+              <li>2025.10.03&nbsp;&nbsp; 추석 연휴 기간 안내</li>
+              <li>2025.10.03&nbsp;&nbsp; AI 기능 도입 예정 안내</li>
             </ul>
             <hr className="divider" />
             <button className="more-btn">더보기</button>
         </div>
 
+        {/* ✅ [수정 4] 우수사원 추천 위젯 (데이터 매핑 수정) */}
         <div className="widget recommendation">
           <h3>우수사원 추천 &gt;</h3>
 
-          {/* 목록 영역을 div로 감싸고 조건부 랜더링 적용 */}
           <div className='recommendation-content-area'>
             {isLoadingRecommendations ? (
               <div className='recommandation-loading'>
-                AI가 데이터를 분석 중입니다...
+                AI가 데이터를 분석 중입니다...<br/>(약 3~5초 소요)
               </div>
             ): (
               employees.length > 0 ? (
-              //1. 로딩이 끝났고 데이터가 있을 때
               <ul className="recommendation-list">
-                {/* 이제 employees state에 정상적으로 접근 가능 */}
                 {employees.map(employee => (
-                  <li key={employee.id} className="employee-item">
-                    <span className="employee-name">{employee.name}</span>
+                  // 백엔드 DTO는 id가 없고 rank를 줍니다. key로 rank 사용
+                  <li key={employee.rank} className="employee-item">
+                    {/* 이름 옆에 부서명을 같이 보여주면 더 좋습니다 */}
+                    <span className="employee-name">
+                        [{employee.department}] {employee.name}
+                    </span>
                     <span className="recommendation-reason">{employee.reason}</span>
                   </li>
                 ))}
@@ -386,11 +307,10 @@ function MainPage() {
           </div>
           
           <button className="ai-recommend-btn"
-          onClick={handleAiRecommandClick} //클릭 핸들러 연결
-          disabled={isLoadingRecommendations} // 로딩 중일 때 버튼 비활성화
+          onClick={handleAiRecommandClick} 
+          disabled={isLoadingRecommendations}
           >
-            {/* 로딩 상태에 따라 버튼 텍스트 변경 */}
-            {isLoadingRecommendations ? 'AI 포상 추천' : 'AI 포상 추천'}
+            {isLoadingRecommendations ? '분석 중...' : 'AI 포상 추천'}
           </button>
         </div>
       </div>
