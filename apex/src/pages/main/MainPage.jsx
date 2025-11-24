@@ -16,10 +16,10 @@ const fetchRecommendedEmployees = async () => {
   try {
     // 백엔드 Controller (/hr/ai/recommend) 호출
     // 파라미터(year, quarter)를 안 보내면 백엔드가 알아서 '오늘 날짜' 기준으로 처리함
-    const response = await api.get('/hr/ai/recommend');
+    const response = await api.get('/ai/recommend');
     
     // ResponseEntity로 오기 때문에 response.data가 바로 리스트([])임
-    return response.data; 
+    return response.data || [];
   } catch (error) {
     console.error("AI 추천 데이터 로드 실패:", error);
     throw error; // 에러를 던져서 버튼 클릭 핸들러에서 잡게 함
@@ -286,13 +286,14 @@ function MainPage() {
               </div>
             ): (
               employees.length > 0 ? (
+
               <ul className="recommendation-list">
                 {employees.map(employee => (
                   // 백엔드 DTO는 id가 없고 rank를 줍니다. key로 rank 사용
                   <li key={employee.rank} className="employee-item">
                     {/* 이름 옆에 부서명을 같이 보여주면 더 좋습니다 */}
                     <span className="employee-name">
-                        [{employee.department}] {employee.name}
+                        [{employee.teamName}] {employee.name}
                     </span>
                     <span className="recommendation-reason">{employee.reason}</span>
                   </li>
