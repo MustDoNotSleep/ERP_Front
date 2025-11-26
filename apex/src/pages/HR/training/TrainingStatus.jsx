@@ -3,6 +3,7 @@ import { FilterCard, FilterGroup, Select } from '../../../components/common';
 import DataTable from '../../../components/common/DataTable';
 import tableStyles from '../../../components/common/DataTable.module.css';
 import styles from './TrainingStatus.module.css';
+import { fetchCourseApplications } from '../../../api/course';
 
 /**
  * 교육 이수 현황 페이지
@@ -14,12 +15,19 @@ const TrainingStatus = () => {
     // 검색 조건
     const [filters, setFilters] = useState({
         year: currentYear.toString(),
-        educationType: ''
+        status: ''
     });
 
     // 교육 이수 데이터
     const [trainingData, setTrainingData] = useState([]);
     const [selectedRows, setSelectedRows] = useState([]);
+    const [loading, setLoading] = useState(false);
+    const [pagination, setPagination] = useState({
+        page: 0,
+        size: 20,
+        totalElements: 0,
+        totalPages: 0
+    });
 
     // 연도 옵션 (최근 5년)
     const yearOptions = Array.from({ length: 5 }, (_, i) => {
@@ -27,69 +35,51 @@ const TrainingStatus = () => {
         return { value: year.toString(), label: year.toString() };
     });
 
-    // 교육 구분 옵션
-    const educationTypeOptions = [
+    // 교육 상태 옵션 (신청 승인 여부)
+    const statusOptions = [
         { value: '', label: '전체' },
-        { value: 'INTERNAL', label: '내부교육' },
-        { value: 'EXTERNAL', label: '외부교육' },
-        { value: 'ONLINE', label: '온라인교육' },
-        { value: 'CERTIFICATION', label: '자격증교육' }
+        { value: 'PENDING', label: '대기' },
+        { value: 'APPROVED', label: '승인' },
+        { value: 'REJECTED', label: '반려' }
     ];
 
-    // 테이블 헤더 정의
+    // 테이블 헤더 정의 - 교육 신청 기준
     const TABLE_HEADERS = [
-        '선택', '교육기간', '교육명', '교육기관', '교육구분', '이수 여부', '점수/등급'
+        '선택', '이름', '부서', '교육명', '교육기간', '신청일', '이수상태'
     ];
 
-    // Mock 데이터
-    const mockData = React.useMemo(() => [
-        {
-            id: 1,
-            period: 'YYYY/MM/DD~YYYY/MM/DD',
-            courseName: '보안사고대응실무',
-            organization: 'Apex',
-            educationType: '내부교육',
-            completionStatus: 'COMPLETED',
-            grade: 'A'
-        },
-        {
-            id: 2,
-            period: 'YYYY/MM/DD~YYYY/MM/DD',
-            courseName: '보안사고대응실무',
-            organization: 'Apex',
-            educationType: '내부교육',
-            completionStatus: 'COMPLETED',
-            grade: 'B+'
-        },
-        {
-            id: 3,
-            period: 'YYYY/MM/DD~YYYY/MM/DD',
-            courseName: 'ISMS-P',
-            organization: 'KISA',
-            educationType: '외부교육',
-            completionStatus: 'COMPLETED',
-            grade: 'A'
-        },
-        {
-            id: 4,
-            period: 'YYYY/MM/DD~YYYY/MM/DD',
-            courseName: 'ISMS-P',
-            organization: 'KISA',
-            educationType: '외부교육',
-            completionStatus: 'IN_PROGRESS',
-            grade: '-'
-        }
-    ], []);
-
+    // Mock 데이터 제거 - 실제 API 사용
     useEffect(() => {
-        // TODO: API 호출로 데이터 가져오기
-        const fetchTrainingData = () => {
-            // Mock 데이터 설정
-            setTrainingData(mockData);
-        };
-        
-        fetchTrainingData();
-    }, [filters, mockData]);
+        fetchData();
+        // eslint-disable-next-line react-hooks/exhaustive-deps
+    }, [filters, pagination.page]);
+
+    const fetchData = async () => {
+        setLoading(true);
+        try {
+            const response = await fetchCourseApplications(
+                pagination.page,
+                pagination.size,
+                filters.status || null
+            );
+            
+            // API 응답 구조: { success, message, data: { content, pageNumber, pageSize, totalElements, totalPages } }
+            const responseData = response.data || response;
+            setTrainingData(responseData.content || []);
+            setPagination(prev => ({
+                ...prev,
+                page: responseData.pageNumber || 0,
+                totalElements: responseData.totalElements || 0,
+                totalPages: responseData.totalPages || 0
+            }));
+        } catch (error) {
+            console.error('교육 이수 현황 조회 실패:', error);
+            alert('교육 이수 현황을 불러오는데 실패했습니다.');
+            setTrainingData([]);
+        } finally {
+            setLoading(false);
+        }
+    };
 
     const handleFilterChange = (e) => {
         const { name, value } = e.target;
@@ -100,14 +90,16 @@ const TrainingStatus = () => {
     };
 
     const handleSearch = () => {
-        // 검색 시 데이터 재조회는 useEffect에서 처리
+        setPagination(prev => ({ ...prev, page: 0 }));
+        fetchData();
     };
 
     const handleReset = () => {
         setFilters({
             year: currentYear.toString(),
-            educationType: ''
+            status: ''
         });
+        setPagination(prev => ({ ...prev, page: 0 }));
     };
 
     const handleRowSelect = (id) => {
@@ -118,15 +110,25 @@ const TrainingStatus = () => {
 
     const getCompletionStatusLabel = (status) => {
         switch (status) {
-            case 'COMPLETED':
-                return '이수 완료';
-            case 'IN_PROGRESS':
-                return '이수중';
-            case 'NOT_STARTED':
-                return '미이수';
+            case 'PENDING':
+                return '대기';
+            case 'APPROVED':
+                return '승인';
+            case 'REJECTED':
+                return '반려';
             default:
                 return '-';
         }
+    };
+
+    const formatDateRange = (startDate, endDate) => {
+        if (!startDate || !endDate) return '-';
+        return `${startDate} ~ ${endDate}`;
+    };
+
+    const formatDate = (dateString) => {
+        if (!dateString) return '-';
+        return dateString.split('T')[0]; // YYYY-MM-DD 형식으로 변환
     };
 
     // 테이블 행 렌더링 로직
@@ -140,16 +142,18 @@ const TrainingStatus = () => {
                         onChange={() => handleRowSelect(item.id)}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{item.period}</td>
-                <td className={tableStyles.tableData}>{item.courseName}</td>
-                <td className={tableStyles.tableData}>{item.organization}</td>
-                <td className={tableStyles.tableData}>{item.educationType}</td>
+                <td className={tableStyles.tableData}>{item.employeeName || '-'}</td>
+                <td className={tableStyles.tableData}>{item.departmentName || '-'}</td>
+                <td className={tableStyles.tableData}>{item.courseName || '-'}</td>
                 <td className={tableStyles.tableData}>
-                    <span className={styles[`status-${item.completionStatus?.toLowerCase()}`]}>
-                        {getCompletionStatusLabel(item.completionStatus)}
+                    {formatDateRange(item.startDate, item.endDate)}
+                </td>
+                <td className={tableStyles.tableData}>{formatDate(item.applicationDate)}</td>
+                <td className={tableStyles.tableData}>
+                    <span className={styles[`status-${item.status?.toLowerCase()}`]}>
+                        {getCompletionStatusLabel(item.status)}
                     </span>
                 </td>
-                <td className={tableStyles.tableData}>{item.grade || '-'}</td>
             </>
         );
     };
@@ -172,12 +176,12 @@ const TrainingStatus = () => {
                     />
                 </FilterGroup>
 
-                <FilterGroup label="교육구분">
+                <FilterGroup label="승인상태">
                     <Select 
-                        name="educationType"
-                        value={filters.educationType}
+                        name="status"
+                        value={filters.status}
                         onChange={handleFilterChange}
-                        options={educationTypeOptions}
+                        options={statusOptions}
                         placeholder="전체"
                     />
                 </FilterGroup>
@@ -185,12 +189,16 @@ const TrainingStatus = () => {
 
             {/* 결과 테이블 */}
             <div className={styles.tableSection}>
-                <DataTable
-                    headers={TABLE_HEADERS}
-                    data={trainingData}
-                    renderRow={renderTrainingRow}
-                    emptyMessage="교육 이수 데이터가 없습니다."
-                />
+                {loading ? (
+                    <div className={styles.loading}>데이터를 불러오는 중...</div>
+                ) : (
+                    <DataTable
+                        headers={TABLE_HEADERS}
+                        data={trainingData}
+                        renderRow={renderTrainingRow}
+                        emptyMessage="교육 이수 데이터가 없습니다."
+                    />
+                )}
             </div>
         </div>
     );

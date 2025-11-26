@@ -180,3 +180,62 @@ export const fetchTodayAttendance = async () => {
         throw error;
     }
 };
+
+/**
+ * 기간별 전체 근태 조회 (관리자용)
+ * GET /attendances/period
+ * @param {string} startDate - 시작 날짜 (YYYY-MM-DD)
+ * @param {string} endDate - 종료 날짜 (YYYY-MM-DD)
+ * @returns {Promise<object>} 기간별 전체 근태 목록
+ */
+export const fetchAttendancesByPeriod = async (startDate, endDate) => {
+    try {
+        const response = await api.get('/attendances/period', {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    } catch (error) {
+        console.error('Error fetching attendances by period:', error);
+        throw error;
+    }
+};
+
+/**
+ * 특정 직원의 기간별 근태 조회
+ * GET /attendances/employee/{employeeId}/period
+ * @param {number} employeeId - 직원 ID
+ * @param {string} startDate - 시작 날짜 (YYYY-MM-DD)
+ * @param {string} endDate - 종료 날짜 (YYYY-MM-DD)
+ * @returns {Promise<object>} 직원의 기간별 근태 목록
+ */
+export const fetchEmployeeAttendancesByPeriod = async (employeeId, startDate, endDate) => {
+    try {
+        const response = await api.get(`/attendances/employee/${employeeId}/period`, {
+            params: { startDate, endDate }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching attendances for employee ${employeeId} by period:`, error);
+        throw error;
+    }
+};
+
+/**
+ * 특정 직원의 월별 근태 통계
+ * GET /attendances/employee/{employeeId}/statistics
+ * @param {number} employeeId - 직원 ID
+ * @param {number} year - 년도
+ * @param {number} month - 월
+ * @returns {Promise<object>} 월별 근태 통계
+ */
+export const fetchEmployeeMonthlyStatistics = async (employeeId, year, month) => {
+    try {
+        const response = await api.get(`/attendances/employee/${employeeId}/statistics`, {
+            params: { year, month }
+        });
+        return response.data;
+    } catch (error) {
+        console.error(`Error fetching monthly statistics for employee ${employeeId}:`, error);
+        throw error;
+    }
+};

@@ -6,18 +6,25 @@
     margin-top: 24px;
 }
 
-/* 이수 상태 스타일 */
-.status-completed {
-    color: #28a745;
-    font-weight: 500;
+.loading {
+    text-align: center;
+    padding: 40px;
+    color: #666;
+    font-size: 14px;
 }
 
-.status-in_progress {
+/* 이수 상태 스타일 */
+.status-pending {
     color: #ffc107;
     font-weight: 500;
 }
 
-.status-not_started {
+.status-approved {
+    color: #28a745;
+    font-weight: 500;
+}
+
+.status-rejected {
     color: #dc3545;
     font-weight: 500;
 }

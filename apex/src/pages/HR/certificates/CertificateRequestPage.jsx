@@ -52,7 +52,7 @@ const CertificateRequestPage = () => {
             console.log(`✅ 증명서 프린트 요청: ID ${item.id} - ${getCertificateLabel(item.documentType)}`);
             
             // ⚠️ 실제 API 호출 및 프린트 로직을 여기에 구현해야 합니다.
-            alert(`${item.employee?.name}님의 ${getCertificateLabel(item.documentType)}을(를) 프린트합니다. (API 연결 후 실제 프린트 창이 뜹니다)`);
+            alert(`${item.employee?.name}님의 ${getCertificateLabel(item.documentType)}을(를) 프린트합니다. (프린트기 연결 후 실제 프린트 창이 뜹니다)`);
         } else {
             alert('승인 완료된 증명서만 프린트할 수 있습니다.');
         }

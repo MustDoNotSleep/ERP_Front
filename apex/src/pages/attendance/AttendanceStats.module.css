@@ -1,10 +1,5 @@
 /* AttendanceStats.module.css */
 
-.container {
-  padding: 2rem;
-  background-color: #f8f9fa;
-}
-
 .header {
   margin-bottom: 2rem;
 }
@@ -111,7 +106,7 @@
 }
 
 .largeValue {
-  font-size: 3rem;
+  /* font-size: 3rem; */
   color: #333;
 }
 

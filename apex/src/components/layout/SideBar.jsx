@@ -97,7 +97,7 @@ const MENU_BY_ROLE = {
         },
         {label: "연차 관리", to: "/attendance/leave/manage", audience : "manager"},
         { label: "파견/출장 관리", to: "/attendance/dispatch-travel" , audience : "manager"}, // 관리자용
-        { label: "근태 통계", to: "/attendance/stats", audience : "manager" }, // 관리자용
+        { label: "근태 통계 (전)", to: "/attendance/stats", audience : "manager" }, // 관리자용
       ],
     },
     {

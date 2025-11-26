@@ -17,6 +17,22 @@ export const fetchCoursesByEmployeeId = async (employeeId) => {
 };
 
 /**
+ * 전체 교육 이수 현황 조회 (관리자용)
+ * GET /courses/completions
+ * @param {object} params - { year, educationType, page, size }
+ * @returns {Promise<object>} 전체 교육 이수 현황 목록
+ */
+export const fetchTrainingCompletions = async (params = {}) => {
+  try {
+    const response = await api.get('/courses/completions', { params });
+    return response.data;
+  } catch (error) {
+    console.error('교육 이수 현황 조회 실패:', error);
+    throw error;
+  }
+};
+
+/**
  * 교육 과정 목록 조회
  * GET /courses
  * @param {number} page - 페이지 번호
