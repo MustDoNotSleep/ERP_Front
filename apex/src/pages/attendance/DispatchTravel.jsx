@@ -6,9 +6,9 @@ import styles from './DispatchTravel.module.css'; // 전용 CSS 모듈
 export default function DispatchTravel() {
   // 1. 상태(State) 정의
   const [statistics, setStatistics] = useState({
-    inProgress: 0,
-    scheduled: 0,
-    completed: 0,
+    total: 0,
+    approved: 0,
+    rejected: 0,
   });
 
   const [history, setHistory] = useState([]);
@@ -25,43 +25,43 @@ export default function DispatchTravel() {
   const loadData = async () => {
     try {
       setLoading(true);
-      const userStr = localStorage.getItem('user');
-      if (!userStr) {
-        console.error('로그인 정보가 없습니다.');
-        return;
-      }
-      const user = JSON.parse(userStr);
-      const employeeId = user.employeeId;
-      if (!employeeId) {
-        console.error('사원 ID를 찾을 수 없습니다.');
-        return;
-      }
 
-      // 1. 통계 데이터 (상단 3개 카드)
-      // API 엔드포인트는 실제 프로젝트에 맞게 수정
-      const statsResponse = await api.get(`/dispatches/employee/${employeeId}/statistics`);
-      const statsData = statsResponse.data?.data;
-      if (statsData) {
-        setStatistics({
-          inProgress: statsData.inProgress || 0,
-          scheduled: statsData.scheduled || 0,
-          completed: statsData.completed || 0,
-        });
-      }
-
-      // 2. 이력 데이터 (테이블 및 차트)
-      // API 엔드포인트는 실제 프로젝트에 맞게 수정
-      const historyResponse = await api.get(`/dispatches/employee/${employeeId}`);
-      const historyData = historyResponse.data?.data || [];
+      // 전체 직원의 발령 데이터 가져오기
+      console.log('파견 데이터 로딩 시작...');
+      const appointmentResponse = await api.get('/appointment-requests');
+      console.log('API 응답:', appointmentResponse);
+      
+      const appointmentData = appointmentResponse.data?.data?.content || appointmentResponse.data?.data || [];
+      console.log('전체 발령 데이터:', appointmentData);
+      
+      // 파견 유형(DISPATCH)만 필터링
+      const dispatchData = appointmentData.filter(item => 
+        item.appointmentType === 'DISPATCH' || item.appointmentType === '파견'
+      );
+      console.log('파견 필터링 후:', dispatchData);
       
       // 최신순으로 정렬
-      const sortedHistory = historyData.sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
+      const sortedHistory = dispatchData.sort((a, b) => 
+        new Date(b.effectiveDate || b.createdAt) - new Date(a.effectiveDate || a.createdAt)
+      );
       setHistory(sortedHistory);
 
+      // 통계 계산 (승인/반려 카운트)
+      const total = dispatchData.length;
+      const approved = dispatchData.filter(d => d.status === 'APPROVED' || d.status === '승인').length;
+      const rejected = dispatchData.filter(d => d.status === 'REJECTED' || d.status === '반려').length;
+      
+      console.log('통계:', { total, approved, rejected });
+      
+      setStatistics({
+        total,
+        approved,
+        rejected,
+      });
+
     } catch (err) {
-      console.error('파견/출장 데이터 조회 실패:', err);
-      // ★ 목데이터 제거: 실패 시 빈 값으로 설정
-      setStatistics({ inProgress: 0, scheduled: 0, completed: 0 });
+      console.error('파견 데이터 조회 실패:', err);
+      setStatistics({ total: 0, approved: 0, rejected: 0 });
       setHistory([]);
     } finally {
       setLoading(false);
@@ -69,26 +69,16 @@ export default function DispatchTravel() {
   };
 
   // 3. 헬퍼 함수
-  const getTypeLabel = (type) => ({
-    'DISPATCH': '파견',
-    'BUSINESS_TRIP': '출장',
-  }[type] || type);
-
   const getStatusLabel = (status) => ({
-    'IN_PROGRESS': '진행중',
-    'SCHEDULED': '예정',
-    'COMPLETED': '완료',
+    'PENDING': '대기',
+    'APPROVED': '승인',
+    'REJECTED': '반려',
+    '대기': '대기',
+    '승인': '승인',
+    '반려': '반려',
   }[status] || status);
 
-  // 4. 데이터 계산 (렌더링 전)
-
-  // 진행률 계산 (LeaveStatus의 usagePercentage에 해당)
-  const totalCount = statistics.inProgress + statistics.scheduled + statistics.completed;
-  const progressPercentage = totalCount > 0 
-    ? Math.round((statistics.completed / totalCount) * 100) 
-    : 0;
-
-  // 페이지네이션
+  // 4. 페이지네이션
   const totalPages = Math.ceil(history.length / pageSize);
   const paginatedData = history.slice(
     (currentPage - 1) * pageSize,
@@ -98,16 +88,15 @@ export default function DispatchTravel() {
   // DataTable 헤더
   const tableHeaders = [
     { label: 'no' },
-    { label: '구분' },
-    { label: '목적지' },
-    { label: '기간' },
+    { label: '대상자' },
+    { label: '발령일' },
+    { label: '사유' },
     { label: '상태' }
   ];
 
   // DataTable 렌더 함수
   const renderHistoryRow = (item, index) => {
-    const startDate = item.startDate ? new Date(item.startDate).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' }) : '-';
-    const endDate = item.endDate ? new Date(item.endDate).toLocaleDateString('ko-KR', { month: 'numeric', day: 'numeric' }) : '-';
+    const effectiveDate = item.effectiveDate ? new Date(item.effectiveDate).toLocaleDateString('ko-KR') : '-';
     
     // 페이지네이션 번호 (no) 계산
     const itemNo = index + 1 + (currentPage - 1) * pageSize;
@@ -115,57 +104,53 @@ export default function DispatchTravel() {
     return (
       <>
         <td>{itemNo}</td>
-        <td>{getTypeLabel(item.type)}</td>
-        <td>{item.destination}</td>
-        <td>{`${startDate}~${endDate}`}</td>
+        <td>{item.targetEmployeeName || '-'}</td>
+        <td>{effectiveDate}</td>
+        <td>{item.reason || '-'}</td>
         <td>{getStatusLabel(item.status)}</td>
       </>
     );
   };
 
-  // 차트 계산 (LeaveStatus의 annualCount, halfDayCount에 해당)
-  const tripCount = history.filter(h => h.type === 'BUSINESS_TRIP').length;
-  const dispatchCount = history.filter(h => h.type === 'DISPATCH').length;
-  const totalChartCount = tripCount + dispatchCount;
-
-  // 5. JSX 렌더링 (LeaveStatus.jsx 구조와 동일)
+  // 5. JSX 렌더링
   return (
     <div className={styles.container}>
       {/* 1. 상단 현황 (LeaveStatus의 balanceSection) */}
       <div className={styles.balanceSection}>
         <div className={styles.balanceWrapper}>
           <div className={styles.sectionHeader}>
-            <h2 className={styles.sectionTitle}>파견/출장 현황</h2>
+            <h2 className={styles.sectionTitle}>파견 현황</h2>
           </div>
           
           <div className={styles.balanceGrid}>
             <Card className={styles.balanceCard}>
-              <div className={styles.balanceLabel}>진행 중</div>
-              <div className={styles.balanceValue}>{statistics.inProgress}건</div>
+              <div className={styles.balanceLabel}>전체</div>
+              <div className={styles.balanceValue}>{statistics.total}건</div>
             </Card>
 
             <Card className={styles.balanceCard}>
-              <div className={styles.balanceLabel}>시작 예정</div>
-              <div className={styles.balanceValue}>{statistics.scheduled}건</div>
+              <div className={styles.balanceLabel}>승인</div>
+              <div className={`${styles.balanceValue} ${styles.approved}`}>
+                {statistics.approved}건
+              </div>
             </Card>
 
             <Card className={styles.balanceCard}>
-              <div className={styles.balanceLabel}>완료</div>
-              {/* LeaveStatus의 .remaining -> .completed 클래스로 변경 */}
-              <div className={`${styles.balanceValue} ${styles.completed}`}>
-                {statistics.completed}건
+              <div className={styles.balanceLabel}>반려</div>
+              <div className={`${styles.balanceValue} ${styles.rejected}`}>
+                {statistics.rejected}건
               </div>
             </Card>
           </div>
         </div>
       </div>
 
-      {/* 2. 하단 컨텐츠 (LeaveStatus의 contentSection) */}
-      <div className={styles.contentSection}>
-        {/* 2-1. 좌측 테이블 (LeaveStatus의 tableSection) */}
+      {/* 2. 하단 테이블 전체 너비 */}
+      <div className={styles.fullWidthSection}>
+        {/* 테이블 */}
         <div className={styles.tableSection}>
           <div className={styles.tableHeader}>
-            <h3 className={styles.tableTitle}>파견/출장 현황</h3>
+            <h3 className={styles.tableTitle}>파견 목록</h3>
           </div>
           
           {loading ? (
@@ -176,7 +161,7 @@ export default function DispatchTravel() {
                 headers={tableHeaders}
                 data={paginatedData}
                 renderRow={renderHistoryRow}
-                emptyMessage="파견/출장 기록이 없습니다."
+                emptyMessage="파견 기록이 없습니다."
               />
               
               {/* 페이지네이션 */}
@@ -201,64 +186,6 @@ export default function DispatchTravel() {
               )}
             </>
           )}
-        </div>
-
-        {/* 2-2. 우측 차트 (LeaveStatus의 chartSection) */}
-        <div className={styles.chartSection}>
-          <div className={styles.chartHeader}>
-            <h3 className={styles.chartTitle}>구분</h3>
-          </div>
-          
-          {/* 차트 래퍼 */}
-          <div className={styles.pieChartWrapper}>
-            <svg viewBox="0 0 200 200" className={styles.pieChart}>
-              {/* 배경 원 (데이터 0일 때도 보임) */}
-              <circle cx="100" cy="100" r="70" fill="none" stroke="#e0e0e0" strokeWidth="40" />
-              
-              {/* 출장 (진한 색) */}
-              <circle
-                cx="100" cy="100" r="70"
-                fill="none"
-                stroke="#4A5D54" /* 출장 색상 */
-                strokeWidth="40"
-                strokeDasharray={`${((tripCount / Math.max(totalChartCount, 1)) * 440).toFixed(2)} 440`}
-                strokeDashoffset="0"
-                transform="rotate(-90 100 100)"
-              />
-              {/* 파견 (밝은 색) */}
-              <circle
-                cx="100" cy="100" r="70"
-                fill="none"
-                stroke="#A9A9A9" /* 파견 색상 */
-                strokeWidth="40"
-                strokeDasharray={`${((dispatchCount / Math.max(totalChartCount, 1)) * 440).toFixed(2)} 440`}
-                strokeDashoffset={`-${((tripCount / Math.max(totalChartCount, 1)) * 440).toFixed(2)}`}
-                transform="rotate(-90 100 100)"
-              />
-              <circle cx="100" cy="100" r="50" fill="white" />
-            </svg>
-          </div>
-
-          {/* 범례 (LeaveStatus의 chartLegend) */}
-          <div className={styles.chartLegend}>
-            <div className={styles.legendItem}>
-              {/* .dotAnnual -> .dotTrip */}
-              <div className={`${styles.legendDot} ${styles.dotTrip}`}></div>
-              <span>출장</span>
-              <span className={styles.legendValue}>{tripCount}</span>
-            </div>
-            <div className={styles.legendItem}>
-              {/* .dotHalfDay -> .dotDispatch */}
-              <div className={`${styles.legendDot} ${styles.dotDispatch}`}></div>
-              <span>파견</span>
-              <span className={styles.legendValue}>{dispatchCount}</span>
-            </div>
-          </div>
-
-          {/* 하단 요약 (LeaveStatus의 usageText) */}
-          <div className={styles.usageText}>
-            진행률 {progressPercentage}%
-          </div>
         </div>
       </div>
     </div>

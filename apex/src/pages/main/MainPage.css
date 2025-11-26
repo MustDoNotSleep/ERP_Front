@@ -4,17 +4,7 @@
 a {text-decoration: none; padding: 0; margin: 0;}
 ul, li {list-style: none;}
 button {cursor: pointer; font-family: 'NanumSquareRound', sans-serif; font-size: 0.9rem; background-color: none;}
-h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
-
-.common-wrap {
-    position: fixed;
-    top: 5.5rem;
-    left: 21rem;
-    width: calc(100% - 25rem);
-    height: calc(100% - 5.5rem);
-    justify-items: center;
-    align-items: center;
-}
+h3 { font-size: 1.3rem; font-weight: 600; margin: 0; padding: 0 0.8rem;}
 
 /* 전체 대시보드 페이지 컨테이너 */
 .dashboard-container {
@@ -119,7 +109,7 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
     background-color: #545E46;
     color: #fff;
     font-size: 0.8rem;
-    padding: 0.3rem 0.6rem;
+    padding: 0.8rem 0.6rem;
     border-radius: 5px;
     width: 5.5rem;
     height: 1rem;
@@ -163,7 +153,7 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
     font-weight: 700;
 }
 
-/* 근태 현황 */
+/* 나의 위젯 */
 .attendance-status {grid-column: 2; grid-row: 2; }
 .attend-wrap {
     display: grid;
@@ -182,6 +172,17 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
     text-align: center;
     align-items: center;
     padding: 1rem;
+    cursor: pointer;
+    transition: background-color 0.2s, transform 0.1s;
+}
+
+.attend:hover {
+    background-color: #f5f5f5;
+    transform: translateY(-1px);
+}
+
+.attend:active {
+    transform: translateY(0);
 }
 
 /* 결재 문서 */
@@ -210,10 +211,10 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
     font-weight: 700;
 }
 
-/* 남은 연차 */
+/* 남은 연차 - 우측 상단 1칸 */
 .remaining-leave {
     grid-column: 3;
-    grid-row: 2;
+    grid-row: 1;
     display: flex;
     flex-direction: column;
     padding: 1rem;
@@ -229,9 +230,9 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
 }
 
 .remain { margin-bottom: 1.5rem; }
-.remain > .re-txt { display: flex; align-items: baseline; margin-left: 5rem; margin-top: 5.5rem;}
-.remain .num { font-size: 2.8rem; font-weight: 800;}
-.remain span.re-txt {font-size: 1.3rem; font-weight: 600; margin-right: 1rem;}
+.remain > .re-txt { display: flex; align-items: baseline; margin-top: 3.5rem;}
+.remain .num { font-size: 3.5rem; font-weight: 800;}
+.remain span.re-txt {font-size: 1.5rem; font-weight: 600; margin-right: 1rem;}
 .remain span.re-txt:last-child { margin-right: 0;}
 
 .apply-btn {
@@ -257,7 +258,18 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
 }
 
 .notice-list {list-style-type: disc; padding-left: 1.1rem; margin: 0.8rem 0;}
-.notice-list li {font-size: 1rem; margin-bottom: 0.8rem; color: #000; margin-top: 1rem; font-weight: 600; cursor: pointer;}
+.notice-list li {
+  font-size: 1rem; 
+  margin-bottom: 0.8rem; 
+  color: #000; 
+  margin-top: 1rem; 
+  font-weight: 600; 
+  cursor: pointer;
+  transition: color 0.2s;
+}
+.notice-list li:hover {
+  color: #663D2B;
+}
 .notice-list li:last-child {margin-bottom: 0;}
 .new-badge {color: #E41E1E; font-weight: 700; margin-left: 0.5rem; font-size: 1rem;}
 .divider {width: 100%; border: none; border-top: 1px solid #323B2A; margin: 1rem 0;}
@@ -276,12 +288,27 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
     margin-top: 0.9rem;
 }
 
+/* 우수사원 추천 위젯 - 우측 2~3번째 칸 (세로 2칸 차지) */
+.widget.recommendation {
+    grid-column: 3;
+    grid-row: 2 / 4;
+    display: flex;
+    flex-direction: column;
+    padding: 1rem;
+    box-sizing: border-box;
+    justify-content: space-between; /* 내용과 버튼 사이 간격 자동 조정 */
+}
+
 /* 우수사원 추천 위젯 전체 */
 .widget.recommendation .recommendation-content-area {
-  min-height: 100px; /* 위젯 크기에 맞게 조절하세요 */
+  flex: 1; /* 남은 공간 차지 */
   display: flex;
   flex-direction: column;
-  justify-content: center;
+  justify-content: center; /* 세로 가운데 정렬 */
+  align-items: center; /* 가로 가운데 정렬 */
+  text-align: center;
+  overflow-y: auto; /* 내용이 많으면 스크롤 */
+  padding: 1rem 0;
 }
 .recommandation {padding: 20px 0;}
 /* AI 분석 중... (로딩 스피너 애니메이션) */
@@ -307,59 +334,77 @@ h3 { font-size: 1.2rem; font-weight: 600; margin: 0; padding: 0;}
 /* 로딩 중일 때 버튼 스타일 */
 .widget.recommendation .ai-recommend-btn:disabled {
     background-color: #663D2B;
-    margin-top: 4.8rem;
     cursor: not-allowed;
 }
 
 /* 추천 직원 목록 (ul) */
 .recommendation-list {
     padding: 0;
-    margin-top: 2.5rem;
-    margin-left: 1rem;
+    margin: 0;
     display: flex;
     flex-direction: column;
-    gap: 1rem;
-    margin-bottom: 3.1rem;
+    gap: 5rem;
+    align-items: center; /* 가운데 정렬 */
+    width: 100%;
+    list-style: none;
 }
 
 /* 개별 직원 항목 (li) */
 .employee-item {
     display: flex;
     align-items: center;
-    font-size: 1rem;
+    justify-content: flex-start;
+    font-size: 1.5em;
+    width: 80%;
+    line-height: 1.5;
 }
 .recommandation-loading {
     text-align: center;
-    font-size: 1.2rem;
-    font-weight: 700;
-    padding-top: 5rem;
+    font-size: 1rem;
+    font-weight: 600;
     color: #545E46;
 }
 /* 직원 이름 */
 .employee-name {
     color: #000;
-    font-weight: 600;
-    width: 3.5rem; 
-    border-right: 0.5px solid #663D2B; 
-    padding-right: 0.8rem;
-    margin-right: 0.8rem;
+    font-weight: 700;
+    width: auto;
+    min-width: 9rem;
+    max-width: 9rem;
+    border-right: 1.5px solid #663D2B; 
+    padding-right: 1rem;
+    margin-right: 1rem;
+    flex-shrink: 0;
+    text-align: left;
 }
 
 /* 추천 사유 */
-.recommendation-reason {color: #000;}
-.recommandation-placeholder {text-align: center; padding-top: 5rem; color: #545E46; font-weight: 700; margin-bottom: 4.8rem; font-size: 1.2rem;}
+.recommendation-reason {
+    color: #333;
+    text-align: left;
+    flex: 1;
+    font-size: 0.95rem;
+    line-height: 1.5;
+}
+.recommandation-placeholder {
+    text-align: center; 
+    color: #545E46; 
+    font-weight: 600; 
+    font-size: 1rem;
+}
 
 /* AI 포상추천 버튼 */
 .ai-recommend-btn {
     width: 100%;
     padding: 0.8rem;
-    background-color: #663D2B; /* 진한 갈색 */
+    background-color: #663D2B;
     border: none;
     border-radius: 5px;
     color: white;
     font-size: 1rem;
     font-weight: 700;
     cursor: pointer;
-    /* margin-top: 4rem; */
     height: 3rem;
+    margin-top: 0.5rem; /* 위쪽 여백 추가 */
+    flex-shrink: 0; /* 버튼 크기 고정 */
 }

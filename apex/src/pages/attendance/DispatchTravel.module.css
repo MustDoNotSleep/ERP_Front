@@ -59,6 +59,18 @@
   color: #4A5D54; 
 }
 
+.balanceValue.approved {
+  color: #7ED321;
+}
+
+.balanceValue.rejected {
+  color: #E74C3C;
+}
+
+.fullWidthSection {
+  width: 100%;
+}
+
 .contentSection {
   display: grid;
   grid-template-columns: 1fr 550px;
@@ -185,6 +197,17 @@
   flex-shrink: 0;
 }
 
+.dotInProgress {
+  background-color: #4A90E2;
+}
+
+.dotScheduled {
+  background-color: #F5A623;
+}
+
+.dotCompleted {
+  background-color: #7ED321;
+}
 
 .dotTrip {
   background-color: #4A5D54;

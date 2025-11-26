@@ -16,8 +16,8 @@
 .header-content {
     position: absolute;
     top: 15%;
-    left: 5%;
-    width: 90%;
+    left: 1%;
+    width: 98%;
     display: flex;
     align-items: center;
     justify-content: space-between;

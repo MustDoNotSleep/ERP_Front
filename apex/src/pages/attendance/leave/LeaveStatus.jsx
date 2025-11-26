@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { Card, DataTable } from '../../../components/common';
+import { LEAVE_TYPE_INFO, DURATION_INFO } from '../../../models/LeaveType';
 import api from '../../../api/axios';
 import styles from './LeaveStatus.module.css';
 
@@ -50,8 +51,6 @@ export default function LeaveStatus() {
 
       const statsData = statsResponse.data?.data;
       
-      console.log('통계 API 응답:', statsData); // 디버깅용
-      
       if (statsData) {
         // 연차 잔여 정보 (API 필드명에 맞게 수정)
         const balanceData = {
@@ -59,7 +58,6 @@ export default function LeaveStatus() {
           usedDays: statsData.usedAnnualLeave || 0,
           remainingDays: statsData.remainingAnnualLeave || 0
         };
-        console.log('설정될 balanceInfo:', balanceData); // 디버깅용
         setBalanceInfo(balanceData);
       }
 
@@ -77,11 +75,6 @@ export default function LeaveStatus() {
         .sort((a, b) => new Date(b.startDate) - new Date(a.startDate));
 
       setLeaveHistory(currentYearLeaves);
-      console.log('휴가 이력 데이터:', leavesData); // 디버깅용
-      if (leavesData.length > 0) {
-        console.log('첫 번째 휴가 데이터 전체:', JSON.stringify(leavesData[0], null, 2)); // 전체 구조 확인
-        console.log('사용 가능한 필드들:', Object.keys(leavesData[0])); // 모든 필드명 출력
-      }
 
     } catch (err) {
       console.error('휴가 데이터 조회 실패:', err);
@@ -91,33 +84,15 @@ export default function LeaveStatus() {
   };
 
   const getLeaveTypeLabel = (type) => {
-    const labels = {
-      'ANNUAL': '연차',
-      'SICK': '병가',
-      'SICK_PAID': '유급병가',
-      'MATERNITY': '출산휴가',
-      'PATERNITY': '배우자출산휴가',
-      'CHILDCARE': '육아휴직',
-      'MARRIAGE': '결혼휴가',
-      'FAMILY_MARRIAGE': '가족결혼휴가',
-      'BEREAVEMENT': '경조사',
-      'OFFICIAL': '공가',
-      'UNPAID': '무급휴가'
-    };
-    return labels[type] || type;
+    // API 응답이 이미 한글로 오므로 그대로 반환
+    // 혹시 영문 코드가 오면 LEAVE_TYPE_INFO에서 찾기
+    return LEAVE_TYPE_INFO[type]?.name || type;
   };
 
   const getLeaveDurationLabel = (duration) => {
-    const labels = {
-      'FULL_DAY': '종일',
-      'HALF_DAY_AM': '오전 반차',
-      'HALF_DAY_PM': '오후 반차',
-      'QUARTER_DAY_AM': '오전 반반차',
-      'QUARTER_DAY_PM': '오후 반반차',
-      'HALF_DAY': '반차',
-      'QUARTER_DAY': '반반차'
-    };
-    return labels[duration] || duration;
+    // API 응답이 이미 한글로 오므로 그대로 반환
+    // 혹시 영문 코드가 오면 DURATION_INFO에서 찾기
+    return DURATION_INFO[duration]?.name || duration;
   };
 
   const getLeaveStatusLabel = (status) => {
@@ -134,12 +109,6 @@ export default function LeaveStatus() {
   const usagePercentage = balanceInfo.totalDays > 0 
     ? Math.round((balanceInfo.usedDays / balanceInfo.totalDays) * 100) 
     : 0;
-
-  // console.log('사용률 계산:', {
-  //   totalDays: balanceInfo.totalDays,
-  //   usedDays: balanceInfo.usedDays,
-  //   usagePercentage
-  // }); // 디버깅용
 
   // 페이지네이션
   const totalPages = Math.ceil(leaveHistory.length / pageSize);
@@ -187,16 +156,14 @@ export default function LeaveStatus() {
     );
   };
 
-  // 연차/반차 카운트 계산 - API 응답의 한글 값 기준
+  // 연차/반차 카운트 계산 - API 응답이 한글로 옴
   const annualCount = leaveHistory.filter(l => 
-    l.type === '연차' && l.duration === '연차'
+    l.type === '연차' && l.duration === '종일'
   ).length;
   
   const halfDayCount = leaveHistory.filter(l => 
-    l.type === '연차' && l.duration === '반차'
+    l.type === '연차' && (l.duration?.includes('반차') || l.duration === '반차')
   ).length;
-  
-  console.log('연차 카운트:', annualCount, '반차 카운트:', halfDayCount); // 디버깅용
 
   return (
     <div className={styles.container}>

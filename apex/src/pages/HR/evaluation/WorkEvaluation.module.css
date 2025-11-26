@@ -1,12 +1,3 @@
-/* WorkEvaluation.module.css */
-
-.container {
-  /* 배경색 흰색 유지 */
-  background-color: white; 
-  min-height: 100vh;
-  padding: 1rem; 
-}
-
 /* 평가 관리 제목 스타일 */
 .title {
   font-size: 1.5rem;

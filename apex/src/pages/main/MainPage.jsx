@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { fetchLeaveBalance } from '../../api/leave';
+import { fetchImportantNotices } from '../../api/notice';
 import { toast } from 'react-toastify';
 import Historical from '../../img/historical.png';
 import User from '../../img/user.png';
 import MyCalendar from '../../components/myCalendar/MyCalendar.jsx';
 import './MainPage.css';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { checkIn, checkOut, fetchTodayAttendance } from '../../api/attendance';
 
 // ✅ [수정 1] 실제 API 호출을 위한 axios 인스턴스 import
@@ -27,6 +28,8 @@ const fetchRecommendedEmployees = async () => {
 };
 
 function MainPage() {
+  const navigate = useNavigate();
+  
   const [userInfo, setUserInfo] = useState({ 
     name: '비회원', 
     employmentType: '정보 없음', 
@@ -45,6 +48,8 @@ function MainPage() {
   
   const [employees, setEmployees] = useState([]);
   const [isLoadingRecommendations, setIsLoadingRecommendations] = useState(false);
+
+  const [notices, setNotices] = useState([]);
 
   useEffect(() => {
     const storedUser = localStorage.getItem('user');
@@ -89,6 +94,17 @@ function MainPage() {
     } else {
       console.warn('로컬 스토리지에 사용자 정보가 없습니다. (로그인 필요)');
     }
+
+    // 중요 공지사항 조회
+    fetchImportantNotices()
+      .then(res => {
+        if (res.success && res.data) {
+          setNotices(res.data);
+        }
+      })
+      .catch(err => {
+        console.error('공지사항 조회 실패:', err);
+      });
   }, []);
 
   useEffect(() => {
@@ -122,6 +138,32 @@ function MainPage() {
       setIsLoadingRecommendations(false); 
     })
   }
+
+  // 나의 위젯 클릭 핸들러
+  const handleWidgetClick = (path) => {
+    navigate(path);
+  };
+
+  // 공지사항 더보기 클릭
+  const handleNoticeMoreClick = () => {
+    navigate('/notice');
+  };
+
+  // 공지사항 클릭 시 상세 페이지로 이동
+  const handleNoticeClick = (noticeId) => {
+    navigate('/notice', { state: { selectedNoticeId: noticeId } });
+  };
+
+  // 날짜 포맷팅 함수
+  const formatNoticeDate = (dateString) => {
+    if (!dateString) return '';
+    const date = new Date(dateString);
+    return date.toLocaleDateString('ko-KR', {
+      year: 'numeric',
+      month: '2-digit',
+      day: '2-digit'
+    }).replace(/\. /g, '.').replace(/\.$/, '');
+  };
 
   const handleCheckIn = async () => {
     if (!userInfo.employeeId) {
@@ -221,61 +263,7 @@ function MainPage() {
           </div>
         </div>
         
-        {/* 결재 문서 위젯 */}
-        <div className="widget approval">
-          <h3>결재 문서 &gt;</h3>
-          <div className='document-wrap'>
-            <div className='approv'><span>대기 문서</span><h2>3</h2></div>
-            <div className='approv'><span>예정 문서</span><h2>4</h2></div>
-            <div className='approv'><span>공유 문서</span><h2>1</h2></div>
-            <div className='approv'><span>수신 문서</span><h2>2</h2></div>  
-          </div>
-        </div>
-
-        {/* 근태 현황 위젯 */}
-        <div className="widget attendance-status">
-          <h3>근태 현황 &gt;</h3>
-          <div className='attend-wrap'>
-            <div className='attend'><span className='attend-txt'>근태 통계</span><span>3</span></div>
-            <div className='attend'><span className='attend-txt'>연차/휴가 현황</span><span>0</span></div>
-            <div className='attend'><span className='attend-txt'>부재</span><span>2</span></div>
-            <div className='attend'><span className='attend-txt'>시간외 근무</span><span>1</span></div>
-            <div className='attend'><span className='attend-txt'>근무 계획</span><span>2</span></div>
-            <div className='attend'><span className='attend-txt'>나의 예상 퇴직금</span><span>1</span></div>
-          </div>
-        </div>
-
-        {/* 남은 연차 위젯 */}
-        <div className="widget remaining-leave">
-          <h3>남은 연차 &gt;</h3>
-          <div className="leave-content">
-            <div className='remain'>
-              <div className='re-txt'>
-                <span className='num'>{leaveBalance.days}</span>
-                <span className='re-txt'>일</span>
-                <span className='num'>{leaveBalance.hours}</span>
-                <span className='re-txt'>시간</span>
-              </div>
-            </div>
-            <button className='apply-btn' onClick={() => window.location.href = 'attendance/leave/application'}>
-              연차 신청
-            </button>
-          </div>    
-        </div>
-        
-        {/* 공지사항 위젯 */}
-        <div className="widget notice">
-          <h3>공지사항 &gt;</h3>
-            <ul className="notice-list">
-              <li>2025.09.30&nbsp;&nbsp; 긴급 서버 점검 안내 <span className="new-badge">[N]</span></li>
-              <li>2025.10.03&nbsp;&nbsp; 추석 연휴 기간 안내</li>
-              <li>2025.10.03&nbsp;&nbsp; AI 기능 도입 예정 안내</li>
-            </ul>
-            <hr className="divider" />
-            <button className="more-btn">더보기</button>
-        </div>
-
-        {/* ✅ [수정 4] 우수사원 추천 위젯 (데이터 매핑 수정) */}
+        {/* 우수사원 추천 위젯 */}
         <div className="widget recommendation">
           <h3>우수사원 추천 &gt;</h3>
 
@@ -313,6 +301,71 @@ function MainPage() {
           >
             {isLoadingRecommendations ? '분석 중...' : 'AI 포상 추천'}
           </button>
+        </div>
+
+        {/* 나의 위젯 */}
+        <div className="widget attendance-status">
+          <h3>나의 위젯 &gt;</h3>
+          <div className='attend-wrap'>
+            <div className='attend' onClick={() => handleWidgetClick('/attendance/commute/me')}>
+              <span className='attend-txt'>근태 통계</span>
+            </div>
+            <div className='attend' onClick={() => handleWidgetClick('/attendance/leave/status/me')}>
+              <span className='attend-txt'>연차/휴가 현황</span>
+            </div>
+            <div className='attend' onClick={() => handleWidgetClick('/attendance/leave/application')}>
+              <span className='attend-txt'>연차/휴가 신청</span>
+            </div>
+            <div className='attend' onClick={() => handleWidgetClick('/hr/training/status')}>
+              <span className='attend-txt'>교육 신청</span>
+            </div>
+            <div className='attend' onClick={() => handleWidgetClick('/hr/certificates/request')}>
+              <span className='attend-txt'>증명서 발급</span>
+            </div>
+            <div className='attend' onClick={() => handleWidgetClick('/payroll/payslips')}>
+              <span className='attend-txt'>급여명세서 발급</span>
+            </div>
+            <div className='attend' onClick={() => handleWidgetClick('/payroll/severance/status')}>
+              <span className='attend-txt'>나의 예상 퇴직금</span>
+            </div>
+          </div>
+        </div>
+
+        {/* 남은 연차 위젯 */}
+        <div className="widget remaining-leave">
+          <h3>남은 연차 &gt;</h3>
+          <div className="leave-content">
+            <div className='remain'>
+              <div className='re-txt'>
+                <span className='num'>{leaveBalance.days}</span>
+                <span className='re-txt'>일</span>
+                <span className='num'>{leaveBalance.hours}</span>
+                <span className='re-txt'>시간</span>
+              </div>
+            </div>
+            <button className='apply-btn' onClick={() => window.location.href = 'attendance/leave/application'}>
+              연차 신청
+            </button>
+          </div>    
+        </div>
+        
+        {/* 공지사항 위젯 */}
+        <div className="widget notice">
+          <h3>공지사항 &gt;</h3>
+            <ul className="notice-list">
+              {notices.length > 0 ? (
+                notices.map(notice => (
+                  <li key={notice.id} onClick={() => handleNoticeClick(notice.id)}>
+                    {formatNoticeDate(notice.createdAt)}&nbsp;&nbsp; {notice.title}
+                    {notice.isImportant && <span className="new-badge">[N]</span>}
+                  </li>
+                ))
+              ) : (
+                <li style={{ color: '#999' }}>공지사항이 없습니다.</li>
+              )}
+            </ul>
+            <hr className="divider" />
+            <button className="more-btn" onClick={handleNoticeMoreClick}>더보기</button>
         </div>
       </div>
     </div>

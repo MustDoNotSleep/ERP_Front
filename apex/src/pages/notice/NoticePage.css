@@ -1,0 +1,274 @@
+.notice-page-container {
+  box-sizing: border-box;
+}
+
+/* 돌아가기 버튼 */
+.back-to-main-btn {
+  padding: 0.6rem 1.2rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  color: #663D2B;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.95rem;
+  margin-bottom: 1rem;
+  display: inline-block;
+}
+
+.back-to-main-btn:hover {
+  background-color: #663D2B;
+  color: white;
+  border-color: #663D2B;
+}
+
+.notice-page-title {
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #663D2B;
+  margin: 0 0 2rem 0;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #663D2B;
+}
+
+/* 검색 영역 */
+.notice-search-section {
+  background-color: #f5f5f5;
+  padding: 1.5rem;
+  border-radius: 8px;
+  margin-bottom: 1.5rem;
+}
+
+.search-row {
+  display: flex;
+  align-items: center;
+  margin-bottom: 1rem;
+}
+
+.search-row:last-child {
+  margin-bottom: 0;
+}
+
+.search-label {
+  min-width: 80px;
+  font-weight: 600;
+  color: #333;
+  margin-right: 1rem;
+}
+
+.date-input {
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.date-input:focus {
+  border-color: #663D2B;
+}
+
+.date-separator {
+  margin: 0 0.5rem;
+  color: #666;
+}
+
+.search-input {
+  flex: 1;
+  padding: 0.5rem 0.75rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 0.95rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.search-input:focus {
+  border-color: #663D2B;
+}
+
+.search-button {
+  padding: 0.5rem 2rem;
+  background-color: #663D2B;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  margin-left: 1rem;
+  transition: background-color 0.2s;
+}
+
+.search-button:hover {
+  background-color: #543020;
+}
+
+/* 테이블 영역 */
+.notice-table-wrapper {
+  margin-top: 1.5rem;
+}
+
+.notice-table {
+  width: 100%;
+  border-collapse: collapse;
+  border-top: 2px solid #663D2B;
+  border-bottom: 1px solid #ddd;
+}
+
+.notice-table thead {
+  background-color: #f8f8f8;
+}
+
+.notice-table th {
+  padding: 1rem;
+  text-align: center;
+  font-weight: 600;
+  color: #333;
+  border-bottom: 1px solid #ddd;
+  font-size: 0.95rem;
+}
+
+.notice-table td {
+  padding: 1rem;
+  text-align: center;
+  border-bottom: 1px solid #f0f0f0;
+  font-size: 0.95rem;
+  color: #333;
+}
+
+.notice-table tbody tr {
+  transition: background-color 0.2s;
+  cursor: pointer;
+}
+
+.notice-table tbody tr:hover {
+  background-color: #f9f9f9;
+}
+
+.notice-title {
+  text-align: left !important;
+  font-weight: 500;
+}
+
+.important-badge {
+  background-color: #E41E1E;
+  color: white;
+  padding: 0.2rem 0.5rem;
+  border-radius: 3px;
+  font-size: 0.85rem;
+  font-weight: 600;
+}
+
+.new-badge {
+  color: #E41E1E;
+  font-weight: 700;
+  margin-left: 0.5rem;
+  font-size: 0.9rem;
+}
+
+.no-data {
+  padding: 3rem !important;
+  text-align: center;
+  color: #999;
+  font-size: 1rem;
+}
+
+.loading-message {
+  text-align: center;
+  padding: 3rem;
+  color: #666;
+  font-size: 1rem;
+}
+
+/* 페이지네이션 */
+.pagination {
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  gap: 0.5rem;
+  margin-top: 2rem;
+  padding: 1rem 0;
+}
+
+.page-btn {
+  padding: 0.5rem 0.75rem;
+  background-color: #f5f5f5;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.page-btn:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.page-btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.page-number {
+  min-width: 2.5rem;
+  padding: 0.5rem;
+  background-color: white;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  cursor: pointer;
+  transition: all 0.2s;
+  font-size: 0.9rem;
+}
+
+.page-number:hover {
+  background-color: #f5f5f5;
+}
+
+.page-number.active {
+  background-color: #663D2B;
+  color: white;
+  border-color: #663D2B;
+  font-weight: 600;
+}
+
+.page-ellipsis {
+  color: #999;
+  padding: 0 0.25rem;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .notice-page-container {
+    padding: 1rem;
+  }
+
+  .search-row {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .search-label {
+    margin-bottom: 0.5rem;
+  }
+
+  .search-input {
+    width: 100%;
+  }
+
+  .search-button {
+    width: 100%;
+    margin-left: 0;
+    margin-top: 0.5rem;
+  }
+
+  .notice-table {
+    font-size: 0.85rem;
+  }
+
+  .notice-table th,
+  .notice-table td {
+    padding: 0.75rem 0.5rem;
+  }
+}
