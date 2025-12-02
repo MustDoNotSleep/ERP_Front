@@ -1,0 +1,191 @@
+.notice-create-container {
+  background-color: #fff;
+  border-radius: 8px;
+  padding: 2rem;
+  box-sizing: border-box;
+  max-width: 1200px;
+}
+
+.notice-create-header {
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #663D2B;
+}
+
+.notice-create-header h2 {
+  margin: 0;
+  font-size: 1.5rem;
+  font-weight: 700;
+  color: #663D2B;
+}
+
+/* 폼 스타일 */
+.notice-create-form {
+  display: flex;
+  flex-direction: column;
+  gap: 1.5rem;
+}
+
+.form-group {
+  display: flex;
+  flex-direction: column;
+  gap: 0.5rem;
+}
+
+.form-label {
+  font-weight: 600;
+  color: #333;
+  font-size: 1rem;
+}
+
+.form-label.required::after {
+  content: ' *';
+  color: #E41E1E;
+  font-weight: 700;
+}
+
+.form-input {
+  padding: 0.75rem 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  outline: none;
+  transition: border-color 0.2s;
+}
+
+.form-input:focus {
+  border-color: #663D2B;
+}
+
+.char-count {
+  text-align: right;
+  font-size: 0.85rem;
+  color: #999;
+}
+
+/* 체크박스 */
+.checkbox-label {
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  cursor: pointer;
+  padding: 1rem;
+  background-color: #f8f8f8;
+  border-radius: 4px;
+  transition: background-color 0.2s;
+}
+
+.checkbox-label:hover {
+  background-color: #f0f0f0;
+}
+
+.form-checkbox {
+  width: 1.2rem;
+  height: 1.2rem;
+  cursor: pointer;
+}
+
+.checkbox-text {
+  font-weight: 600;
+  color: #333;
+}
+
+.checkbox-desc {
+  color: #666;
+  font-size: 0.9rem;
+  margin-left: 0.5rem;
+}
+
+/* 텍스트 영역 */
+.form-textarea {
+  padding: 1rem;
+  border: 1px solid #ddd;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-family: 'NanumSquareRound', sans-serif;
+  outline: none;
+  transition: border-color 0.2s;
+  resize: vertical;
+  min-height: 300px;
+  line-height: 1.6;
+}
+
+.form-textarea:focus {
+  border-color: #663D2B;
+}
+
+/* 버튼 영역 */
+.form-actions {
+  display: flex;
+  justify-content: center;
+  gap: 1rem;
+  margin-top: 2rem;
+  padding-top: 2rem;
+  border-top: 1px solid #e0e0e0;
+}
+
+.btn-cancel,
+.btn-submit {
+  padding: 0.75rem 2.5rem;
+  border: none;
+  border-radius: 4px;
+  font-size: 1rem;
+  font-weight: 600;
+  cursor: pointer;
+  transition: all 0.2s;
+  min-width: 120px;
+}
+
+.btn-cancel {
+  background-color: #f5f5f5;
+  color: #666;
+  border: 1px solid #ddd;
+}
+
+.btn-cancel:hover:not(:disabled) {
+  background-color: #e0e0e0;
+}
+
+.btn-submit {
+  background-color: #663D2B;
+  color: white;
+}
+
+.btn-submit:hover:not(:disabled) {
+  background-color: #543020;
+}
+
+.btn-cancel:disabled,
+.btn-submit:disabled {
+  opacity: 0.6;
+  cursor: not-allowed;
+}
+
+/* 반응형 */
+@media (max-width: 768px) {
+  .notice-create-container {
+    padding: 1rem;
+  }
+
+  .notice-create-header h2 {
+    font-size: 1.3rem;
+  }
+
+  .form-actions {
+    flex-direction: column;
+  }
+
+  .btn-cancel,
+  .btn-submit {
+    width: 100%;
+  }
+
+  .checkbox-label {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+
+  .checkbox-desc {
+    margin-left: 0;
+  }
+}

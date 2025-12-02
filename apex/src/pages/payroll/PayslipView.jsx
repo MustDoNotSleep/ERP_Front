@@ -7,7 +7,7 @@ import { IoIosDownload } from "react-icons/io";
 import styles from './PayslipView.module.css';
 
 import { fetchEmployeesalary, fetchSalaryById } from '../../api/salary';
-import { fetchEmployeeCourseApplications } from '../../api/course';
+import { fetchWelfareBalance, fetchWelfareByEmployeeId } from '../../api/welfare';
 import { getCurrentUser } from '../../api/auth'; 
 
 const CURRENT_YEAR = new Date().getFullYear();
@@ -18,6 +18,15 @@ export default function PayslipView() {
     const [loading, setLoading] = useState(false);
     const [selectedYear, setSelectedYear] = useState(CURRENT_YEAR); 
     const [selectedMonth, setSelectedMonth] = useState('전체'); 
+    
+    // 복리후생 잔액
+    const [welfareBalance, setWelfareBalance] = useState({
+        totalAmount: 0,
+        usedAmount: 0,
+        remainingAmount: 0,
+        usagePercentage: 0
+    });
+    const [welfareBalanceLoading, setWelfareBalanceLoading] = useState(false);
     
     // 복리후생 신청 기록
     const [welfareApplications, setWelfareApplications] = useState([]);
@@ -32,13 +41,49 @@ export default function PayslipView() {
         return new Intl.NumberFormat('ko-KR').format(amount || 0);
     };
 
-    // 복리후생 신청 기록 조회
-    const loadWelfareApplications = useCallback(async () => {
+    // 복리후생 잔액 조회
+    const loadWelfareBalance = useCallback(async () => {
+        setWelfareBalanceLoading(true);
+        try {
+            const currentUser = getCurrentUser();
+            if (!currentUser || !currentUser.employeeId) {
+                console.error('로그인 정보를 찾을 수 없습니다.');
+                setWelfareBalanceLoading(false);
+                return;
+            }
+
+            const employeeId = currentUser.employeeId;
+            const currentYear = new Date().getFullYear();
+            
+            console.log('복리후생 잔액 조회:', { employeeId, year: currentYear });
+            
+            const response = await fetchWelfareBalance(employeeId, currentYear);
+            console.log('복리후생 잔액 응답:', response);
+            
+            // 응답 데이터 파싱
+            if (response) {
+                setWelfareBalance({
+                    totalAmount: response.grantedAmount || 0,  // grantedAmount를 totalAmount로 사용
+                    usedAmount: response.usedAmount || 0,
+                    remainingAmount: response.remainingAmount || 0,
+                    usagePercentage: response.usageRate || 0  // usageRate를 usagePercentage로 사용
+                });
+            }
+        } catch (error) {
+            console.error('복리후생 잔액 조회 실패:', error);
+            // 에러 시 기본값 유지
+        } finally {
+            setWelfareBalanceLoading(false);
+        }
+    }, []);
+
+    // 복리후생 사용 내역 조회
+    const loadWelfareHistory = useCallback(async () => {
         setWelfareLoading(true);
         try {
             const currentUser = getCurrentUser();
             if (!currentUser || !currentUser.employeeId) {
-                toast.error('로그인 정보를 찾을 수 없습니다.');
+                console.error('로그인 정보를 찾을 수 없습니다.');
                 setWelfareApplications([]);
                 setWelfareLoading(false);
                 return;
@@ -46,41 +91,46 @@ export default function PayslipView() {
 
             const employeeId = currentUser.employeeId;
             
-            // 교육 신청 내역 조회 (EDUCATION 타입)
-            const response = await fetchEmployeeCourseApplications(employeeId, 0, 100);
-            console.log('복리후생 신청 기록 응답:', response);
+            console.log('복리후생 사용 내역 조회:', employeeId);
             
+            const response = await fetchWelfareByEmployeeId(employeeId);
+            console.log('복리후생 사용 내역 응답:', response);
+            
+            // 응답 데이터 파싱
             let applications = [];
-            if (response.data?.content) {
-                applications = response.data.content;
-            } else if (response.content) {
-                applications = response.content;
-            } else if (Array.isArray(response.data)) {
-                applications = response.data;
-            } else if (Array.isArray(response)) {
+            if (Array.isArray(response)) {
                 applications = response;
+            } else if (response.data) {
+                applications = Array.isArray(response.data) ? response.data : [response.data];
             }
             
-            // 타입별 필터링 (실제 데이터에 welfareType 필드가 있다고 가정)
-            // 교육 신청은 EDUCATION 타입으로 간주
+            console.log('파싱된 applications:', applications);
+            
+            // 날짜 포맷팅 및 데이터 가공
             const formattedApplications = applications.map(app => ({
                 ...app,
-                welfareType: 'EDUCATION', // 교육 신청은 EDUCATION
-                // applicationDate를 YYYY-MM-DD 형식으로 포맷 (2025-11-19T01:43:39 -> 2025년 11월 19일)
-                applicationDate: app.applicationDate ? 
-                    new Date(app.applicationDate).toLocaleDateString('ko-KR', {
+                // createdAt을 applicationDate로 사용
+                applicationDate: app.createdAt ? 
+                    new Date(app.createdAt).toLocaleDateString('ko-KR', {
                         year: 'numeric',
                         month: 'long',
                         day: 'numeric'
                     }) : '-',
-                amount: app.cost || 0,
-                status: app.status || 'PENDING'
+                amount: app.amount || 0,
+                // isApproved를 status로 변환
+                status: app.isApproved ? 'APPROVED' : 'PENDING',
+                welfareType: app.welfareType || 'OTHER',
+                // 항목명으로 note 사용
+                itemName: app.note || app.welfareTypeName || '-',
+                // transactionType: USE(사용) -> WITHDRAW(출금), GRANT(지급) -> DEPOSIT(입금)
+                transactionType: app.transactionType === 'USE' ? 'WITHDRAW' : 'DEPOSIT'
             }));
+            
+            console.log('포맷된 applications:', formattedApplications);
             
             setWelfareApplications(formattedApplications);
         } catch (error) {
-            console.error('복리후생 신청 기록 조회 실패:', error);
-            // Mock 데이터로 대체 (개발 중)
+            console.error('복리후생 사용 내역 조회 실패:', error);
             setWelfareApplications([]);
         } finally {
             setWelfareLoading(false);
@@ -88,7 +138,8 @@ export default function PayslipView() {
     }, []);
 
     useEffect(() => {
-        loadWelfareApplications();
+        loadWelfareBalance();
+        loadWelfareHistory();
     }, []); // eslint-disable-line react-hooks/exhaustive-deps
     
     const loadPayslips = useCallback(async () => {
@@ -235,13 +286,26 @@ export default function PayslipView() {
                     {/* 1-1. 복리후생 잔액 섹션 */}
                     <div className={styles.welfareSection}>
                         <h3 className={styles.cardTitle}>복리후생 잔액</h3>
-                        <div className={styles.welfareBalance}>320,000 P</div>
-                        <div className={styles.welfareUsageBar}>
-                            <div className={styles.usageBarTrack}>
-                                <div className={styles.usageBarFill} style={{ width: '55%' }}></div>
-                            </div>
-                            <div className={styles.usageText}>사용 내역 55%</div>
-                        </div>
+                        {welfareBalanceLoading ? (
+                            <div className={styles.loadingState}>로딩 중...</div>
+                        ) : (
+                            <>
+                                <div className={styles.welfareBalance}>
+                                    {formatCurrency(welfareBalance.remainingAmount)} P
+                                </div>
+                                <div className={styles.welfareUsageBar}>
+                                    <div className={styles.usageBarTrack}>
+                                        <div 
+                                            className={styles.usageBarFill} 
+                                            style={{ width: `${welfareBalance.usagePercentage}%` }}
+                                        ></div>
+                                    </div>
+                                    <div className={styles.usageText}>
+                                        사용 내역 {welfareBalance.usagePercentage}%
+                                    </div>
+                                </div>
+                            </>
+                        )}
                     </div>
                     
                     {/* 1-2. 복리후생 신청 기록 섹션 */}
@@ -256,9 +320,8 @@ export default function PayslipView() {
                                     className={styles.filterSelect}
                                 >
                                     <option value="전체">전체</option>
-                                    <option value="EDUCATION">교육</option>
-                                    <option value="BOOK">도서</option>
-                                    <option value="OTHER">기타</option>
+                                    <option value="DEPOSIT">입금</option>
+                                    <option value="WITHDRAW">출금</option>
                                 </select>
                             </div>
                         </div>
@@ -274,7 +337,6 @@ export default function PayslipView() {
                                             <th>구분</th>
                                             <th>항목명</th>
                                             <th>금액</th>
-                                            <th>상태</th>
                                         </tr>
                                     </thead>
                                     <tbody>
@@ -286,25 +348,18 @@ export default function PayslipView() {
                                             </tr>
                                         ) : (
                                             welfareApplications
-                                                .filter(app => welfareFilter === '전체' || app.welfareType === welfareFilter)
+                                                .filter(app => welfareFilter === '전체' || app.transactionType === welfareFilter)
                                                 .map((app, index) => (
                                                     <tr key={app.id || index}>
                                                         <td>{app.applicationDate}</td>
                                                         <td>
-                                                            <span className={styles[`type-${app.welfareType?.toLowerCase()}`]}>
-                                                                {app.welfareType === 'EDUCATION' ? '교육' : 
-                                                                 app.welfareType === 'BOOK' ? '도서' : '기타'}
+                                                            <span className={styles[`type-${app.transactionType?.toLowerCase()}`]}>
+                                                                {app.transactionType === 'DEPOSIT' ? '입금' : 
+                                                                 app.transactionType === 'WITHDRAW' ? '출금' : '-'}
                                                             </span>
                                                         </td>
-                                                        <td>{app.courseName || app.itemName || '-'}</td>
-                                                        <td>{formatCurrency(app.amount || app.cost)}</td>
-                                                        <td>
-                                                            <span className={styles[`status-${app.status?.toLowerCase()}`]}>
-                                                                {app.status === 'PENDING' ? '대기' :
-                                                                 app.status === 'APPROVED' ? '승인' :
-                                                                 app.status === 'REJECTED' ? '반려' : app.status}
-                                                            </span>
-                                                        </td>
+                                                        <td>{app.itemName || '-'}</td>
+                                                        <td>{formatCurrency(app.amount)}</td>
                                                     </tr>
                                                 ))
                                         )}

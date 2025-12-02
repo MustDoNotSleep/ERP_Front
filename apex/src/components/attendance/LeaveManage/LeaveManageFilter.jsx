@@ -19,41 +19,12 @@ const LeaveManageFilter = ({
     };
 
 
-    // 상단 행 스타일: 타이틀 왼쪽, 상태 드롭다운 오른쪽
-    const headerRowStyle = {
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        marginBottom: '1rem'
-    };
-
     return (
         <FilterCard 
+            title="연차 관리" 
             onSearch={onSearchSubmit}
             onReset={handleResetClick}
         >
-            <div style={headerRowStyle}>
-                <span style={{ fontSize: '1.5rem', fontWeight: 600, color: '#333' }}>근태 승인 조회</span>
-                <select 
-                    value={statusFilter}
-                    onChange={onStatusFilterChange}
-                    style={{
-                        padding: '8px 16px',
-                        borderRadius: '4px',
-                        border: 'none',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                        backgroundColor: 'white',
-                        minWidth: '120px'
-                    }}
-                >
-                    <option value="ALL">전체</option>
-                    <option value="PENDING">대기</option>
-                    <option value="APPROVED">승인</option>
-                    <option value="REJECTED">반려</option>
-                    <option value="CANCELLED">취소</option>
-                </select>
-            </div>
             <FilterGroup label="이름">
                 <div style={{ display: 'flex', gap: '8px' }}>
                     <Input

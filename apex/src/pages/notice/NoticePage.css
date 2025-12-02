@@ -23,13 +23,37 @@
   border-color: #663D2B;
 }
 
+/* 타이틀 영역 */
+.notice-title-area {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 2rem;
+  padding-bottom: 1rem;
+  border-bottom: 2px solid #663D2B;
+}
+
 .notice-page-title {
   font-size: 1.5rem;
   font-weight: 700;
   color: #663D2B;
-  margin: 0 0 2rem 0;
-  padding-bottom: 1rem;
-  border-bottom: 2px solid #663D2B;
+  margin: 0;
+}
+
+.create-notice-btn {
+  padding: 0.6rem 1.5rem;
+  background-color: #663D2B;
+  color: white;
+  border: none;
+  border-radius: 4px;
+  font-weight: 600;
+  cursor: pointer;
+  transition: background-color 0.2s;
+  font-size: 0.95rem;
+}
+
+.create-notice-btn:hover {
+  background-color: #543020;
 }
 
 /* 검색 영역 */

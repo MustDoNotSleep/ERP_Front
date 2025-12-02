@@ -146,7 +146,7 @@ export default function LeaveApprovalModal({ isOpen, onClose, onApprovalComplete
     };
 
     return (
-        <Modal isOpen={isOpen} onClose={onClose} title="근태 승인 조회" size="full">
+        <Modal isOpen={isOpen} onClose={onClose} title="미결재 항목" size="full">
             <div className={styles.modalContent}>
                 {loading ? (
                     <div className={styles.loadingMessage}>

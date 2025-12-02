@@ -43,6 +43,7 @@ import RetirementManage from './pages/payroll/RetirementManage.jsx';
 import RetirementApplication from './pages/payroll/RetirementApplication.jsx';
 import NoticePage from './pages/notice/NoticePage.jsx';
 import RewardManagePage from './pages/HR/rewards/RewardManage.jsx'; 
+import NoticeCreatePage from './pages/notice/NoticeCreatePage.jsx';
 
 function App() {
   // localStorage에 토큰이 있으면 로그인 상태로 초기화
@@ -74,6 +75,7 @@ function App() {
         <Routes>
           <Route path="/" element={<MainPage />} /> 
           <Route path="/notice" element={<NoticePage />} />
+          <Route path="/notice/create" element={<NoticeCreatePage />} />
 
           {/* 인사부분 */}  
           <Route path="/hr">

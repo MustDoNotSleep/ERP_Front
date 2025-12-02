@@ -132,13 +132,24 @@ function NoticePage() {
     navigate('/');
   };
 
+  // 공지사항 작성 페이지로 이동
+  const handleCreateNotice = () => {
+    navigate('/notice/create');
+  };
+
   return (
     <div className="common-wrap">
       <div className="notice-page-container">
         <button className="back-to-main-btn" onClick={handleBackToMain}>
           ← 돌아가기
         </button>
-        <h2 className="notice-page-title">공지사항</h2>
+        
+        <div className="notice-title-area">
+          <h2 className="notice-page-title">공지사항</h2>
+          <button className="create-notice-btn" onClick={handleCreateNotice}>
+            + 공지사항 작성
+          </button>
+        </div>
 
         {/* 검색 영역 */}
         <div className="notice-search-section">
@@ -188,6 +199,7 @@ function NoticePage() {
                     <th>제목</th>
                     <th>작성자</th>
                     <th>작성일</th>
+                    <th>조회수</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -208,11 +220,12 @@ function NoticePage() {
                         </td>
                         <td>{notice.authorName || '최관지'}</td>
                         <td>{formatDate(notice.createdAt)}</td>
+                        <td>{notice.viewCount || 0}</td>
                       </tr>
                     ))
                   ) : (
                     <tr>
-                      <td colSpan="5" className="no-data">
+                      <td colSpan="6" className="no-data">
                         공지사항이 없습니다.
                       </td>
                     </tr>
