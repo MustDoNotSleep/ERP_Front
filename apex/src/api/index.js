@@ -42,5 +42,8 @@ export * from './document';
 // Post Management
 export * from './post';
 
+// Welfare Management
+export * from './welfare';
+
 // Axios instance
 export { default as api } from './axios';

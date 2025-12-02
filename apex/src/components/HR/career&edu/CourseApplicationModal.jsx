@@ -15,7 +15,7 @@ export default function CourseApplicationModal({ isOpen, onClose, selectedCourse
 
     if (!isOpen) return null;
 
-    const totalAmount = selectedCourses.reduce((sum, course) => sum + (course.cost || 0), 0);
+    const totalAmount = selectedCourses.reduce((sum, course) => sum + (course.cost || course.price || 0), 0);
 
     const handleSubmit = async () => {
         if (!signature.trim()) {
@@ -55,7 +55,7 @@ export default function CourseApplicationModal({ isOpen, onClose, selectedCourse
                                 <div key={course.id} className={styles.courseItem}>
                                     <span className={styles.courseNumber}>{index + 1}.</span>
                                     <span className={styles.courseName}>{course.courseName}</span>
-                                    <span className={styles.courseCost}>{formatCurrency(course.cost)}원</span>
+                                    <span className={styles.courseCost}>{formatCurrency(course.cost || course.price)}원</span>
                                 </div>
                             ))}
                         </div>

@@ -13,7 +13,7 @@ const TrainingCreate = () => {
         startDate: '',           // 교육기간 시작일
         endDate: '',             // 교육기간 종료일
         price: '',              // 교육비
-        goal: '',                // 교육목표 (대형 텍스트 영역)
+        objective: '',                // 교육목표 (대형 텍스트 영역)
     });
 
     // API 요청 로딩 상태
@@ -49,7 +49,7 @@ const TrainingCreate = () => {
                 startDate: formData.startDate,
                 endDate: formData.endDate,
                 price: formData.price ? parseFloat(formData.price) : null,
-                goal: formData.goal || null,
+                objective: formData.objective || null,
             };
 
             console.log('� 교육과정 등록 데이터:', requestPayload);
@@ -92,8 +92,8 @@ const TrainingCreate = () => {
                 {/* 2. 교육 목표 텍스트 영역 */}
                 <h3 className={styles.sectionTitle}>교육목표</h3>
                 <textarea 
-                    name="goal" 
-                    value={formData.goal} 
+                    name="objective" 
+                    value={formData.objective} 
                     onChange={handleChange} 
                     className={styles.textarea} 
                     rows="8"

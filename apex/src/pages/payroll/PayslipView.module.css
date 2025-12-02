@@ -136,26 +136,49 @@
 }
 
 /* 각 컬럼 너비 지정 */
-.historyTable th:nth-child(1) { width: 20%; } /* 신청일 */
-.historyTable th:nth-child(2) { width: 15%; } /* 구분 */
-.historyTable th:nth-child(3) { width: 35%; } /* 항목명 */
+.historyTable th:nth-child(1) { width: 25%; } /* 신청일 - 너비 증가 */
+.historyTable th:nth-child(2) { width: 12%; } /* 구분 */
+.historyTable th:nth-child(3) { width: 38%; } /* 항목명 */
 .historyTable th:nth-child(4) { width: 15%; } /* 금액 */
-.historyTable th:nth-child(5) { width: 15%; } /* 상태 */
+.historyTable th:nth-child(5) { width: 10%; } /* 상태 */
 
 .historyTable td {
     padding: 0.75rem;
     text-align: center;
     border-bottom: 1px solid #eee;
-    white-space: nowrap; /* 텍스트가 줄바꿈되지 않도록 */
-    overflow: hidden; /* 넘치는 텍스트 숨김 */
-    text-overflow: ellipsis; /* ...으로 표시 */
+    white-space: normal; /* 텍스트 줄바꿈 허용 */
+    overflow: visible; /* 넘치는 텍스트 표시 */
+    word-wrap: break-word; /* 긴 단어 줄바꿈 */
 }
 
 .historyTable tbody tr:hover {
     background-color: #f8f9fa;
 }
 
-/* 구분 타입 스타일 */
+/* 구분 타입 스타일 - 입금/출금 */
+.type-deposit {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    background-color: #e8f5e9;
+    color: #2e7d32;
+    font-weight: 500;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+.type-withdraw {
+    display: inline-block;
+    padding: 0.25rem 0.75rem;
+    border-radius: 12px;
+    background-color: #ffebee;
+    color: #c62828;
+    font-weight: 500;
+    font-size: 0.8rem;
+    white-space: nowrap;
+}
+
+/* 기존 타입 스타일 (필요시 유지) */
 .type-education {
     display: inline-block;
     padding: 0.25rem 0.75rem;

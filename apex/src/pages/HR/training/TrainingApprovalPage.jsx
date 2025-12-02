@@ -14,7 +14,7 @@ import {
 } from '../../../api/course';
 
 const TABLE_HEADERS = [
-    '선택', '교육명', '교육 기간', '교육 유형', '이수 기준', '상태', '신청자'
+    '선택', '교육명', '교육 기간', '교육 유형', '이수 기준', '비용', '상태', '신청자'
 ];
 
 const TrainingApprovalPage = () => {
@@ -199,6 +199,11 @@ const TrainingApprovalPage = () => {
         const endDate = course.endDate || '-';
         const period = `${startDate} ~ ${endDate}`;
 
+        // 비용 포맷팅
+        const formatCurrency = (amount) => {
+            return new Intl.NumberFormat('ko-KR').format(amount || 0);
+        };
+
         return (
             <>
                 <td className={tableStyles.tableData}>
@@ -212,6 +217,7 @@ const TrainingApprovalPage = () => {
                 <td className={tableStyles.tableData}>{period}</td>
                 <td className={tableStyles.tableData}>{course.courseType || '-'}</td>
                 <td className={tableStyles.tableData}>{course.completionCriteria || '-'}</td>
+                <td className={tableStyles.tableData}>{formatCurrency(course.cost || course.price)}원</td>
                 <td className={`${tableStyles.tableData} ${statusStyle}`}>
                     {course.status === 'PENDING' ? '대기' : 
                      course.status === 'APPROVED' ? '승인' : 

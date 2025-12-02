@@ -50,7 +50,7 @@ function NoticeDetailModal({ notice, onClose }) {
           </div>
           <div className="notice-info-item">
             <span className="info-label">조회수:</span>
-            <span className="info-value">{notice.views || 0}회</span>
+            <span className="info-value">{notice.viewCount || 0}회</span>
           </div>
         </div>
 

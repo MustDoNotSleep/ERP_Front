@@ -286,11 +286,22 @@ export default function LeaveManage() {
 
             {/* 승인 조회 버튼 */}
             <div className={styles.approvalButtonSection}>
+                <select 
+                    value={statusFilter}
+                    onChange={(e) => setStatusFilter(e.target.value)}
+                    className={styles.statusSelect}
+                >
+                    <option value="ALL">전체</option>
+                    <option value="PENDING">대기</option>
+                    <option value="APPROVED">승인</option>
+                    <option value="REJECTED">반려</option>
+                    <option value="CANCELLED">취소</option>
+                </select>
                 <Button 
                     variant="primary"
                     onClick={handleOpenApprovalModal}
                 >
-                    근태 승인 조회
+                    미결재 항목
                 </Button>
             </div>
 

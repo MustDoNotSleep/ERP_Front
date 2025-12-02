@@ -72,7 +72,7 @@ const CourseApplicantsModal = ({
                         style={{ cursor: isProcessed ? 'not-allowed' : 'pointer' }}
                     />
                 </td>
-                <td className={tableStyles.tableData}>{applicant.id || '-'}</td>
+                <td className={tableStyles.tableData}>{applicant.employeeId || '-'}</td>
                 <td className={tableStyles.tableData}>{applicant.employeeName || '-'}</td>
                 <td className={tableStyles.tableData}>{applicant.departmentName || '-'}</td>
                 <td className={tableStyles.tableData}>{formatDate(applicant.applicationDate)}</td>

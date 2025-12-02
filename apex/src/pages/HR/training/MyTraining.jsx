@@ -189,7 +189,7 @@ const MyTraining = () => {
 
             await Promise.all(promises);
 
-            const totalCost = courses.reduce((sum, c) => sum + (c.cost || 0), 0);
+            const totalCost = courses.reduce((sum, c) => sum + (c.cost || c.price || 0), 0);
             
             toast.success(`교육 신청이 완료되었습니다!\n총 ${totalCost.toLocaleString()}원이 사용됩니다.`);
             
@@ -341,7 +341,7 @@ const MyTraining = () => {
                                         <p className={styles.courseType}>{course.courseType}</p>
                                     </div>
                                     <div className={styles.courseCost}>
-                                        {course.cost ? `${course.cost.toLocaleString()}원` : '무료'}
+                                        {(course.cost || course.price) ? `${(course.cost || course.price).toLocaleString()}원` : '무료'}
                                     </div>
                                 </div>
                             ))}
