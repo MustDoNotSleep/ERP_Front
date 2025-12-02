@@ -1,0 +1,254 @@
+/* RewardManageModal.module.css */
+
+/* WorkEvaluationModal.module.css의 기본 모달 스타일 재사용 */
+.modalOverlay {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background-color: rgba(0, 0, 0, 0.7);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+}
+
+.modalContent {
+    background-color: white;
+    padding: 1.5rem;
+    border-radius: 8px;
+    max-width: 900px;
+    width: 90%;
+    max-height: 90vh;
+    overflow-y: auto;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.2);
+}
+
+.modalHeader {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding-bottom: 1rem;
+    border-bottom: 1px solid #ddd;
+    margin-bottom: 1rem;
+}
+
+.headerTitle {
+    font-size: 1.25rem;
+    font-weight: 600;
+    color: #333;
+}
+
+/* 닫기 버튼: 브라운 계열 적용 */
+.closeBtn {
+    background: none;
+    border: none;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: #7b4d3f; /* 브라운 계열 적용 */
+    transition: color 0.2s;
+}
+
+.closeBtn:hover {
+    color: #6a4136; /* hover 색상 조정 */
+}
+
+
+/* Reward Content Styling */
+
+.rewardContainer {
+    font-family: 'Malgun Gothic', 'Dotum', sans-serif;
+    padding: 0.5rem;
+}
+
+.loadingMessage, .errorMessage {
+    text-align: center;
+    padding: 3rem 2rem;
+    font-size: 1.1rem;
+    color: #dc3545;
+    font-weight: 500;
+}
+
+.rewardTitle {
+    font-size: 1.75rem;
+    font-weight: 700;
+    text-align: center;
+    margin-bottom: 2rem;
+    color: #333;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+
+.periodText {
+    font-size: 1rem;
+    font-weight: 500;
+    color: #666;
+    margin-top: 0.5rem;
+}
+
+/* 기본 정보 테이블 */
+.infoTable {
+    border-top: 2px solid #7b4d3f; /* 주 색상(브라운 계열)으로 강조 */
+    border-bottom: 1px solid #7b4d3f; /* 주 색상(브라운 계열) 적용 */
+    margin-bottom: 2rem;
+}
+
+.infoRow {
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.infoRow:last-child {
+    border-bottom: none;
+}
+
+.infoLabel {
+    width: 15%;
+    min-width: 80px;
+    padding: 0.75rem;
+    background-color: #fcf5f3; /* 연한 브라운 배경 */
+    font-weight: 600;
+    border-right: 1px solid #ddd;
+    text-align: center;
+}
+
+.infoValue {
+    width: 35%;
+    padding: 0.75rem 1rem;
+    border-right: 1px solid #ddd;
+}
+
+.infoValue:last-child {
+    border-right: none;
+}
+
+/* 포상 상세 항목 */
+.detailSection {
+    margin-bottom: 2rem;
+}
+
+.sectionTitle {
+    font-size: 1.3rem;
+    font-weight: 700;
+    color: #7b4d3f; /* 주 색상(브라운 계열) 적용 */
+    margin-bottom: 1rem;
+    border-bottom: 2px solid #7b4d3f; /* 주 색상(브라운 계열) 적용 */
+    padding-bottom: 0.25rem;
+}
+
+.detailGrid {
+    display: flex;
+    flex-wrap: wrap;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    overflow: hidden;
+}
+
+.detailRow {
+    width: 50%;
+    display: flex;
+    border-bottom: 1px solid #eee;
+}
+
+.detailRow:nth-child(2n+1) {
+    border-right: 1px solid #eee;
+}
+
+.detailRow:nth-last-child(-n+2) {
+    border-bottom: none;
+}
+
+.detailLabel {
+    width: 35%; /* 라벨 너비 조정 */
+    padding: 0.75rem 1rem;
+    background-color: #fcfcfc;
+    font-weight: 500;
+    border-right: 1px solid #ddd;
+}
+
+.detailValue {
+    width: 65%; /* 값 너비 조정 */
+    padding: 0.75rem 1rem;
+    display: flex;
+    align-items: center;
+}
+
+/* 입력 필드의 너비를 줄여 가운데 정렬 효과를 명확하게 함 */
+.inputField, .dateInput {
+    padding: 0.4rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    width: 100%; 
+    max-width: 150px; /* 적당한 최대 너비 설정 */
+    text-align: left;
+    box-sizing: border-box;
+}
+
+/* 상세 내역 및 코멘트 영역 */
+.commentSection {
+    margin-bottom: 2rem;
+}
+
+.commentTextarea {
+    width: 100%;
+    min-height: 150px;
+    padding: 1rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-family: inherit;
+    font-size: 0.95rem;
+    resize: vertical;
+    box-sizing: border-box;
+}
+
+.commentDisplay {
+    padding: 1rem;
+    border: 1px solid #eee;
+    background-color: #fafafa;
+    min-height: 150px;
+    border-radius: 4px;
+    white-space: pre-wrap;
+    line-height: 1.6;
+    color: #555;
+}
+
+
+/* 하단 액션 버튼 */
+.actionButtons {
+    display: flex;
+    justify-content: flex-end;
+    gap: 1rem;
+    padding-top: 1rem;
+}
+
+.editToggleBtn, .saveBtn {
+    padding: 0.6rem 1.5rem;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-weight: 600;
+    font-size: 0.95rem;
+    transition: background-color 0.2s;
+}
+
+/* 수정/조회 토글 버튼: 브라운 계열 */
+.editToggleBtn {
+    background-color: #7b4d3f; 
+    color: white;
+}
+
+.editToggleBtn:hover {
+    background-color: #6a4136;
+}
+
+/* 저장 버튼: 브라운 계열 */
+.saveBtn {
+    background-color: #7b4d3f; 
+    color: white;
+}
+
+.saveBtn:hover {
+    background-color: #6a4136;
+}
