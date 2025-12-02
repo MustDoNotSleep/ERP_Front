@@ -2,43 +2,79 @@ import React from 'react';
 import styles from './EvaluationHistory.module.css';
 
 const EvaluationHistory = ({ data, onChange }) => {
-    const handleSelectChange = (e) => {
-        onChange(e);
-    };
 
     return (
         <div className={styles.formSection}>
             <h3 className={styles.sectionTitle}>평가 이력 설정</h3>
-            <div className={styles.contentGrid}> 
-                {/* 세션명 */}
+
+            <div className={styles.contentGrid}>
+
+                {/* 1. 시즌명 */}
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>세션명</label>
-                    <input type="text" name="sessionName" value={data.sessionName} onChange={onChange} className={styles.input} placeholder="2025 1분기 업무평가" />
+                    <label className={styles.label}>시즌명</label>
+                    <input 
+                        type="text" 
+                        name="seasonName" 
+                        value={data.seasonName || ""} 
+                        onChange={onChange}
+                        className={styles.input} 
+                        placeholder='2025년 4분기'
+                    />
                 </div>
 
-                {/* 평가일 */}
+                {/* 2. 평가 기간 (Flex 적용을 위해 구조 유지) */}
                 <div className={styles.inputGroup}>
-                    <label className={styles.label}>평가일</label>
-                    <input type="date" name="evaluationDate" value={data.evaluationDate} onChange={onChange} className={styles.input} placeholder="YYYY/MM/DD - YYYY/MM/DD" />
+                    <label className={styles.label}>평가 기간</label>
+
+                    {/* CSS에서 display: flex를 줄 컨테이너 */}
+                    <div className={styles.dateRangeWrapper}>
+                        <input
+                            type="date"
+                            name="startDate"
+                            value={data.startDate || ""}
+                            onChange={onChange}
+                            className={`${styles.input} ${styles.dateInput}`} // dateInput 클래스 추가
+                        />
+
+                        <span className={styles.tilde}> ~ </span>
+
+                        <input
+                            type="date"
+                            name="endDate"
+                            value={data.endDate || ""}
+                            onChange={onChange}
+                            className={`${styles.input} ${styles.dateInput}`} // dateInput 클래스 추가
+                        />
+                    </div>
                 </div>
 
-                {/* 평가 유형 */}
+                {/* 3. 평가유형 (텍스트 수정됨) */}
                 <div className={styles.inputGroup}>
                     <label className={styles.label}>평가유형</label>
-                    <select name="evaluationType" value={data.evaluationType} onChange={handleSelectChange} className={`${styles.input} ${styles.select}`}>
-                        <option>KPI평가</option>
-                        <option>역량평가</option>
+                    <select 
+                        name="evaluationType" 
+                        value={data.evaluationType || ""} 
+                        onChange={onChange} 
+                        className={`${styles.input} ${styles.select}`}
+                    >
+                        <option value="">선택</option>
+                        <option value="KPI">KPI 평가</option>
+                        <option value="LEADERSHIP">리더십 평가</option>
                     </select>
                 </div>
-                
-                {/* 평가 구분 */}
+
+                {/* 4. 평가구분 (고정값) */}
                 <div className={styles.inputGroup}>
                     <label className={styles.label}>평가구분</label>
-                    <select name="evaluationScope" value={data.evaluationScope} onChange={handleSelectChange} className={`${styles.input} ${styles.select}`}>
-                        <option>부서별</option>
-                        <option>직급별</option>
-                    </select>
+                    <input
+                        type="text"
+                        value="부서별"
+                        readOnly
+                        className={styles.input}
+                        style={{ backgroundColor: "#f4f4f4", color: "#666" }}
+                    />
                 </div>
+
             </div>
         </div>
     );
