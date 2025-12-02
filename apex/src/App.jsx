@@ -42,6 +42,7 @@ import SeveranceStatus from './pages/payroll/SeveranceStatus.jsx';
 import RetirementManage from './pages/payroll/RetirementManage.jsx';
 import RetirementApplication from './pages/payroll/RetirementApplication.jsx';
 import NoticePage from './pages/notice/NoticePage.jsx';
+import RewardManagePage from './pages/HR/rewards/RewardManage.jsx'; 
 import NoticeCreatePage from './pages/notice/NoticeCreatePage.jsx';
 
 function App() {
@@ -91,6 +92,7 @@ function App() {
             <Route path="training/my" element={<MyTraining />} />
             <Route path="appointments/approve" element={<AppointmentApprovePage />} />            
             <Route path="work-evaluation" element={<WorkEvaluation />} />
+            <Route path="rewards/manage" element={<RewardManagePage />} />
           </Route>
 
           {/* 근태부분 */}  

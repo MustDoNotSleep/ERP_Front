@@ -1,0 +1,172 @@
+/* RewardManage.module.css */
+
+.container {
+    padding: 20px;
+    background-color: #f8f9fa;
+    min-height: calc(100vh - 60px);
+}
+
+.searchSection {
+    background-color: #e6e6e6; /* 배경색 #e6e6e6 */
+    /* padding을 늘려서 전체 높이를 키움 */
+    padding: 30px 20px; 
+    border-radius: 8px;
+    box-shadow: none; /* 그림자 제거 */
+    margin-bottom: 20px;
+    display: flex;
+    flex-direction: column;
+}
+
+.title {
+    font-size: 24px;
+    font-weight: 600;
+    color: black;
+    margin-bottom: 20px;
+    padding-bottom: 0; /* 실선 제거를 위해 조정 */
+    border-bottom: none; /* ✨ 제목 아래 실선 제거 */
+}
+
+/* --- 상단: 조회 영역 --- */
+.searchRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end; 
+    padding-bottom: 20px; 
+    margin-bottom: 20px;  
+    border-bottom: 1px solid #bbb; /* ✨ 조회/등록 영역 구분선 (실선) */
+}
+
+/* --- 하단: 등록 영역 --- */
+.registerRow {
+    display: flex;
+    justify-content: space-between;
+    align-items: flex-end;
+}
+
+/* 필드들을 감싸는 래퍼 */
+.fieldsWrapper {
+    display: flex;
+    flex-wrap: wrap;
+    /* 필드 간 간격 증가 */
+    gap: 30px; 
+    align-items: center;
+    flex-grow: 1; 
+}
+
+/* 버튼 래퍼 */
+.buttonWrapper {
+    margin-left: 20px; 
+    flex-shrink: 0; 
+}
+
+/* 입력 그룹 (라벨 + 인풋) */
+.inputGroup {
+    display: flex;
+    align-items: center;
+}
+
+.inputLabel {
+    font-size: 14px;
+    color: black; 
+    margin-right: 8px;
+    font-weight: 500;
+    white-space: nowrap;
+}
+
+.inputField {
+    width: 140px;
+    padding: 0 10px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 14px;
+    background-color: white;
+    color: #333;
+    height: 38px;
+    line-height: 38px;
+}
+
+/* 버튼 공통 스타일 */
+.largeButton, .largeButtonRegister {
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: bold;
+    width: 120px;
+    height: 38px; /* 입력 필드 높이와 동일 */
+    line-height: 38px;
+    transition: background-color 0.2s;
+    padding: 0;
+}
+
+/* 조회 버튼 색상 */
+.largeButton {
+    background-color: #7b4a3a; /* 갈색 */
+}
+.largeButton:hover {
+    background-color: #5d392e;
+}
+
+/* 등록 버튼 색상 */
+.largeButtonRegister {
+    background-color: #555; /* 진한 회색 */
+}
+.largeButtonRegister:hover {
+    background-color: #333;
+}
+
+/* 테이블 스타일 */
+.tableSection {
+    background-color: transparent; 
+    overflow-x: auto;
+}
+
+.rewardTable {
+    width: 100%;
+    border-collapse: collapse;
+    background-color: white;
+    border: 1px solid #dee2e6;
+}
+
+.rewardTable th, .rewardTable td {
+    padding: 12px;
+    text-align: center;
+    border-bottom: 1px solid #dee2e6;
+    font-size: 14px;
+}
+
+.rewardTable th {
+    background-color: #e9ecef;
+    color: #495057;
+    font-weight: 600;
+}
+
+.checkboxHeader { width: 40px; }
+.detailIconCell { cursor: pointer; font-size: 18px; }
+
+/* 상태 뱃지 */
+.status-승인 { color: #0f5132; font-weight: bold; }
+.status-대기 { color: #664d03; font-weight: bold; }
+.statusCommon { font-weight: bold; }
+
+.footerSection {
+    display: flex;
+    justify-content: center;
+    margin-top: 15px;
+}
+
+.pagination {
+    display: flex;
+    gap: 5px;
+    background-color: #e0e0e0;
+    padding: 5px 10px;
+    border-radius: 4px;
+}
+
+.pageArrow, .pageNumber {
+    cursor: pointer;
+    padding: 5px 10px;
+    background-color: white;
+    border-radius: 4px;
+}
