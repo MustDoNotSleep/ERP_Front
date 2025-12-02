@@ -1,39 +1,11 @@
 /* eslint-disable */
 import React, { useState, useEffect, useMemo } from "react";
 import { NavLink, useLocation, matchPath } from "react-router-dom";
+import { getCurrentUser } from "../../api/auth";
 import "./SideBar.css";
 
 /* ─────────────── 메뉴 구조 (전체 역할 버전) ─────────────── */
 const MENU_BY_ROLE = {
-  임원: [
-    {
-      label: "인사",
-      children: [
-        { label: "직원현황 대시보드", to: "/hr/people/dashboard" },
-        { label: "인사발령/인사 보고서", to: "/hr/appointments/reports" },
-        { label: "평가/성과 분석", to: "/hr/performance/analytics" },
-        { label: "조직도 조회", to: "/hr/orgchart" },
-        { label: "직원 조회", to: "/hr/people/search" },
-      ],
-    },
-    {
-      label: "근태",
-      children: [
-        { label: "전사 근태현황 대시보드", to: "/attendance/company/dashboard" },
-        { label: "근태 리스크 분석", to: "/attendance/risk" },
-        { label: "핵심 인력 효율성 분석", to: "/attendance/key-talent/efficiency" },
-      ],
-    },
-    {
-      label: "급여",
-      children: [
-        { label: "총 인건비 및 비용 분석", to: "/payroll/costs/summary" },
-        { label: "핵심 인재 보상 및 격차 분석", to: "/payroll/compensation/insights" },
-        { label: "법적 보상 지출 보고서", to: "/payroll/legal/reports" },
-      ],
-    },
-  ],
-
   인사팀: [
     {
       label: "인사",
@@ -125,50 +97,93 @@ const MENU_BY_ROLE = {
     },
   ],
 
-  관리자: [
+  관리자:[
     {
       label: "인사",
       children: [
         {
-          label: "인사발령관리",
+          label: "직원 조회",
           children: [
-            { label: "인사 발령 신청", to: "/hr/appointments/apply" },
-            { label: "인사 발령 관리", to: "/hr/appointments/approve-only" },
-            { label: "인사 발령 조회", to: "/hr/appointments/history" },
+            { label: "직원 조회", to: "/hr/people/search" },
+            { label: "신규직원 등록", to: "/hr/people/new" },          
           ],
         },
-        { label: "학력/자격 관리", to: "/hr/education-qualification" },
-        { label: "교육 이수 현황", to: "/hr/training/completions" },
-        { label: "증명서 신청", to: "/hr/certificates/request" },
         {
-          label: "평가/포상 관리",
+          label: "인사발령",
           children: [
-            { label: "평가 관리", to: "/hr/performance/manage" },
-            { label: "포상 관리", to: "/hr/rewards/manage" },
+            { label: "인사 발령 신청", to: "/hr/appointments/apply" }, 
+            { label: "인사 발령 관리", to: "/hr/appointments/approve" },
           ],
         },
-        { label: "부서 인사 정보 조회", to: "/hr/dept/info" },
+        { 
+          label: "평가/포상 관리", 
+          children: [
+            {label: "평가 관리", to: "/hr/performance/manage" },
+            {label: "포상 관리", to: "/hr/rewards/manage" },
+          ],
+        },
+        {
+          label: "경력/교육 관리",
+          children: [
+            { label: "경력 관리", to: "/hr/career" },
+            { label: "교육과정 등록", to: "/hr/training/create" },
+            { label: "교육과정 승인/조회", to: "/hr/training/approvals" },
+            {label: "교육 이수 현황", to: "/hr/training/status" },
+          ],
+        },
+        {
+          label: "교육 신청", to: "/hr/training/my" },
+        { 
+          label: "증명서 관리", 
+          children: [
+            {label: "증명서 신청", to: "/hr/certificates/request"},
+            {label: "증명서 승인", to: "/hr/certificates/issue"},
+          ],
+        },
+        { 
+          label: "근무 평가", to: "/hr/work-evaluation"
+
+        },
       ],
     },
     {
       label: "근태",
       children: [
-        { label: "연차/휴가 현황", to: "/attendance/leave/status" },
-        { label: "근무/휴가 현황", to: "/attendance/work-leave/status" },
-        { label: "신청 내역 조회", to: "/attendance/requests" },
-        { label: "파견 관리", to: "/attendance/dispatch-travel" },
-        { label: "근태 통계", to: "/attendance/stats" },
+        { label: "근태 통계", to: "/attendance/commute/me" },
+        { label: "출퇴근 기록 관리 (전)", to: "/attendance/manage", audience : "manager" },
+        { 
+          label: "연차 및 휴가신청", 
+          children: [
+            {label: "연차/휴가 신청", to: "/attendance/leave/application"},
+            {label: "연차/휴가 현황", to: "/attendance/leave/status/me"},
+          ],
+        },
+        {label: "연차 관리 (전)", to: "/attendance/leave/manage", audience : "manager"},
+        { label: "파견 관리 (전)", to: "/attendance/dispatch-travel" , audience : "manager"}, // 관리자용
+        { label: "근태 통계 관리 (전)", to: "/attendance/stats", audience : "manager" }, // 관리자용
       ],
     },
     {
       label: "급여",
       children: [
-        { label: "급여 명세서", to: "/payroll/payslips" },
-        { label: "수당/상여 관리", to: "/payroll/allowances-bonus" },
-        { label: "연말정산 현황", to: "/payroll/year-end/status" },
-        // { label: "퇴직 신청", to: "/payroll/retirement/application" },
-        { label: "퇴직금/정산 현황", to: "/payroll/severance/status" },
-        { label: "급여 증명서 관리", to: "/payroll/certificates" },
+        { 
+          label: "급여 관리",
+          children: [
+            { label: "급여 정산 및 확정 (전)", to: "/payroll/certificates"}, // 관리자용
+            { label: "급여 명세서", to: "/payroll/payslips"}, // 사원용
+          ],
+        },
+        {
+          label: "수당/상여 관리 (전)", to: "/payroll/allowances-bonus"
+        },
+        { 
+          label: "퇴직금 관리",
+          children: [
+            { label : "퇴직자 관리", to: "/payroll/retirement/manage"}, // 관리자용
+            { label : "퇴직금 정산 관리", to: "/payroll/severance"},
+            { label : "나의 예상 퇴직금 정산", to: "/payroll/severance/status"},
+          ],
+        },
       ],
     },
   ],
@@ -178,36 +193,37 @@ const MENU_BY_ROLE = {
       label: "인사",
       children: [
         {
-          label: "인사발령이력",
-          children: [
-            { label: "인사 발령 신청", to: "/me/hr/appointments/apply" },
-            { label: "인사발령 조회", to: "/me/hr/appointments/history" },
-          ],
+          label: "교육 신청", to: "/hr/training/my" },
+        { 
+          label: "증명서 신청", to: "/hr/certificates/request", 
         },
-        { label: "학력/자격 관리", to: "/me/hr/education-qualification" },
-        { label: "교육 이수 현황", to: "/me/hr/training/completions" },
-        { label: "증명서 신청", to: "/me/hr/certificates/request" },
+        {
+          label: "인사 발령 신청", to: "/hr/appointments/apply",
+        },
       ],
     },
     {
       label: "근태",
       children: [
-        { label: "연차/휴가 현황", to: "/me/attendance/leave/status" },
-        { label: "근무/휴가 현황", to: "/me/attendance/work-leave/status" },
-        { label: "신청 내역 조회", to: "/me/attendance/requests" },
-        { label: "파견 관리", to: "/me/attendance/dispatch-travel" },
-        { label: "근태 통계", to: "/me/attendance/stats" },
+        { label: "근태 통계", to: "/attendance/commute/me" },
+        { 
+          label: "연차 및 휴가신청", 
+          children: [
+            {label: "연차/휴가 신청", to: "/attendance/leave/application"},
+            {label: "연차/휴가 현황", to: "/attendance/leave/status/me"},
+          ],
+        },
       ],
     },
     {
       label: "급여",
       children: [
-        { label: "급여 명세서", to: "/me/payroll/payslips" },
-        { label: "수당/상여 신청", to: "/me/payroll/allowances-bonus/apply" },
-        { label: "연말정산", to: "/me/payroll/year-end" },
-        // { label: "퇴직 신청", to: "/payroll/retirement/application" },
-        // { label: "퇴직금 예상 조회", to: "/me/payroll/severance/estimate" },
-        // { label: "재직 급여 확인서", to: "/me/payroll/employment-income-cert" },
+        { 
+          label: "급여 명세서", to: "/payroll/payslips",
+        },
+        { 
+          label : "나의 예상 퇴직금 정산", to: "/payroll/severance/status"
+        },
       ],
     },
   ],
@@ -296,9 +312,38 @@ function NestedList({ items, depth = 0 }) {
 }
 
 /* ─────────────── 사이드바 ─────────────── */
-export default function SideBar({ role = "임원" }) {
+export default function SideBar() {
   const location = useLocation();
-  const menu = useMemo(() => MENU_BY_ROLE[role] || [], [role]); // 렌더마다 새 객체 방지
+  
+  // 토큰에서 role 가져오기
+  const currentUser = getCurrentUser();
+  const rawRole = currentUser?.role || "사원";
+  
+  // 백엔드 role을 메뉴 키로 매핑
+  const roleMapping = {
+    'ROLE_ADMIN': '관리자',
+    'ROLE_HR': '인사팀',
+    'ROLE_HR_MANAGER': '인사팀',
+    'ROLE_MANAGER': '관리자',
+    'ROLE_USER': '사원',
+    'ROLE_EMPLOYEE': '사원',
+    '관리자': '관리자',
+    '인사팀': '인사팀',
+    '사원': '사원'
+  };
+  
+  const userRole = roleMapping[rawRole] || '사원';
+  
+  console.log('🔍 사이드바 - 현재 사용자:', currentUser);
+  console.log('🔍 사이드바 - 원본 역할:', rawRole);
+  console.log('🔍 사이드바 - 매핑된 역할:', userRole);
+  
+  const menu = useMemo(() => {
+    const selectedMenu = MENU_BY_ROLE[userRole] || MENU_BY_ROLE["사원"];
+    console.log('🔍 사이드바 - 선택된 메뉴:', userRole, selectedMenu);
+    return selectedMenu;
+  }, [userRole]); // userRole 변경 시에만 재계산
+  
   const [openSection, setOpenSection] = useState(null);
 
   useEffect(() => {

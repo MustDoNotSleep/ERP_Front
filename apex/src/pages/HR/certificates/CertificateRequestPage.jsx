@@ -8,7 +8,7 @@ import { Button } from '../../../components/common';
 import { FaPrint } from 'react-icons/fa'; 
 
 // 🔔 (복원) 실제 API 호출 함수 임포트
-import { fetchDocumentApplications, createDocumentApplication } from '../../../api/document'; 
+import { fetchEmployeeDocumentApplications, createDocumentApplication } from '../../../api/document'; 
 // 🔔 (복원) 실제 Auth 함수 임포트 (경로를 실제 파일 위치에 맞게 수정해주세요!)
 import { getCurrentUser } from '../../../api/auth';
 // 🔔 (복원) 실제 상수 임포트 (경로를 실제 파일 위치에 맞게 수정해주세요!)
@@ -71,9 +71,23 @@ const CertificateRequestPage = () => {
     const fetchRequests = async () => {
         console.log('📡 증명서 신청 내역 조회 시작!', searchParams);
         try {
-            // 🔔 (복원) 실제 API 호출
-            const response = await fetchDocumentApplications(0, 100); 
-            const data = response.data?.content || []; 
+            // 현재 로그인한 사용자의 employeeId 가져오기
+            const currentEmployeeId = currentUser?.employeeId;
+            
+            if (!currentEmployeeId) {
+                console.error('❌ 로그인 정보가 없습니다.');
+                alert('로그인 정보를 찾을 수 없습니다. 다시 로그인해주세요.');
+                return;
+            }
+
+            console.log('🔍 현재 사용자 ID:', currentEmployeeId);
+            
+            // 🔔 개인의 증명서 신청 내역만 조회
+            const response = await fetchEmployeeDocumentApplications(currentEmployeeId);
+            console.log('📡 API 응답:', response);
+            
+            // 응답 데이터 파싱
+            const data = response.data || response || [];
             
             let filteredData = Array.isArray(data) ? data : [];
 

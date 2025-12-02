@@ -51,8 +51,6 @@ function App() {
     return hasToken;
   });
   
-  const userRole = "인사팀"; 
-  
   // 컴포넌트 마운트 시 토큰 확인
   useEffect(() => {
     const hasToken = isAuthenticated();
@@ -67,7 +65,7 @@ function App() {
   const ProtectedLayout = (
     <div className="layout-container">
       <Header onLogout={handleLogout} /> 
-      <SideBar role={userRole} /> 
+      <SideBar /> 
 
       {/* 메인 콘텐츠 영역: 사이드바와 헤더가 차지하는 공간 제외 */}
       <main className="main-content">
