@@ -16,27 +16,20 @@ export default function WorkEvaluation() {
   const [loading, setLoading] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
 
+  // ✅ [추가] 페이지네이션 상태
+  const [currentPage, setCurrentPage] = useState(0); 
+  const ITEMS_PER_PAGE = 10;
+
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [currentEvaluation, setCurrentEvaluation] = useState(null);
 
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   const quarters = ['1분기', '2분기', '3분기', '4분기'];
 
-  // ✅ [수정 완료] DB teamName 이미지 기준으로 목록 업데이트
   const departments = [
-    '선택',
-    '총무팀', 
-    '인사팀', 
-    '재무회계팀', 
-    '보안관제팀', 
-    'CERT팀', 
-    '침해사고대응팀', 
-    '모의해킹팀', 
-    '보안컨설팅', 
-    'AI팀', 
-    '클라우드팀', 
-    '연구기획팀', 
-    '미래보안기술팀'
+    '선택', '총무팀', '인사팀', '재무회계팀', '보안관제팀', 'CERT팀', 
+    '침해사고대응팀', '모의해킹팀', '보안컨설팅', 'AI팀', '클라우드팀', 
+    '연구기획팀', '미래보안기술팀'
   ];
 
   /**
@@ -45,7 +38,6 @@ export default function WorkEvaluation() {
   const loadEvaluations = async () => {
     setLoading(true);
     
-    // 백엔드 규격에 맞춰 파라미터명 변경 (department -> teamName)
     const filters = {
         year: searchParams.year,
         quarter: searchParams.quarter,
@@ -53,13 +45,9 @@ export default function WorkEvaluation() {
     };
 
     try {
-      // API 호출 (/hr/evaluations)
       const response = await api.get('/hr/evaluations', { params: filters });
-      
-      // ApiResponse 구조 (status, data, message) 처리
-      // 백엔드에서 ApiResponse.success(list)로 감싸서 보내므로 data.data로 접근
-      //setEvaluationData(response.data.data || []); 
       setEvaluationData(response.data || []);
+      setCurrentPage(0); // ✅ 검색 시 1페이지로 초기화
     } catch (error) {
       console.error("평가 데이터 조회 실패:", error);
       setEvaluationData([]); 
@@ -84,6 +72,7 @@ export default function WorkEvaluation() {
 
   const handleSelectAll = (e) => {
     if (e.target.checked) {
+      // ✅ 현재 페이지 데이터만 선택할지, 전체 선택할지 결정 (여기선 전체 데이터 기준)
       const allIds = evaluationData.map(item => item.id);
       setSelectedEmployees(allIds);
     } else {
@@ -93,9 +82,7 @@ export default function WorkEvaluation() {
 
   const handleSelectEmployee = (id) => {
     setSelectedEmployees(prev =>
-      prev.includes(id)
-        ? prev.filter(itemId => itemId !== id)
-        : [...prev, id]
+      prev.includes(id) ? prev.filter(itemId => itemId !== id) : [...prev, id]
     );
   };
 
@@ -104,9 +91,6 @@ export default function WorkEvaluation() {
       ...item,
       year: searchParams.year,
       quarter: searchParams.quarter,
-      // 백엔드 조회 시 comment에는 "평가자 정보"가 들어있으므로, 
-      // 수정 모달을 열 때는 빈 값이나 실제 코멘트를 가져와야 함.
-      // 현재는 평가 내용을 새로 입력받는다고 가정하고 빈 문자열로 초기화
       comment: '' 
     });
     setIsModalOpen(true);
@@ -117,15 +101,9 @@ export default function WorkEvaluation() {
     setCurrentEvaluation(null);
   };
 
-  /**
-   * 모달에서 수정한 평가 데이터를 저장하는 함수
-   */
   const handleSaveEvaluation = async (updatedData) => {
     try {
-        // PUT 요청 (UpdateRequest DTO 구조에 맞춰짐)
         await api.put(`/hr/evaluations/${updatedData.id}`, updatedData);
-
-        // 성공 시 목록 새로고침
         loadEvaluations(); 
         alert(`${updatedData.name}님의 평가 내용이 저장되었습니다.`);
         handleCloseModal();
@@ -135,7 +113,28 @@ export default function WorkEvaluation() {
     }
   };
 
-  // DataTable 헤더
+  // ✅ [추가] 일괄 임시저장 / 제출 기능 (선택된 항목 처리)
+  const handleBulkAction = async (actionType) => {
+    if (selectedEmployees.length === 0) {
+      alert(`${actionType}할 항목을 선택해주세요.`);
+      return;
+    }
+    alert(`선택된 ${selectedEmployees.length}건을 ${actionType} 처리합니다. (기능 구현 필요)`);
+    // 여기에 실제 API 호출 로직 추가 (Promise.all 사용 등)
+  };
+
+  // ✅ [추가] 페이지네이션 데이터 계산
+  const totalCount = evaluationData.length;
+  const totalPages = Math.ceil(totalCount / ITEMS_PER_PAGE);
+  const offset = currentPage * ITEMS_PER_PAGE;
+  const currentData = evaluationData.slice(offset, offset + ITEMS_PER_PAGE);
+
+  const handlePageChange = (newPage) => {
+      if (newPage >= 0 && newPage < totalPages) {
+          setCurrentPage(newPage);
+      }
+  };
+
   const tableHeaders = [
     { label: '사번', key: 'employeeId' },
     { label: '이름', key: 'name' },
@@ -151,7 +150,7 @@ export default function WorkEvaluation() {
     const isSelected = selectedEmployees.includes(item.id);
 
     return (
-      <>
+      <tr key={item.id}>
         <td>
           <input
             type="checkbox"
@@ -167,13 +166,12 @@ export default function WorkEvaluation() {
         <td>{item.collaboration}</td>
         <td>{item.contribution}</td>
         
-        {/* 상세 컬럼: 평가자 정보(comment 필드 활용) 표시 */}
         <td className={styles.iconCell} 
             style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
             onClick={() => handleOpenModal(item)}>
-          {item.comment || '-'}
+          {item.comment || '입력'}
         </td>
-      </>
+      </tr>
     );
   };
 
@@ -186,7 +184,6 @@ export default function WorkEvaluation() {
         <h1 className={styles.title}>평가 관리</h1>
 
         <div className={styles.filterRow}>
-          {/* 년도 */}
           <div className={styles.searchGroup}>
             <label>년도</label>
             <Select
@@ -196,7 +193,6 @@ export default function WorkEvaluation() {
               onChange={handleSearchChange}
             />
           </div>
-          {/* 분기 */}
           <div className={styles.searchGroup}>
             <label>분기</label>
             <Select
@@ -206,7 +202,6 @@ export default function WorkEvaluation() {
               onChange={handleSearchChange}
             />
           </div>
-          {/* 부서 (이미지 기준 DB 데이터 반영됨) */}
           <div className={styles.searchGroup}>
             <label>부서</label>
             <Select
@@ -216,8 +211,6 @@ export default function WorkEvaluation() {
               onChange={handleSearchChange}
             />
           </div>
-
-          {/* 조회 버튼 */}
           <div className={styles.spacer}></div>
           <Button onClick={handleSearch} className={styles.searchButton}>조회</Button>
         </div>
@@ -238,33 +231,66 @@ export default function WorkEvaluation() {
                 ))}
               </tr>
             </thead>
-            <tbody>{evaluationData.length > 0 ? (
-              evaluationData.map((item) => (
-                <tr key={item.id}>
-                  {renderEvaluationRow(item)}
+            <tbody>
+              {/* ✅ [중요] 전체 데이터 대신 현재 페이지 데이터(currentData)만 렌더링 */}
+              {currentData.length > 0 ? (
+                currentData.map((item) => renderEvaluationRow(item))
+              ) : (
+                <tr>
+                  <td colSpan={tableHeaders.length + 1} className={styles.emptyCell}>
+                    조회된 근무 평가 기록이 없습니다.
+                  </td>
                 </tr>
-              ))
-            ) : (
-              <tr>
-                <td colSpan={tableHeaders.length + 1} className={styles.emptyCell}>
-                  조회된 근무 평가 기록이 없습니다.
-                </td>
-              </tr>
-            )}</tbody>
+              )}
+            </tbody>
           </table>
         )}
       </div>
 
       <div className={styles.footerSection}>
-        <div className={styles.pagination}>
-          <div className={styles.pageArrow}>&#9664;</div>
-          <div className={styles.pageNumber}>1</div>
-          <div className={styles.pageArrow}>&#9654;</div>
-        </div>
+        
+        {/* ✅ [추가] 통일된 페이지네이션 UI */}
+        {!loading && totalPages > 0 && (
+          <div className={styles.pagination}>
+              <button 
+                  onClick={() => handlePageChange(0)}
+                  disabled={currentPage === 0}
+                  className={styles.pageButton}
+              >
+                  처음
+              </button>
+              <button 
+                  onClick={() => handlePageChange(currentPage - 1)}
+                  disabled={currentPage === 0}
+                  className={styles.pageButton}
+              >
+                  이전
+              </button>
+              
+              <span className={styles.pageInfo}>
+                  {currentPage + 1} / {totalPages} 페이지 (총 {totalCount}건)
+              </span>
+              
+              <button 
+                  onClick={() => handlePageChange(currentPage + 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className={styles.pageButton}
+              >
+                  다음
+              </button>
+              <button 
+                  onClick={() => handlePageChange(totalPages - 1)}
+                  disabled={currentPage >= totalPages - 1}
+                  className={styles.pageButton}
+              >
+                  마지막
+              </button>
+          </div>
+        )}
 
         <div className={styles.actionButtons}>
-          <Button className={styles.saveButton} onClick={() => alert("임시 저장 기능 구현 필요")}>임시저장</Button>
-          <Button className={styles.submitButton} onClick={() => alert("최종 제출 기능 구현 필요")}>제출</Button>
+          <Button className={styles.saveButton} onClick={() => handleBulkAction('임시저장')}>임시저장</Button>
+          <Button className={styles.submitButton} onClick={() => handleBulkAction('제출')}>제출</Button>
         </div>
       </div>
 
