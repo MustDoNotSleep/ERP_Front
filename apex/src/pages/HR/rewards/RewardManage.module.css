@@ -1,10 +1,8 @@
 /* RewardManage.module.css */
 
-.container {
-    padding: 20px;
-    background-color: #f8f9fa;
+/* .container {
     min-height: calc(100vh - 60px);
-}
+} */
 
 .searchSection {
     background-color: #e6e6e6; /* 배경색 #e6e6e6 */
