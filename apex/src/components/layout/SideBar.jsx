@@ -325,14 +325,9 @@ export default function SideBar() {
   };
   
   const userRole = roleMapping[rawRole] || '사원';
-  
-  console.log('🔍 사이드바 - 현재 사용자:', currentUser);
-  console.log('🔍 사이드바 - 원본 역할:', rawRole);
-  console.log('🔍 사이드바 - 매핑된 역할:', userRole);
-  
+
   const menu = useMemo(() => {
     const selectedMenu = MENU_BY_ROLE[userRole] || MENU_BY_ROLE["사원"];
-    console.log('🔍 사이드바 - 선택된 메뉴:', userRole, selectedMenu);
     return selectedMenu;
   }, [userRole]); // userRole 변경 시에만 재계산
   

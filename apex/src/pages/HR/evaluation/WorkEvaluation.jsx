@@ -1,20 +1,31 @@
 import React, { useState, useEffect } from 'react';
 import { Select, Button } from '../../../components/common';
 import api from '../../../api/axios';
+import { fetchUniqueDepartmentNames } from '../../../api/department';
 import styles from './WorkEvaluation.module.css';
 import WorkEvaluationModal from '../../../components/HR/Evaluation/WorkEvaluationModal';
+
+// 현재 분기 계산 함수
+const getCurrentQuarter = () => {
+  const month = new Date().getMonth() + 1; // 1~12
+  if (month >= 1 && month <= 3) return '1분기';
+  if (month >= 4 && month <= 6) return '2분기';
+  if (month >= 7 && month <= 9) return '3분기';
+  return '4분기';
+};
 
 export default function WorkEvaluation() {
 
   const [searchParams, setSearchParams] = useState({
     year: new Date().getFullYear(),
-    quarter: '1분기',
+    quarter: getCurrentQuarter(),
     department: '선택'
   });
 
   const [evaluationData, setEvaluationData] = useState([]);
   const [loading, setLoading] = useState(false);
   const [selectedEmployees, setSelectedEmployees] = useState([]);
+  const [departments, setDepartments] = useState(['선택']); // API에서 가져올 부서 목록
 
   // ✅ [추가] 페이지네이션 상태
   const [currentPage, setCurrentPage] = useState(0); 
@@ -26,11 +37,16 @@ export default function WorkEvaluation() {
   const years = Array.from({ length: 5 }, (_, i) => new Date().getFullYear() - i);
   const quarters = ['1분기', '2분기', '3분기', '4분기'];
 
-  const departments = [
-    '선택', '총무팀', '인사팀', '재무회계팀', '보안관제팀', 'CERT팀', 
-    '침해사고대응팀', '모의해킹팀', '보안컨설팅', 'AI팀', '클라우드팀', 
-    '연구기획팀', '미래보안기술팀'
-  ];
+  /**
+   * 부서 목록 로드
+   */
+  const loadDepartments = async () => {
+      const response = await fetchUniqueDepartmentNames();
+      // 백엔드가 {success, message, data} 형식으로 응답
+      const deptNames = response.data || response || [];
+      
+      setDepartments(['선택', ...deptNames]);
+  };
 
   /**
    * 평가 데이터를 API에서 로드하는 함수
@@ -41,7 +57,7 @@ export default function WorkEvaluation() {
     const filters = {
         year: searchParams.year,
         quarter: searchParams.quarter,
-        teamName: searchParams.department === '선택' ? null : searchParams.department
+        departmentName: searchParams.department === '선택' ? null : searchParams.department
     };
 
     try {
@@ -57,7 +73,8 @@ export default function WorkEvaluation() {
   };
 
   useEffect(() => {
-    loadEvaluations();
+    loadDepartments(); // 부서 목록 먼저 로드
+    loadEvaluations(); // 평가 데이터 로드
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
@@ -96,15 +113,18 @@ export default function WorkEvaluation() {
         comment: item.comment || '' 
       });
     } else {
-      // 신규 생성 모드: 빈 데이터 전달
+      // 신규 생성 모드: 현재 연도와 현재 분기로 자동 설정
+      const currentYear = new Date().getFullYear();
+      const currentQuarter = getCurrentQuarter();
+      
       setCurrentEvaluation({
         id: null, // 신규 구분용
         employeeId: '',
         name: '',
-        teamName: searchParams.department === '선택' ? '' : searchParams.department,
+        departmentName: searchParams.department === '선택' ? '' : searchParams.department,
         positionName: '',
-        year: searchParams.year,
-        quarter: searchParams.quarter,
+        year: currentYear,
+        quarter: currentQuarter,
         workAttitude: 3,
         goalAchievement: 3,
         collaboration: 3,
@@ -242,10 +262,14 @@ export default function WorkEvaluation() {
           </div>
           <div className={styles.spacer}></div>
           <Button onClick={handleSearch} className={styles.searchButton}>조회</Button>
-          <Button onClick={() => handleOpenModal(null)} className={styles.createButton}>
-            신규 평가 등록
-          </Button>
         </div>
+      </div>
+
+      {/* 신규 평가 등록 버튼 */}
+      <div className={styles.createButtonWrapper}>
+        <Button onClick={() => handleOpenModal(null)} className={styles.createButton}>
+          신규 평가 등록
+        </Button>
       </div>
 
       <div className={styles.tableSection}>

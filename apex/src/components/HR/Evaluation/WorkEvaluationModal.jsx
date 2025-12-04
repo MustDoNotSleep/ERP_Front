@@ -180,8 +180,8 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
                             <>
                                 <input
                                     type="text"
-                                    value={evaluationData.teamName}
-                                    onChange={(e) => handleChange('teamName', e.target.value)}
+                                    value={evaluationData.departmentName}
+                                    onChange={(e) => handleChange('departmentName', e.target.value)}
                                     className={styles.textInput}
                                     placeholder="부서"
                                     style={{ width: '45%', marginRight: '5px' }}
@@ -197,7 +197,7 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
                                 />
                             </>
                         ) : (
-                            `${evaluationData.teamName}/${evaluationData.positionName}`
+                            `${evaluationData.departmentName}/${evaluationData.positionName}`
                         )}
                     </div>
                     <div className={styles.infoLabel}>평가연월</div>

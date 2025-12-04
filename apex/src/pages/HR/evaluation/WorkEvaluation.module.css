@@ -70,6 +70,29 @@
   background-color: #6a4136 !important;
 }
 
+/* 신규 평가 등록 버튼 래퍼 (searchSection과 tableSection 사이) */
+.createButtonWrapper {
+  display: flex;
+  justify-content: flex-end;
+  margin-bottom: 1rem;
+  margin-top: -1.5rem; /* searchSection의 margin-bottom 3rem을 상쇄 */
+}
+
+.createButton {
+  background-color: #555 !important;
+  color: white !important;
+  border: none !important;
+  padding: 0.6rem 1.5rem !important;
+  border-radius: 4px !important;
+  cursor: pointer;
+  font-weight: 600;
+  transition: background-color 0.2s;
+}
+
+.createButton:hover {
+  background-color: #6a4136 !important;
+}
+
 /* 직원 평가 테이블 섹션 */
 .tableSection {
   padding: 0; 
