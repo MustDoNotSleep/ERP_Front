@@ -27,7 +27,7 @@ const MENU_BY_ROLE = {
         { 
           label: "평가/포상 관리", 
           children: [
-            {label: "평가 관리", to: "/hr/performance/manage" },
+            {label: "평가 관리", to: "/hr/work-evaluation" },
             {label: "포상 관리", to: "/hr/rewards/manage" },
           ],
         },
@@ -48,10 +48,6 @@ const MENU_BY_ROLE = {
             {label: "증명서 신청", to: "/hr/certificates/request"},
             {label: "증명서 승인", to: "/hr/certificates/issue"},
           ],
-        },
-        { 
-          label: "근무 평가", to: "/hr/work-evaluation"
-
         },
       ],
     },
@@ -118,7 +114,7 @@ const MENU_BY_ROLE = {
         { 
           label: "평가/포상 관리", 
           children: [
-            {label: "평가 관리", to: "/hr/performance/manage" },
+            {label: "평가 관리", to: "/hr/work-evaluation" },
             {label: "포상 관리", to: "/hr/rewards/manage" },
           ],
         },
@@ -139,10 +135,6 @@ const MENU_BY_ROLE = {
             {label: "증명서 신청", to: "/hr/certificates/request"},
             {label: "증명서 승인", to: "/hr/certificates/issue"},
           ],
-        },
-        { 
-          label: "근무 평가", to: "/hr/work-evaluation"
-
         },
       ],
     },

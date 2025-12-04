@@ -86,13 +86,32 @@ export default function WorkEvaluation() {
     );
   };
 
-  const handleOpenModal = (item) => {
-    setCurrentEvaluation({
-      ...item,
-      year: searchParams.year,
-      quarter: searchParams.quarter,
-      comment: '' 
-    });
+  const handleOpenModal = (item = null) => {
+    if (item) {
+      // 수정 모드: 기존 데이터 전달
+      setCurrentEvaluation({
+        ...item,
+        year: searchParams.year,
+        quarter: searchParams.quarter,
+        comment: item.comment || '' 
+      });
+    } else {
+      // 신규 생성 모드: 빈 데이터 전달
+      setCurrentEvaluation({
+        id: null, // 신규 구분용
+        employeeId: '',
+        name: '',
+        teamName: searchParams.department === '선택' ? '' : searchParams.department,
+        positionName: '',
+        year: searchParams.year,
+        quarter: searchParams.quarter,
+        workAttitude: 3,
+        goalAchievement: 3,
+        collaboration: 3,
+        contribution: 'C',
+        comment: ''
+      });
+    }
     setIsModalOpen(true);
   };
 
@@ -103,13 +122,23 @@ export default function WorkEvaluation() {
 
   const handleSaveEvaluation = async (updatedData) => {
     try {
-        await api.put(`/hr/evaluations/${updatedData.id}`, updatedData);
+        if (updatedData.id) {
+            // 수정 모드: PUT 요청
+            await api.put(`/hr/evaluations/${updatedData.id}`, updatedData);
+            alert(`${updatedData.name}님의 평가 내용이 수정되었습니다.`);
+        } else {
+            // 신규 생성 모드: POST 요청
+            await api.post('/hr/evaluations', updatedData, {
+                params: { employeeId: updatedData.employeeId }
+            });
+            alert(`${updatedData.name}님의 평가가 신규 등록되었습니다.`);
+        }
         loadEvaluations(); 
-        alert(`${updatedData.name}님의 평가 내용이 저장되었습니다.`);
         handleCloseModal();
     } catch (error) {
         console.error("평가 내용 저장 실패:", error);
-        alert("평가 내용 저장에 실패했습니다.");
+        const errorMessage = error.response?.data?.message || "평가 내용 저장에 실패했습니다.";
+        alert(errorMessage);
     }
   };
 
@@ -169,7 +198,7 @@ export default function WorkEvaluation() {
         <td className={styles.iconCell} 
             style={{ cursor: 'pointer', color: 'blue', textDecoration: 'underline' }}
             onClick={() => handleOpenModal(item)}>
-          {item.comment || '입력'}
+          {item.evaluatorInfo || '미입력'}
         </td>
       </tr>
     );
@@ -213,6 +242,9 @@ export default function WorkEvaluation() {
           </div>
           <div className={styles.spacer}></div>
           <Button onClick={handleSearch} className={styles.searchButton}>조회</Button>
+          <Button onClick={() => handleOpenModal(null)} className={styles.createButton}>
+            신규 평가 등록
+          </Button>
         </div>
       </div>
 
