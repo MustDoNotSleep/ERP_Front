@@ -2,27 +2,30 @@
 import React, { useState, useEffect } from 'react';
 import styles from './WorkEvaluationModal.module.css';
 import { IoCloseOutline } from "react-icons/io5";
+import EmployeeSearchModal from '../../../components/common/EmployeeSearchModal';
 
 const EvaluationContent = ({ initialData, onSave, onClose }) => {
     // 원본 데이터를 복사하여 상태로 사용 (수정 가능하게)
     const [evaluationData, setEvaluationData] = useState(initialData);
-    const [isEditing, setIsEditing] = useState(false);
+    const [isEditing, setIsEditing] = useState(!initialData?.id); // 신규 모드면 자동으로 수정 모드
     const [initialLoading, setInitialLoading] = useState(true);
+    const [isEmployeeSearchOpen, setIsEmployeeSearchOpen] = useState(false);
+    
+    const isNewMode = !initialData?.id; // 신규 생성 모드 확인
 
     useEffect(() => {
         // 모달이 열릴 때마다 초기 데이터로 설정
         setEvaluationData(initialData);
         setInitialLoading(false);
-        // isEditing 상태는 모달이 열릴 때마다 false로 초기화하는 것이 일반적이지만,
-        // 필요에 따라 초기 모드를 설정할 수 있습니다. 여기서는 false(조회 모드)를 유지합니다.
-        setIsEditing(false);
+        // 신규 모드면 수정 모드로, 기존 데이터면 조회 모드로
+        setIsEditing(!initialData?.id);
     }, [initialData]);
 
     if (initialLoading) {
         return <div className={styles.loadingMessage}>데이터를 불러오는 중입니다...</div>;
     }
     
-    if (!evaluationData || !evaluationData.id) {
+    if (!evaluationData) {
         return <div className={styles.errorMessage}>근무 평가 데이터가 유효하지 않습니다.</div>;
     }
 
@@ -33,9 +36,37 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
         }));
     };
 
+    // 직원 검색 모달 열기
+    const handleOpenEmployeeSearch = () => {
+        setIsEmployeeSearchOpen(true);
+    };
+
+    // 직원 선택 시 정보 자동 입력
+    const handleSelectEmployee = (employee) => {
+        console.log('선택된 직원:', employee);
+        setEvaluationData(prev => ({
+            ...prev,
+            employeeId: employee.id,
+            name: employee.name,
+            teamName: employee.departmentName || prev.teamName,
+            positionName: employee.positionName || prev.positionName
+        }));
+        setIsEmployeeSearchOpen(false);
+    };
+
     const handleSave = () => {
-        // 유효성 검사 (예: 1~5점 범위 확인)
-        const { workAttitude, goalAchievement, collaboration } = evaluationData;
+        // 유효성 검사
+        const { employeeId, name, workAttitude, goalAchievement, collaboration } = evaluationData;
+        
+        // 신규 모드일 때 필수 필드 확인
+        if (isNewMode) {
+            if (!employeeId || !name) {
+                alert("사번과 이름은 필수 입력 항목입니다.");
+                return;
+            }
+        }
+        
+        // 점수 범위 확인 (1~5점)
         if (workAttitude < 1 || workAttitude > 5 || 
             goalAchievement < 1 || goalAchievement > 5 || 
             collaboration < 1 || collaboration > 5) {
@@ -45,7 +76,6 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
 
         console.log("저장할 평가 데이터:", evaluationData);
         onSave(evaluationData); 
-        // setIsEditing(false); // 부모의 onSave가 성공적으로 처리되면 부모 컴포넌트에서 모달을 닫도록 하는 것이 더 안전함.
     };
 
     // 기여도 등급 옵션
@@ -97,21 +127,79 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
     return (
         <div className={styles.evaluationContainer}>
             <h2 className={styles.evaluationTitle}>
-                {/* ✅ 큰 제목에서 이름/사번 제거 및 '근무평가 상세'로 변경 */}
-                근무평가 상세 <span className={styles.periodText}>{evaluationData.year}년 {evaluationData.quarter}</span>
+                {isNewMode ? '신규 근무평가 등록' : '근무평가 상세'} 
+                <span className={styles.periodText}>{evaluationData.year}년 {evaluationData.quarter}</span>
             </h2>
 
             {/* 기본 정보 (이름/사번은 여기에 유지) */}
             <div className={styles.infoTable}>
                 <div className={styles.infoRow}>
                     <div className={styles.infoLabel}>사번</div>
-                    <div className={styles.infoValue}>{evaluationData.employeeId}</div>
+                    <div className={styles.infoValue}>
+                        {isNewMode && isEditing ? (
+                            <div style={{ display: 'flex', gap: '0.5rem', alignItems: 'center' }}>
+                                <input
+                                    type="text"
+                                    value={evaluationData.employeeId}
+                                    onChange={(e) => handleChange('employeeId', e.target.value)}
+                                    className={styles.textInput}
+                                    placeholder="사번 입력"
+                                />
+                                <button
+                                    type="button"
+                                    onClick={handleOpenEmployeeSearch}
+                                    className={styles.searchButton}
+                                >
+                                    검색
+                                </button>
+                            </div>
+                        ) : (
+                            evaluationData.employeeId
+                        )}
+                    </div>
                     <div className={styles.infoLabel}>이름</div>
-                    <div className={styles.infoValue}>{evaluationData.name}</div>
+                    <div className={styles.infoValue}>
+                        {isNewMode && isEditing ? (
+                            <input
+                                type="text"
+                                value={evaluationData.name}
+                                onChange={(e) => handleChange('name', e.target.value)}
+                                className={styles.textInput}
+                                placeholder="이름 입력"
+                                readOnly
+                            />
+                        ) : (
+                            evaluationData.name
+                        )}
+                    </div>
                 </div>
                 <div className={styles.infoRow}>
                     <div className={styles.infoLabel}>부서/직급</div>
-                    <div className={styles.infoValue}>{evaluationData.teamName}/{evaluationData.positionName}</div>
+                    <div className={styles.infoValue}>
+                        {isEditing ? (
+                            <>
+                                <input
+                                    type="text"
+                                    value={evaluationData.departmentName}
+                                    onChange={(e) => handleChange('departmentName', e.target.value)}
+                                    className={styles.textInput}
+                                    placeholder="부서"
+                                    style={{ width: '45%', marginRight: '5px' }}
+                                />
+                                /
+                                <input
+                                    type="text"
+                                    value={evaluationData.positionName}
+                                    onChange={(e) => handleChange('positionName', e.target.value)}
+                                    className={styles.textInput}
+                                    placeholder="직급"
+                                    style={{ width: '45%', marginLeft: '5px' }}
+                                />
+                            </>
+                        ) : (
+                            `${evaluationData.departmentName}/${evaluationData.positionName}`
+                        )}
+                    </div>
                     <div className={styles.infoLabel}>평가연월</div>
                     <div className={styles.infoValue}>{evaluationData.year}년 {evaluationData.quarter}</div>
                 </div>
@@ -128,40 +216,40 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
                 </div>
             </div>
 
-            {/* 총평/코멘트 */}
-            <div className={styles.commentSection}>
-                <h3 className={styles.sectionTitle}>총평 및 코멘트</h3>
-                {isEditing ? (
-                    <textarea
-                        className={styles.commentTextarea}
-                        value={evaluationData.comment || ''}
-                        onChange={(e) => handleChange('comment', e.target.value)}
-                        placeholder="평가 내용을 상세히 입력하세요."
-                    />
-                ) : (
-                    <div className={styles.commentDisplay}>
-                        {evaluationData.comment || '작성된 총평이 없습니다.'}
-                    </div>
-                )}
+            {/* 평가자 (읽기 전용) */}
+            <div className={styles.evaluatorSection}>
+                <h3 className={styles.sectionTitle}>평가자</h3>
+                <div className={styles.evaluatorInfo}>
+                    {isNewMode ? '자동 입력됨' : (evaluationData.evaluatorInfo || '미입력')}
+                </div>
             </div>
 
             {/* 액션 버튼 */}
             <div className={styles.actionButtons}>
-                <button 
-                    className={styles.editToggleBtn} 
-                    onClick={() => setIsEditing(prev => !prev)}
-                >
-                    {isEditing ? '🔍 조회 모드로 전환' : '✏️ 수정 모드로 전환'}
-                </button>
+                {!isNewMode && (
+                    <button 
+                        className={styles.editToggleBtn} 
+                        onClick={() => setIsEditing(prev => !prev)}
+                    >
+                        {isEditing ? '🔍 조회 모드로 전환' : '✏️ 수정 모드로 전환'}
+                    </button>
+                )}
                 {isEditing && (
                     <button 
                         className={styles.saveBtn} 
                         onClick={handleSave}
                     >
-                        저장
+                        {isNewMode ? '등록' : '저장'}
                     </button>
                 )}
             </div>
+
+            {/* 직원 검색 모달 */}
+            <EmployeeSearchModal
+                isOpen={isEmployeeSearchOpen}
+                onClose={() => setIsEmployeeSearchOpen(false)}
+                onSelectEmployee={handleSelectEmployee}
+            />
         </div>
     );
 };
@@ -170,10 +258,10 @@ const EvaluationContent = ({ initialData, onSave, onClose }) => {
 export default function WorkEvaluationModal({ isOpen, onClose, evaluationData, onSave }) {
     if (!isOpen) return null;
 
+    const isNewMode = !evaluationData?.id;
+
     // 모달 닫기
     const handleClose = () => {
-        // 저장 로직이 EvaluationContent에 있으므로, 여기서 confirm 메시지를 띄우는 것이 적절합니다.
-        // 다만, 저장 전 변경 사항 유무를 확인하는 로직이 추가되면 더 좋습니다.
         onClose();
     };
 
@@ -182,7 +270,9 @@ export default function WorkEvaluationModal({ isOpen, onClose, evaluationData, o
             <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                 
                 <div className={styles.modalHeader}>
-                    <h2 className={styles.headerTitle}>근무 평가 상세/수정</h2>
+                    <h2 className={styles.headerTitle}>
+                        {isNewMode ? '신규 평가 등록' : '근무 평가 상세/수정'}
+                    </h2>
                     <button className={styles.closeBtn} onClick={handleClose}>
                         <IoCloseOutline />
                     </button>

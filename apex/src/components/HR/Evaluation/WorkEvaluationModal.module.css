@@ -187,10 +187,41 @@
     box-sizing: border-box;
 }
 
+/* 텍스트 입력 필드 (사번, 이름, 부서, 직급 등) */
+.textInput {
+    padding: 0.5rem;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+    font-size: 0.95rem;
+    box-sizing: border-box;
+}
+
+.textInput:focus,
+.scoreInput:focus,
+.gradeSelect:focus {
+    outline: none;
+    border-color: #7b4d3f;
+    box-shadow: 0 0 0 2px rgba(123, 77, 63, 0.1);
+}
+
 .contributionGrade {
     font-weight: 700;
     color: #7b4d3f; /* ✅ 기여도 등급 색상도 브라운 계열로 변경 */
     font-size: 1.1rem;
+}
+
+/* 평가자 영역 */
+.evaluatorSection {
+    margin-bottom: 1.5rem;
+}
+
+.evaluatorInfo {
+    padding: 0.75rem 1rem;
+    background-color: #f8f8f8;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+    font-weight: 600;
+    color: #333;
 }
 
 /* 총평/코멘트 영역 */
@@ -258,4 +289,26 @@
 
 .saveBtn:hover {
     background-color: #6a4136;
+}
+
+/* 직원 검색 버튼 */
+.searchButton {
+    padding: 0.5rem 1rem;
+    background-color: #7b4d3f;
+    color: white;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 0.9rem;
+    font-weight: 500;
+    white-space: nowrap;
+    transition: background-color 0.2s;
+}
+
+.searchButton:hover {
+    background-color: #6a4136;
+}
+
+.searchButton:active {
+    background-color: #5a3629;
 }

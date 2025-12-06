@@ -27,7 +27,7 @@ const MENU_BY_ROLE = {
         { 
           label: "평가/포상 관리", 
           children: [
-            {label: "평가 관리", to: "/hr/performance/manage" },
+            {label: "평가 관리", to: "/hr/work-evaluation" },
             {label: "포상 관리", to: "/hr/rewards/manage" },
           ],
         },
@@ -48,10 +48,6 @@ const MENU_BY_ROLE = {
             {label: "증명서 신청", to: "/hr/certificates/request"},
             {label: "증명서 승인", to: "/hr/certificates/issue"},
           ],
-        },
-        { 
-          label: "근무 평가", to: "/hr/work-evaluation"
-
         },
       ],
     },
@@ -118,7 +114,7 @@ const MENU_BY_ROLE = {
         { 
           label: "평가/포상 관리", 
           children: [
-            {label: "평가 관리", to: "/hr/performance/manage" },
+            {label: "평가 관리", to: "/hr/work-evaluation" },
             {label: "포상 관리", to: "/hr/rewards/manage" },
           ],
         },
@@ -139,10 +135,6 @@ const MENU_BY_ROLE = {
             {label: "증명서 신청", to: "/hr/certificates/request"},
             {label: "증명서 승인", to: "/hr/certificates/issue"},
           ],
-        },
-        { 
-          label: "근무 평가", to: "/hr/work-evaluation"
-
         },
       ],
     },
@@ -333,14 +325,9 @@ export default function SideBar() {
   };
   
   const userRole = roleMapping[rawRole] || '사원';
-  
-  console.log('🔍 사이드바 - 현재 사용자:', currentUser);
-  console.log('🔍 사이드바 - 원본 역할:', rawRole);
-  console.log('🔍 사이드바 - 매핑된 역할:', userRole);
-  
+
   const menu = useMemo(() => {
     const selectedMenu = MENU_BY_ROLE[userRole] || MENU_BY_ROLE["사원"];
-    console.log('🔍 사이드바 - 선택된 메뉴:', userRole, selectedMenu);
     return selectedMenu;
   }, [userRole]); // userRole 변경 시에만 재계산
   
