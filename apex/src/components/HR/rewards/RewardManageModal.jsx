@@ -4,10 +4,10 @@ import { IoCloseOutline } from "react-icons/io5";
 
 // 주의: 백엔드에서 Enum이 영어(CONTRIBUTION 등)로 넘어온다면
 // 화면에 보여줄 때 한글로 변환하는 로직이 추가로 필요할 수 있습니다.
-const rewardTypes = ['공로상', '우수사원상', '특별포상'];
-const rewardItems = ['상금', '포인트', '연차', '상패/감사장'];
+const rewardType = ['공로상', '우수사원상', '특별포상'];
+const rewardItem = ['상금', '포인트', '연차', '상패/감사장'];
 const statusList = ['대기', '승인', '반려']; 
-const rewardValueOptions = ['팀 기여 우수', '핵심 기술 개발', '장기 근속', '기타']; 
+const rewardValue = ['팀 기여 우수', '핵심 기술 개발', '장기 근속', '기타']; 
 
 const RewardContent = ({ initialData, onSave, onClose }) => {
     const [rewardData, setRewardData] = useState(initialData);
@@ -103,7 +103,7 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
                     <div className={styles.infoValue}>{rewardData.rewardDate || '-'}</div>
                     <div className={styles.infoLabel}>부서/직급</div>
                     <div className={styles.infoValue}>
-                        {rewardData.departmentName || rewardData.teamName}/{rewardData.positionName}
+                        {rewardData.deptName}/{rewardData.positionName}
                     </div>
                 </div>
             </div>
@@ -112,9 +112,9 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
             <div className={styles.detailSection}>
                 <h3 className={styles.sectionTitle}>포상 정보</h3>
                 <div className={styles.detailGrid}>
-                    {renderSelectField('rewardType', '포상 종류', rewardTypes)}
-                    {renderSelectField('rewardValue', '포상 사유', rewardValueOptions)}
-                    {renderSelectField('rewardItem', '포상 형태', rewardItems)}
+                    {renderSelectField('rewardType', '포상 종류', rewardType)}
+                    {renderSelectField('rewardValue', '포상 사유', rewardValue)}
+                    {renderSelectField('rewardItem', '포상 형태', rewardItem)}
                     
                     {renderInputField('amount', '지급액 (원)', 'number')}
                     

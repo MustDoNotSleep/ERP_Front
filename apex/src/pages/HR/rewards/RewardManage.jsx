@@ -28,18 +28,28 @@ export default function RewardManage() {
 
   // 옵션 데이터
   const rewardTypes = ['선택','공로상', '우수사원상', '특별포상'];
-  const rewardItems = ['선택','상금', '포인트', '연차', '상패/감사장'];
-  const rewardValue = ['선택', '팀 기여 우수', '핵심 기술 개발', '장기 근속', '기타'];
+  // const rewardItems = ['선택','상금', '포인트', '연차', '상패/감사장'];
+  // const rewardValue= ['선택','팀 기여 우수', '핵심 기술 개발', '장기 근속', '기타'];
+  const deptName = ['선택','총무팀', '인사팀', '재무회계팀', '보안관제팀', 'CERT팀', 
+                    '침해사고대응팀', '모의해킹팀', '보안컨설팅', 'AI팀', '클라우드팀', 
+                    '연구기획팀', '미래보안기술팀'];
+  const positionName = ['선택','인턴','사원', '연구원','대리', '선임연구원','책임','수석',
+                        '책임연구원','팀장','과장', '수석연구원', '부장'];
+  
+  // 조회(필터링)용 상태
+  const [filterParams, setFilterParams] = useState({
+    rewardType: rewardTypes[0],
+    deptName: deptName[0],
+    positionName: positionName[0],
+  });
 
-  // 검색 파라미터 상태
-  const [searchParams, setSearchParams] = useState({
-    employeeName: '',
+  // 등록용 상태
+  const [registrationData, setRegistrationData] = useState({
     employeeId: '',
-    department: '', 
+    employeeName: '',
+    deptName: '',
+    positionName: '',
     rewardDate: '',
-    rewardType: rewardTypes[0], 
-    rewardItem: rewardItems[0], 
-    rewardValue: rewardValue[0], 
   });
 
   const [rewardData, setRewardData] = useState([]);
@@ -54,14 +64,27 @@ export default function RewardManage() {
   const [isModalOpen, setIsModalOpen] = useState(false); 
   const [currentReward, setCurrentReward] = useState(null);
   const [isEmpSearchOpen, setIsEmpSearchOpen] = useState(false);
-  const [selectedEmployee, setSelectedEmployee] = useState(null);
 
   // ⭐ 데이터 로드 함수
   const loadRewards = async () => {
     setLoading(true);
     try {
-        const response = await api.get('/hr/rewards', { params: searchParams });
-        console.log("✅ DB 데이터 로드 성공:", response.data);
+        // 빈 문자열이나 '선택' 값은 제외하고 백엔드로 전송
+        const cleanParams = Object.entries(filterParams).reduce((acc, [key, value]) => {
+          if (value && value !== '' && value !== '선택') {
+            // 백엔드가 기대하는 파라미터명으로 매핑
+            if (key === 'deptName') {
+              acc['teamName'] = value; // deptName -> teamName으로 변경
+            } else {
+              acc[key] = value;
+            }
+          }
+          return acc;
+        }, {});
+        
+        console.log("🔍 전송할 필터 파라미터:", cleanParams);
+        const response = await api.get('/hr/rewards', { params: cleanParams });
+        console.log("✅ DB 데이터 로드 성공:", response.data || []);
         setRewardData(response.data || []);
         setCurrentPage(0); // ✅ 검색 시 첫 페이지로 초기화
     } catch (err) {
@@ -78,41 +101,55 @@ export default function RewardManage() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  const handleChange = (e) => {
+  const handleFilterChange = (e) => {
     const { name, value } = e.target;
-    setSearchParams(prev => ({ ...prev, [name]: value }));
+    console.log(`🎯 필터 변경: ${name} = ${value}`);
+    setFilterParams(prev => {
+      const updated = { ...prev, [name]: value };
+      console.log('📊 업데이트된 filterParams:', updated);
+      return updated;
+    });
+  };
+
+  const handleRegistrationChange = (e) => {
+    const { name, value } = e.target;
+    setRegistrationData(prev => ({ ...prev, [name]: value }));
   };
 
   const handleEmployeeSelect = (employee) => {
       if (!employee) return;
-      setSelectedEmployee(employee); 
-      setSearchParams(prev => ({
-          ...prev,
-          employeeName: employee.employeeName || employee.name,
-          employeeId: employee.id || employee.employeeId, 
-          department: employee.teamName || employee.department?.teamName || '',
-          positionName: employee.positionName || employee.position || '' 
-      }));
+      setRegistrationData({
+          employeeId: employee.employeeId || employee.id || '',
+          employeeName: employee.employeeName || employee.name || '',
+          deptName: employee.teamName || employee.department?.teamName || '',
+          positionName: employee.positionName || employee.position || '',
+          rewardDate: new Date().toISOString().substring(0, 10).replace(/-/g, '/'),
+      });
       setIsEmpSearchOpen(false);
   };
 
   const handleSearch = () => {
+    console.log('🔎 조회 버튼 클릭! 현재 filterParams:', filterParams);
     loadRewards();
   };
 
   const handleRegister = () => {
-    const today = new Date().toISOString().substring(0, 10).replace(/-/g, '/');
+    if (!registrationData.employeeId) {
+      alert('등록 하기 전에 직원 검색을 먼저 해주세요.');
+      setIsEmpSearchOpen(false);
+      return;
+    }
     const newReward = {
       rewardId: null, 
       isNew: true,
-      employeeId: searchParams.employeeId || '', 
-      employeeName: searchParams.employeeName || '', 
-      departmentName: searchParams.department || '', 
-      rewardDate: searchParams.rewardDate || today,
-      positionName: selectedEmployee ? (selectedEmployee.positionName || selectedEmployee.position?.positionName || '') : '',
-      rewardType: rewardTypes[0], 
-      rewardItem: rewardItems[0],
-      rewardValue: rewardValue[0],
+      employeeId: registrationData.employeeId,
+      employeeName: registrationData.employeeName,
+      deptName: registrationData.deptName,
+      positionName: registrationData.positionName,
+      rewardDate: registrationData.rewardDate,
+      rewardType: '', 
+      rewardItem: '',
+      rewardValue: '',
       reason: '',
     };
     setCurrentReward(newReward);
@@ -137,7 +174,7 @@ export default function RewardManage() {
               rewardType: updatedData.rewardType,
               rewardItem: updatedData.rewardItem,
               rewardValue: updatedData.rewardValue,
-              amount: updatedData.amount, 
+              amount: updatedData.amount,
               reason: updatedData.reason
           };
           await api.post('/hr/rewards', requestDto); 
@@ -232,13 +269,13 @@ export default function RewardManage() {
   // 전체 선택 체크박스 상태 (전체 데이터 기준)
   const isAllSelected = rewardData.length > 0 && selectedRewards.length === rewardData.length;
 
-  const renderField = (label, name, value, type = 'text', options = [], readOnly = false) => (
+  const renderField = (label, name, value, type = 'text', options = [], readOnly = false, onChange = null) => (
     <div className={styles.inputGroup}>
       <label className={styles.inputLabel}>{label}</label>
       {name === 'employeeName' ? (
         <div style={{ display: 'flex', gap: '5px', width: '100%' }}>
           <input 
-            type="text" name={name} value={value} onChange={handleChange} 
+            type="text" name={name} value={value} onChange={onChange || handleRegistrationChange} 
             className={styles.inputField} placeholder="이름" readOnly={readOnly}
             onClick={() => setIsEmpSearchOpen(true)} style={{ cursor: 'pointer' }}
           />
@@ -254,16 +291,16 @@ export default function RewardManage() {
           </Button>
         </div>
       ) : type === 'select' ? (
-        <Select options={options.map(o => ({ value: o, label: o }))} value={value} name={name} onChange={handleChange} className={styles.inputField} />
+        <Select options={options.map(o => ({ value: o, label: o }))} value={value} name={name} onChange={onChange || handleFilterChange} className={styles.inputField} />
       ) : name === 'rewardDate' ? (
         <input 
-          type="date" name={name} value={value} onChange={handleChange} className={styles.inputField}
+          type="date" name={name} value={value} onChange={onChange || handleRegistrationChange} className={styles.inputField}
           readOnly={readOnly}
           style={readOnly ? { backgroundColor: '#f5f5f5' } : {}}
         />
       ) : (
         <input 
-          type={type} name={name} value={value} onChange={handleChange} className={styles.inputField}
+          type={type} name={name} value={value} onChange={onChange || handleRegistrationChange} className={styles.inputField}
           placeholder={label === '요청일' ? "YYYY/MM/DD" : ""} readOnly={readOnly}
           style={readOnly ? { backgroundColor: '#f5f5f5' } : {}}
         />
@@ -277,10 +314,9 @@ export default function RewardManage() {
         <h1 className={styles.title}>포상 관리</h1>
         <div className={styles.searchRow}>
             <div className={styles.fieldsWrapper}>
-                {renderField('이름', 'employeeName', searchParams.employeeName)}
-                {renderField('사원번호', 'employeeId', searchParams.employeeId, 'text', [], true)}
-                {renderField('부서', 'department', searchParams.department, 'text', [], true)}
-                {renderField('요청일', 'rewardDate', searchParams.rewardDate)}
+                {renderField('포상종류', 'rewardType', filterParams.rewardType, 'select', rewardTypes, false, handleFilterChange)}
+                {renderField('부서별', 'deptName', filterParams.deptName, 'select', deptName, false, handleFilterChange)}
+                {renderField('직급별', 'positionName', filterParams.positionName, 'select', positionName, false, handleFilterChange)}
             </div>
             <div className={styles.buttonWrapper}>
                 <Button onClick={handleSearch} className={styles.largeButton}>조회</Button>
@@ -288,9 +324,10 @@ export default function RewardManage() {
         </div>
         <div className={styles.registerRow}>
             <div className={styles.fieldsWrapper}>
-                {renderField('포상종류', 'rewardType', searchParams.rewardType, 'select', rewardTypes)}
-                {renderField('포상사유', 'rewardValue', searchParams.rewardValue, 'select', rewardValue)}
-                {renderField('포상형태', 'rewardItem', searchParams.rewardItem, 'select', rewardItems)}
+                {renderField('이름', 'employeeName', registrationData.employeeName, 'text', [], false, handleRegistrationChange)}
+                {renderField('사원번호', 'employeeId', registrationData.employeeId, 'text', [], true, handleRegistrationChange)}
+                {renderField('부서', 'deptName', registrationData.deptName, 'text', [], true, handleRegistrationChange)}
+                {renderField('요청일', 'rewardDate', registrationData.rewardDate, 'date', [], false, handleRegistrationChange)}
             </div>
             <div className={styles.buttonWrapper}>
                 <Button onClick={handleRegister} className={styles.largeButtonRegister}>등록</Button>
