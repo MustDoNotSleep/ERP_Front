@@ -10,6 +10,8 @@ const eventDates = [
   new Date(2025, 9, 7),
   new Date(2025, 9, 8),
   new Date(2025, 9, 9),
+  new Date(2025, 11, 11),
+  new Date(2025, 11, 25),
 ];
 
 function MyCalendar() {
