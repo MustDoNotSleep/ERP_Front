@@ -16,7 +16,7 @@
 }
 
 .cardTitle {
-    font-size: 1.4rem;
+    font-size: 1.5rem;
     font-weight: 600;
     color: #333;
     margin-bottom: 1rem;
@@ -387,13 +387,13 @@
 }
 
 .searchBtn {
-    background-color: #8b6859; 
+    background-color: #663d2b; 
     color: white;
     border: none;
     padding: 0.5rem 1.5rem;
     border-radius: 4px;
-    font-size: 0.875rem;
-    font-weight: 500;
+    font-size: 1rem;
+    font-weight: 600;
     cursor: pointer;
     transition: background-color 0.2s;
     height: 38px; 
@@ -413,16 +413,16 @@
 }
 
 .table thead {
-    background-color: #e9ecef;
-    border-top: 2px solid #ccc;
-    border-bottom: 1px solid #ccc;
+    background-color: #F5F4EF;
+    border-top: 1px solid #663d2b;
+    border-bottom: 1px solid #663d2b
 }
 
 .table th {
     padding: 0.75rem;
     text-align: center;
     font-weight: 600;
-    color: #495057;
+    color: #333;
 }
 
 .table td {

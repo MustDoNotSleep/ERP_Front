@@ -338,14 +338,14 @@ export default function AttendanceStats() {
 
   return (
     <div className={styles.container}>
-      <div className={styles.header}>
-        <h1 className={styles.title}>근태 통계</h1>
-      </div>
 
       {/* 검색 및 조회 섹션 */}
       <div className={styles.searchSection}>
-        <div className={styles.searchGroup}>
-          <label>년도</label>
+        <div className={styles.header}>
+        <h1 className={styles.title}>근태 통계</h1>
+      </div>
+      <div className={styles.searchGroup}>
+        <label>년도</label>
           <Select
             options={years.map(y => ({ value: y, label: y }))}
             value={searchParams.year}

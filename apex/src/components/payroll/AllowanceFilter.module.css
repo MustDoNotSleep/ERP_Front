@@ -371,15 +371,15 @@
   background-color: var(--color-bg-filter);
   border: 1px solid var(--color-border-light);
   border-radius: var(--radius-lg);
-  padding: var(--spacing-xl) var(--spacing-2xl);
+  padding: 1.5rem 1rem;
   margin-bottom: var(--spacing-xl);
 }
 
 .filterTitle {
-  font-size: 1.25rem;
-  font-weight: var(--font-weight-bold);
+  font-size: 1.5rem;
+  font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-lg);
+  margin-bottom: 1rem;
 }
 
 .filterRow {
@@ -445,30 +445,31 @@
 }
 
 .filterActions button {
-  padding: var(--spacing-sm) var(--spacing-lg);
-  border: none;
+  padding: 0.625rem 1.25rem;
+  border: 1px solid #ccc;
   border-radius: var(--radius-sm);
-  font-size: 0.875rem;
-  font-weight: var(--font-weight-medium);
+  font-size: 1rem;
+  font-weight: 600;
   cursor: pointer;
   transition: var(--transition-base);
   white-space: nowrap;
 }
 
 .filterActions button:first-child {
-  background-color: var(--color-secondary);
-  color: white;
+  background-color: #f9f9f9;
+  color: #555555;
+  border-color: #ccc;
 }
 
 .filterActions button:first-child:hover {
-  background-color: var(--color-secondary-dark);
+  background-color: #F5F4EF;
 }
 
 .filterActions button:last-child {
-  background-color: #007bff;
+  background-color: #663d2b;
   color: white;
 }
 
 .filterActions button:last-child:hover {
-  background-color: #0056b3;
+  background-color: #503021;
 }

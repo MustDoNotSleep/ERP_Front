@@ -333,7 +333,7 @@ export default function SeveranceManage() {
                     onChange={(e) => setExpectedFilters({ ...expectedFilters, employeeName: e.target.value })}
                     className={styles.filterInput}
                   />
-                  <button onClick={() => setIsEmployeeSearchOpen(true)} className={styles.btnSecondary}>검색</button>
+                  <button onClick={() => setIsEmployeeSearchOpen(true)} className={styles.btnPrimary}>검색</button>
                 </div>
               </div>
               <div className={styles.filterGroup}>
@@ -350,7 +350,7 @@ export default function SeveranceManage() {
                 </select>
               </div>
               <div className={styles.filterActions}>
-                <button onClick={() => applyExpectedFilters()} className={styles.btnPrimary}>조회</button>
+                <button onClick={() => applyExpectedFilters()} className={styles.btnSecondary}>조회</button>
               </div>
             </div>
           </div>
@@ -461,7 +461,7 @@ export default function SeveranceManage() {
                 </select>
               </div>
               <div className={styles.filterActions}>
-                <button onClick={() => applySettlementFilters()} className={styles.btnPrimary}>조회</button>
+                <button onClick={() => applySettlementFilters()} className={styles.btnSecondary}>조회</button>
               </div>
             </div>
           </div>

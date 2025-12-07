@@ -9,17 +9,17 @@
 .formSection {
   background-color: #E3E3E1;
   border-radius: 8px;
-  padding: var(--spacing-2xl);
+  padding: 1.5rem 2rem;
   box-shadow: var(--shadow-md);
   position: sticky;
   top: var(--spacing-2xl);
 }
 
 .formTitle {
-  font-size: 1.25rem;
-  font-weight: var(--font-weight-bold);
+  font-size: 1.5rem;
+  font-weight: 600;
   color: var(--color-text-primary);
-  margin-bottom: var(--spacing-xl);
+  margin-bottom: 1rem;
 }
 
 .formGroup {

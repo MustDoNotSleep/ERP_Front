@@ -218,14 +218,15 @@
 
 .table thead {
   background-color: var(--color-bg-gray);
-  border-bottom: 2px solid var(--color-border-light);
+  border-top: 1px solid #663d2b;
+  border-bottom: #663d2b 1px solid;
 }
 
 .table th {
   padding: var(--spacing-md);
   text-align: center;
   font-weight: var(--font-weight-semibold);
-  color: var(--color-text-secondary);
+  color: #333;
   white-space: nowrap;
 }
 

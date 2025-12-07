@@ -1,7 +1,7 @@
 /* 검색 버튼 */
 .searchButton {
   padding: 0.625rem 1rem;
-  background-color: #875c4e;
+  background-color: #007bff;
   color: white;
   border: none;
   border-radius: 4px;
@@ -9,10 +9,6 @@
   font-size: 0.875rem;
   transition: background-color 0.2s;
   white-space: nowrap;
-}
-
-.searchButton:hover {
-  background-color: #6d4a3e;
 }
 
 /* 기간 선택 전체 래퍼 */

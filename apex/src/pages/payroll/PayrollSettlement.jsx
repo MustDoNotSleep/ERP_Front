@@ -418,10 +418,10 @@ export default function PayrollSettlement() {
         <div className={styles.tableHeader}>
           <div className={styles.tableTitle}>급여 목록</div>
           <div className={styles.tableActions}>
-            <button onClick={handleConfirm} className={styles.btnPrimary}>
+            <button onClick={handleConfirm} className={styles.btnSecondary}>
               확정
             </button>
-            <button onClick={handlePay} className={styles.btnPrimary}>
+            <button onClick={handlePay} className={styles.btnSecondary}>
               지급완료
             </button>
           </div>

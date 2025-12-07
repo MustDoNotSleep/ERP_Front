@@ -15,9 +15,10 @@
   display: flex;
   gap: 1rem;
   align-items: flex-end;
-  margin-bottom: 3rem;
-  padding: 1.5rem;
-  background-color: #f0f0f0;
+  margin-bottom: var(--spacing-xl);
+  padding: 1.5rem 2rem;
+  background-color: #e3e3e1;
+  border: 1px solid #dee2e6;
   border-radius: 8px;
 }
 
@@ -28,7 +29,7 @@
 
 .searchGroup label {
   font-size: 0.9rem;
-  color: #555;
+  color: #333;
   margin-bottom: 0.5rem;
 }
 
@@ -42,7 +43,7 @@
 
 .searchButton {
   /* 이미지 색상에 맞춤 */
-  background-color: #7b4d3f;
+  background-color: #663d2b;
   color: white;
   border: none;
   padding: 0.75rem 1.5rem;
@@ -54,7 +55,7 @@
 }
 
 .searchButton:hover {
-  background-color: #6a4136;
+  background-color: #503021;
 }
 
 /* 통계 카드 섹션 */
@@ -66,7 +67,7 @@
 }
 
 .statsCard {
-  background-color: #f0f0f0 !important;
+  background-color: #e3e3e1 !important;
   padding: 1.5rem !important;
   border-radius: 8px;
   text-align: center;
