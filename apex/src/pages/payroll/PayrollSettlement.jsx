@@ -387,10 +387,10 @@ export default function PayrollSettlement() {
             </select>
           </div>
           <div className={styles.filterActions}>
-            <button onClick={handleReset} className={styles.btnSecondary}>
+            <button onClick={handleReset} className="btn btn-light btn-md">
               초기화
             </button>
-            <button onClick={handleSearch} className={styles.btnPrimary}>
+            <button onClick={handleSearch} className="btn btn-primary btn-md">
               조회
             </button>
           </div>
