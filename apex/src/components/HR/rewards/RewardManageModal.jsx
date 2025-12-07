@@ -1,48 +1,94 @@
 import React, { useState, useEffect } from 'react';
+// ⚠️ [중요] Page 파일 맨 위에 있는 import api 경로와 똑같이 맞춰주세요!
+// 예: import api from '../../../api/axios'; 또는 import api from '../../../utils/api';
+import api from '../../../api/axios'; 
 import styles from './RewardManageModal.module.css';
 import { IoCloseOutline } from "react-icons/io5";
 
-// 주의: 백엔드에서 Enum이 영어(CONTRIBUTION 등)로 넘어온다면
-// 화면에 보여줄 때 한글로 변환하는 로직이 추가로 필요할 수 있습니다.
-const rewardType = ['선택','공로상', '우수사원상', '특별포상'];
-const rewardItem = ['선택','상금', '포인트', '연차', '상패/감사장'];
-const statusList = ['대기', '승인', '반려']; 
-const rewardValue = ['선택','팀 기여 우수', '핵심 기술 개발', '장기 근속', '기타']; 
-
+// =================================================================================
+// 1. 내부 컴포넌트: 실제 내용을 다루는 부분 (RewardContent)
+// =================================================================================
 const RewardContent = ({ initialData, onSave, onClose }) => {
     const [rewardData, setRewardData] = useState(initialData);
     const [isEditing, setIsEditing] = useState(initialData.isNew || false);
-    const [initialLoading, setInitialLoading] = useState(true);
 
+    // 백엔드 Enum 옵션 상태 관리
+    const [options, setOptions] = useState({
+        rewardTypes: [],
+        rewardItems: [],
+        rewardValues: [],
+        statusList: [
+            { value: 'PENDING', label: '대기' },
+            { value: 'APPROVED', label: '승인' },
+            { value: 'REJECTED', label: '반려' }
+        ]
+    });
+
+    // ✅ [수정] Page 컴포넌트의 로직을 그대로 적용 (api 사용 + 매핑)
+    useEffect(() => {
+        const loadEnums = async () => {
+            try {
+                // 1. axios 대신 설정된 api 객체 사용 (baseURL 자동 적용)
+                const response = await api.get('/hr/rewards/enums');
+                console.log("🔥 [디버깅] 백엔드 Enum 응답 데이터:", response.data);
+
+                const { rewardTypes, rewardItems, rewardValues } = response.data;
+
+                // 2. 안전한 매핑 함수 (key, name, code 중 있는 걸 사용)
+                const formatOptions = (list) => {
+                    if (!list) return [];
+                    return list.map(t => ({
+                        // 백엔드가 주는 필드명에 따라 유연하게 대처
+                        value: t.key || t.name || t.code || t.value, 
+                        label: t.label || t.description || t.name
+                    }));
+                };
+
+                // 3. 상태 업데이트
+                setOptions(prev => ({
+                    ...prev,
+                    rewardTypes: formatOptions(rewardTypes),
+                    rewardItems: formatOptions(rewardItems),
+                    rewardValues: formatOptions(rewardValues),
+                    // statusList는 위에서 고정값으로 정의했으므로 유지
+                }));
+
+            } catch (error) {
+                console.error('❌ Enum 데이터 로드 실패:', error);
+                // 에러 발생 시 로그를 명확히 찍어줌
+            }
+        };
+
+        loadEnums();
+    }, []);
+
+    // 초기 데이터 세팅
     useEffect(() => {
         setRewardData(initialData);
         setIsEditing(initialData.isNew || false);
-        setInitialLoading(false);
     }, [initialData]);
 
-    if (initialLoading) return <div className={styles.loadingMessage}>데이터를 불러오는 중입니다...</div>;
-    if (!rewardData) return <div className={styles.errorMessage}>포상 데이터가 유효하지 않습니다.</div>;
+    if (!rewardData) return <div className={styles.errorMessage}>데이터 오류</div>;
 
     const handleChange = (field, value) => {
-        setRewardData(prev => ({
-            ...prev,
-            [field]: value
-        }));
+        setRewardData(prev => ({ ...prev, [field]: value }));
     };
 
+    // 저장 핸들러
     const handleSave = () => {
-        // 백엔드 DTO 필드명 확인
         const { rewardType, employeeName, employeeId, rewardDate } = rewardData;
         
-        if (!rewardType || !employeeName || !employeeId || !rewardDate) {
-            alert("필수 항목(포상 종류, 이름, 사번, 추천일)을 모두 입력해주세요.");
+        // 유효성 검사 (빈 값이나 '선택'이 그대로일 경우 차단)
+        if (!rewardType || rewardType === '선택' || !employeeName || !employeeId || !rewardDate) {
+            alert("필수 항목(포상 종류, 이름, 사번, 날짜)을 모두 입력해주세요.");
             return;
         }
 
-        console.log("저장할 포상 데이터:", rewardData);
+        console.log("💾 백엔드로 보낼 데이터:", rewardData);
         onSave(rewardData); 
     };
 
+    // 입력 필드 렌더링 헬퍼
     const renderInputField = (field, label, type = 'text') => (
         <div className={styles.detailRow}>
             <div className={styles.detailLabel}>{label}</div>
@@ -56,28 +102,35 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
                         readOnly={field === 'employeeId' && !rewardData.isNew} 
                     />
                 ) : (
-                    <span>{field === 'amount' && rewardData[field] ? rewardData[field].toLocaleString() : (rewardData[field] || '-')}</span>
+                    <span>{field === 'amount' && rewardData[field] ? Number(rewardData[field]).toLocaleString() : (rewardData[field] || '-')}</span>
                 )}
             </div>
         </div>
     );
-    
-    const renderSelectField = (field, label, options) => (
+
+    // 셀렉트 박스 렌더링 헬퍼
+    const renderSelectField = (field, label, optionList = []) => (
         <div className={styles.detailRow}>
             <div className={styles.detailLabel}>{label}</div>
             <div className={styles.detailValue}>
                 {isEditing ? (
                     <select
-                        value={rewardData[field] || options[0]}
+                        value={rewardData[field] || ''}
                         onChange={(e) => handleChange(field, e.target.value)}
                         className={styles.inputField}
                     >
-                        {options.map(option => (
-                            <option key={option} value={option}>{option}</option>
+                        <option value="">선택</option>
+                        {optionList.map(opt => (
+                            <option key={opt.value} value={opt.value}>
+                                {opt.label}
+                            </option>
                         ))}
                     </select>
                 ) : (
-                    <span>{rewardData[field] || '-'}</span>
+                    // 조회 모드: value(영어)를 가지고 label(한글)을 찾아서 보여줌
+                    <span>
+                        {optionList.find(opt => opt.value === rewardData[field])?.label || rewardData[field] || '-'}
+                    </span>
                 )}
             </div>
         </div>
@@ -103,7 +156,7 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
                     <div className={styles.infoValue}>{rewardData.rewardDate || '-'}</div>
                     <div className={styles.infoLabel}>부서/직급</div>
                     <div className={styles.infoValue}>
-                        {rewardData.departmentName}{rewardData.deptName}/{rewardData.positionName}
+                        {rewardData.departmentName || rewardData.deptName}/{rewardData.positionName}
                     </div>
                 </div>
             </div>
@@ -112,15 +165,14 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
             <div className={styles.detailSection}>
                 <h3 className={styles.sectionTitle}>포상 정보</h3>
                 <div className={styles.detailGrid}>
-                    {renderSelectField('rewardType', '포상 종류', rewardType)}
-                    {renderSelectField('rewardValue', '포상 사유', rewardValue)}
-                    {renderSelectField('rewardItem', '포상 형태', rewardItem)}
+                    {renderSelectField('rewardType', '포상 종류', options.rewardTypes)}
+                    {renderSelectField('rewardValue', '포상 사유', options.rewardValues)}
+                    {renderSelectField('rewardItem', '포상 형태', options.rewardItems)}
                     
                     {renderInputField('amount', '지급액 (원)', 'number')}
                     
-                    {!initialData.isNew && renderSelectField('status', '상태', statusList)}
+                    {!initialData.isNew && renderSelectField('status', '상태', options.statusList)}
                     
-                    {/* ✅ [수정완료] 승인자는 드롭다운이 아니라 텍스트로 표시 */}
                     {!initialData.isNew && (
                         <div className={styles.detailRow}>
                             <div className={styles.detailLabel}>승인자</div>
@@ -163,7 +215,7 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
                 {isEditing && (
                     <button 
                         className={styles.saveBtn} 
-                        onClick={handleSave}
+                        onClick={handleSave} 
                     >
                         {initialData.isNew ? '등록' : '저장'}
                     </button>
@@ -173,14 +225,20 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
     );
 };
 
-export default function RewardManageModal({ isOpen, onClose, rewardData, onSave }) {
+// =================================================================================
+// 2. 메인 컴포넌트: 모달 껍데기 (RewardManageModal)
+// =================================================================================
+const RewardManageModal = ({ isOpen, onClose, rewardData, onSave }) => {
     if (!isOpen) return null;
+
     return (
         <div className={styles.modalOverlay} onClick={onClose}>
             <div className={styles.modalContent} onClick={e => e.stopPropagation()}>
                 <div className={styles.modalHeader}>
                     <h2 className={styles.headerTitle}>포상 {rewardData.isNew ? '등록' : '상세/수정'}</h2>
-                    <button className={styles.closeBtn} onClick={onClose}><IoCloseOutline /></button>
+                    <button className={styles.closeBtn} onClick={onClose}>
+                        <IoCloseOutline />
+                    </button>
                 </div>
                 <div className={styles.rewardWrapper}>
                     <RewardContent initialData={rewardData} onSave={onSave} onClose={onClose} />
@@ -188,4 +246,6 @@ export default function RewardManageModal({ isOpen, onClose, rewardData, onSave 
             </div>
         </div>
     );
-}
+};
+
+export default RewardManageModal;

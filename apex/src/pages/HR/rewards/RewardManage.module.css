@@ -6,8 +6,8 @@
 
 .searchSection {
     background-color: #e6e6e6; /* 배경색 #e6e6e6 */
-    /* padding을 늘려서 전체 높이를 키움 */
-    padding: 30px 20px; 
+    /* padding을 줄여서 전체 높이를 슬림하게 */
+    padding: 15px 20px; 
     border-radius: 8px;
     box-shadow: none; /* 그림자 제거 */
     margin-bottom: 20px;
@@ -19,9 +19,9 @@
     font-size: 24px;
     font-weight: 600;
     color: black;
-    margin-bottom: 20px;
-    padding-bottom: 0; /* 실선 제거를 위해 조정 */
-    border-bottom: none; /* ✨ 제목 아래 실선 제거 */
+    margin-bottom: 10px; /* 간격 줄임 */
+    padding-bottom: 0;
+    border-bottom: none; /* 제목 아래 실선 제거 */
 }
 
 /* --- 상단: 조회 영역 --- */
@@ -29,24 +29,15 @@
     display: flex;
     justify-content: space-between;
     align-items: flex-end; 
-    padding-bottom: 20px; 
-    margin-bottom: 20px;  
-    border-bottom: 1px solid #bbb; /* ✨ 조회/등록 영역 구분선 (실선) */
-}
-
-/* --- 하단: 등록 영역 --- */
-.registerRow {
-    display: flex;
-    justify-content: space-between;
-    align-items: flex-end;
+    padding-bottom: 0; 
+    margin-bottom: 15px;  
 }
 
 /* 필드들을 감싸는 래퍼 */
 .fieldsWrapper {
     display: flex;
     flex-wrap: wrap;
-    /* 필드 간 간격 증가 */
-    gap: 30px; 
+    gap: 15px; /* 필드 간 간격 조정 */
     align-items: center;
     flex-grow: 1; 
 }
@@ -55,6 +46,8 @@
 .buttonWrapper {
     margin-left: 20px; 
     flex-shrink: 0; 
+    display: flex; /* 버튼들을 가로로 정렬 */
+    align-items: center;
 }
 
 /* 입력 그룹 (라벨 + 인풋) */
@@ -83,35 +76,73 @@
     line-height: 38px;
 }
 
-/* 버튼 공통 스타일 */
-.largeButton, .largeButtonRegister {
-    color: white;
-    border: none;
+/* ==========================================================================
+   ✨ [수정] 버튼 공통 스타일 및 개별 스타일 정의
+   ========================================================================== */
+
+/* 1. 모든 버튼의 공통적인 모양 (높이, 폰트 등) */
+.largeButton, 
+.largeButtonRegister, 
+.resetButton {
     border-radius: 4px;
     cursor: pointer;
     font-size: 14px;
-    font-weight: bold;
-    width: 120px;
-    height: 38px; /* 입력 필드 높이와 동일 */
+    font-weight: 600; /* bold보다 600이 더 깔끔함 */
+    height: 38px;     /* 입력창 높이와 동일 */
     line-height: 38px;
-    transition: background-color 0.2s;
-    padding: 0;
+    transition: all 0.2s ease;
+    padding: 0;       /* 기본 패딩 초기화 */
+    box-sizing: border-box; /* 테두리 포함 크기 계산 */
 }
 
-/* 조회 버튼 색상 */
+/* 2. [조회] 버튼 (갈색) */
 .largeButton {
-    background-color: #7b4a3a; /* 갈색 */
+    background-color: #7b4a3a;
+    color: white;
+    border: none;
+    width: 120px; /* 고정 너비 */
 }
 .largeButton:hover {
     background-color: #5d392e;
 }
 
-/* 등록 버튼 색상 */
+/* 3. [등록] 버튼 (진한 회색) */
 .largeButtonRegister {
-    background-color: #555; /* 진한 회색 */
+    background-color: #555;
+    color: white;
+    border: none;
+    width: 120px; /* 고정 너비 */
 }
 .largeButtonRegister:hover {
     background-color: #333;
+}
+
+/* 4. [초기화] 버튼 (흰색 배경 + 회색 테두리) - 크기 통일 */
+.resetButton {
+    background-color: #7b4a3a;
+    border: 1px solid #d9d9d9;
+    color: white;
+    
+    /* ⭐ 크기 & 여백 설정을 다른 버튼들과 똑같이 맞춤 ⭐ */
+    width: 120px;       /* 너비 120px로 고정 (조회/등록과 동일) */
+    height: 38px;       /* 높이 동일 */
+    line-height: 38px;  /* 수직 정렬 동일 */
+    padding: 0;         /* 패딩 초기화 */
+    margin: 0;          /* 자체 여백 제거 (JSX의 span으로 간격 조절하므로) */
+    
+    border-radius: 4px;
+    cursor: pointer;
+    font-size: 14px;
+    font-weight: 600;
+    transition: all 0.2s ease;
+    box-sizing: border-box; /* 테두리 포함해서 크기 계산 */
+}
+
+/* 초기화 버튼 호버 효과 */
+.resetButton:hover {
+    background-color: #5d392e;
+    border-color: #999;
+    color: white;
 }
 
 /* 테이블 스타일 */
@@ -154,23 +185,7 @@
     margin-top: 15px;
 }
 
-.pagination {
-    display: flex;
-    gap: 5px;
-    background-color: #e0e0e0;
-    padding: 5px 10px;
-    border-radius: 4px;
-}
-
-.pageArrow, .pageNumber {
-    cursor: pointer;
-    padding: 5px 10px;
-    background-color: white;
-    border-radius: 4px;
-}
-/* ... 기존 스타일들 ... */
-
-/* 페이지네이션 스타일 (CareerManagementPage 참고) */
+/* 페이지네이션 스타일 */
 .pagination {
     display: flex;
     justify-content: center;
