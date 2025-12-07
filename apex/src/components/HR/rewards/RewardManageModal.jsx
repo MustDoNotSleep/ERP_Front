@@ -103,7 +103,7 @@ const RewardContent = ({ initialData, onSave, onClose }) => {
                     <div className={styles.infoValue}>{rewardData.rewardDate || '-'}</div>
                     <div className={styles.infoLabel}>부서/직급</div>
                     <div className={styles.infoValue}>
-                        {rewardData.departmentName}/{rewardData.positionName}
+                        {rewardData.departmentName}{rewardData.deptName}/{rewardData.positionName}
                     </div>
                 </div>
             </div>
