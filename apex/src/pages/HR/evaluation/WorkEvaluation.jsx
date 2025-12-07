@@ -261,13 +261,13 @@ export default function WorkEvaluation() {
             />
           </div>
           <div className={styles.spacer}></div>
-          <Button onClick={handleSearch} className={styles.searchButton}>조회</Button>
+          <Button onClick={handleSearch} variant="primary" size="md">조회</Button>
         </div>
       </div>
 
       {/* 신규 평가 등록 버튼 */}
       <div className={styles.createButtonWrapper}>
-        <Button onClick={() => handleOpenModal(null)} className={styles.createButton}>
+        <Button onClick={() => handleOpenModal(null)} variant="success" size="md">
           신규 평가 등록
         </Button>
       </div>

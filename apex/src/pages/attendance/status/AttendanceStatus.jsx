@@ -83,10 +83,16 @@ export default function AttendanceStatus() {
       });
 
       const stats = {
-        present: monthAttendances.filter(a => a.attendanceType === '정상출근').length,
+        // 연차는 출석으로도 카운트되어야 함
+        present: monthAttendances.filter(a => 
+          a.attendanceType === '정상출근' || a.attendanceType === '연차'
+        ).length,
         late: monthAttendances.filter(a => a.attendanceType === '지각').length,
         absent: monthAttendances.filter(a => a.attendanceType === '결근').length,
-        leave: monthAttendances.filter(a => a.attendanceType === '연차').length
+        // 연차와 휴가 모두 카운트
+        leave: monthAttendances.filter(a => 
+          a.attendanceType === '연차' || a.attendanceType === '휴가'
+        ).length
       };
 
       setStatistics(stats);
@@ -101,9 +107,15 @@ export default function AttendanceStatus() {
 
         return {
           month: `${i + 1}월`,
-          present: monthData.filter(a => a.attendanceType === '정상출근').length,
+          // 연차는 출석으로도 카운트되어야 함
+          present: monthData.filter(a => 
+            a.attendanceType === '정상출근' || a.attendanceType === '연차'
+          ).length,
           late: monthData.filter(a => a.attendanceType === '지각').length,
-          leave: monthData.filter(a => a.attendanceType === '연차').length
+          // 연차와 휴가 모두 카운트
+          leave: monthData.filter(a => 
+            a.attendanceType === '연차' || a.attendanceType === '휴가'
+          ).length
         };
       });
 
@@ -161,7 +173,7 @@ export default function AttendanceStatus() {
 
             <Card className={styles.statCards}>
               <div className={styles.statValue}>{statistics.leave}</div>
-              <div className={styles.statLabel}>연차</div>
+              <div className={styles.statLabel}>연차 및 휴가</div>
             </Card>
           </div>
         </div>

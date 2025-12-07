@@ -113,13 +113,13 @@
 
 /* Success 버튼 (승인, 완료) */
 .btn-success {
-  background-color: var(--color-success);
+  background-color: #9ca089;
   color: var(--color-text-white);
-  border-color: var(--color-success);
+  border-color: #9ca089;
 }
 
 .btn-success:hover:not(:disabled) {
-  background-color: #45a049;
+  background-color: #8a9078;
 }
 
 /* Warning 버튼 (경고) */

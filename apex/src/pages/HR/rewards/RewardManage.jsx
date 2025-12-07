@@ -323,17 +323,17 @@ export default function RewardManage() {
             {/* ✨ 버튼 순서 수정: [조회] -> [등록] -> [초기화] */}
             <div className={styles.buttonWrapper}>
                 {/* 1. 조회 버튼 */}
-                <Button onClick={handleSearch} className={styles.largeButton}>조회</Button>
+                <Button onClick={handleSearch} className="btn btn-primary btn-md">조회</Button>
                 
                 <span style={{ margin: '0 4px' }}></span>
                 
                 {/* 2. 등록 버튼 */}
-                <Button onClick={handleRegister} className={styles.largeButtonRegister}>등록</Button>
+                <Button onClick={handleRegister} className="btn btn-secondary btn-md">등록</Button>
 
                 <span style={{ margin: '0 4px' }}></span>
 
                 {/* 3. 초기화 버튼 (맨 오른쪽) */}
-                <Button onClick={handleReset} className={styles.resetButton}>초기화</Button>
+                <Button onClick={handleReset} className="btn btn-light btn-md">초기화</Button>
             </div>
         </div>
       </div>
