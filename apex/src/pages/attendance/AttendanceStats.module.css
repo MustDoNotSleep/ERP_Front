@@ -1,7 +1,7 @@
 /* AttendanceStats.module.css */
 
 .header {
-  margin-bottom: 2rem;
+  width: 100%;
 }
 
 .title {
@@ -13,7 +13,8 @@
 /* 검색 섹션 */
 .searchSection {
   display: flex;
-  gap: 1rem;
+  flex-wrap: wrap;
+  gap: 1rem 1.5rem;
   align-items: flex-end;
   margin-bottom: var(--spacing-xl);
   padding: 1.5rem 2rem;
